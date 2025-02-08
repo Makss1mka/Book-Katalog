@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +18,9 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<User> findAll() {
         return userRepository.findAll();
@@ -42,18 +47,41 @@ public class UserService {
     }
 
     public Optional<User> findByNameAndPassword(String name, String password) {
-        return userRepository.findByNameAndPassword(name, password);
+        Optional<User> user = userRepository.findByName(name);
+
+        if(user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
+            return user;
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Optional<User> findByEmailAndPassword(String email, String password) {
-        return userRepository.findByEmailAndPassword(email, password);
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if(user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
+            return user;
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<User> findByNameOrEmail(String name, String email) {
+        return userRepository.findByNameOrEmail(name, email);
     }
 
     public Page<User> findPage(int pageNum, int pageAmount, @NotNull Sort sort) {
         return userRepository.findAll(PageRequest.of(pageNum, pageAmount, sort));
     }
 
-    public User create(User user) {
+    public User create(String name, String password, String email) {
+        User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRegistrationDate(new Date());
+        user.setRole("USER");
+
         return userRepository.save(user);
     }
 
