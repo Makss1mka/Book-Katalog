@@ -1,0 +1,15 @@
+auth-ervice/target/
+book-service/target/
+config-service/target/
+eureka-server/target/
+gateway/target/
+review-service/target/
+user-service/target/
+
+auth-ervice/logs/
+book-service/logs/
+config-service/logs/
+eureka-server/logs/
+gateway/logs/
+review-service/logs/
+user-service/logs/
