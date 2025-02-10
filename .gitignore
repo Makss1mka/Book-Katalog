@@ -13,3 +13,5 @@ eureka-server/logs/
 gateway/logs/
 review-service/logs/
 user-service/logs/
+
+ports/txt

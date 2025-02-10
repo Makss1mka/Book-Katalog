@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: book-service
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/postgres"
+    username: "postgres"
+    password: "postgres"
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8084
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: "http://localhost:8081/eureka"
