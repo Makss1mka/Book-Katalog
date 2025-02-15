@@ -120,13 +120,13 @@ public class AuthController {
     }
 
     @GetMapping("reg")
-    public ResponseEntity<?> registration(@RequestParam String username,
-                                               @RequestParam String password,
-                                               @RequestParam String email) {
+    public ResponseEntity<?> registration(@RequestParam(required = true) String username,
+                                          @RequestParam(required = true) String password,
+                                          @RequestParam(required = true) String email) {
 
         HttpHeaders headers = new HttpHeaders();
 
-        logger.trace("New user (name - %s ; password - %s ; email - %s) try to register");
+        logger.trace("New user (name - {} ; password - {} ; email - {}) try to register", username, password, email);
 
         if(userService.findByNameOrEmail(username, email).isEmpty()) {
             User newUserData = userService.create(username, password, email);

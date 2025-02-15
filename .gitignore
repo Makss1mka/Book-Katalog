@@ -14,4 +14,5 @@ gateway/logs/
 review-service/logs/
 user-service/logs/
 
-ports/txt
+ports.txt
+statics
