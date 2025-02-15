@@ -1,11 +1,13 @@
 package maksim.book_service.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -13,8 +15,9 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Book> books;
+//    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JsonManagedReference
+//    private List<Book> books = new ArrayList<>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +27,7 @@ public class User {
     @Column(name="name", nullable = false, unique = true)
     private String name;
 
-    @Column(name="profilePicPath", nullable = true)
+    @Column(name="profile_pic_path", nullable = true)
     private String profilePicPath;
 
     @Column(name="email", nullable = false, unique = true)
