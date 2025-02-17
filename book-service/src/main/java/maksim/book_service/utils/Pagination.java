@@ -27,8 +27,8 @@ public class Pagination {
         return PageRequest.of(pageNum, itemsAmount, sort);
     }
 
-    public Pageable getPageable(int pageNum, int itemsAmount, String sortField, String sortDir) {
-        return PageRequest.of(pageNum, itemsAmount, getSort(sortField, sortDir));
+    public Pageable getPageable(int pageNum, int itemsAmount, SortField sortField, SortDirection sortDirection) {
+        return PageRequest.of(pageNum, itemsAmount, getSort(sortField.getValue(), sortDirection.getValue()));
     }
 
 }

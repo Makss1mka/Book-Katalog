@@ -1,18 +1,15 @@
 package maksim.book_service.services;
 
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import maksim.book_service.models.Book;
 import maksim.book_service.repositories.BookRepository;
 import maksim.book_service.repositories.BookStatusesRepository;
-import maksim.book_service.utils.Pagination;
+import maksim.book_service.utils.Operator;
+import maksim.book_service.utils.BookStatusScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -24,11 +21,14 @@ import java.util.Optional;
 public class BookService {
     private final static Logger logger = LoggerFactory.getLogger(BookService.class);
 
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
+    private final BookStatusesRepository bookStatusesRepository;
 
     @Autowired
-    private BookStatusesRepository bookStatusesRepository;
+    public BookService(BookRepository bookRepository, BookStatusesRepository bookStatusesRepository) {
+        this.bookRepository = bookRepository;
+        this.bookStatusesRepository = bookStatusesRepository;
+    }
 
     public List<Book> findAllBooks(Pageable pageable) {
         logger.trace("Try to get books without filters: {}", pageable);
@@ -56,34 +56,30 @@ public class BookService {
         return bookRepository.findByAuthorId(authorId, pageable);
     }
 
-    public List<Book> findAllByDate(Date date, String mode, Pageable pageable) {
-        logger.trace("Try to get all books by date: {} ; date {} ; mode {}", pageable, date, mode);
+    public List<Book> findAllByDate(Date date, Operator operator, Pageable pageable) {
+        logger.trace("Try to get all books by date: {} ; date {} ; operator {}", pageable, date, operator);
 
-        return switch (mode) {
-            case "greater" -> bookRepository.findByIssuedDateGreaterThan(date, pageable);
-            case "less" -> bookRepository.findByIssuedDateLessThan(date, pageable);
+        return switch (operator) {
+            case Operator.GREATER -> bookRepository.findByIssuedDateGreaterThan(date, pageable);
+            case Operator.LESS -> bookRepository.findByIssuedDateLessThan(date, pageable);
             default -> throw new BadRequestException("Incorrect mode for selecting by date. Acceptable modes: more, less");
         };
     }
 
-    public List<Book> findAllByRating(int rating, String mode, Pageable pageable) {
-        logger.trace("Try to get all books by rating: {} ; rating {} ; mode {}", pageable, rating, mode);
+    public List<Book> findAllByRating(int rating, Operator operator, Pageable pageable) {
+        logger.trace("Try to get all books by rating: {} ; rating {} ; mode {}", pageable, rating, operator);
 
-        return switch (mode) {
-            case "greater" -> bookRepository.findByRatingGreaterThan(rating, pageable);
-            case "less" -> bookRepository.findByRatingLessThan(rating, pageable);
-            case "exec" -> bookRepository.findByRating(rating, pageable);
-            default -> throw new BadRequestException("Incorrect mode for selecting by rating. Acceptable modes: more, less, exec");
+        return switch (operator) {
+            case Operator.GREATER -> bookRepository.findByRatingGreaterThan(rating, pageable);
+            case Operator.LESS -> bookRepository.findByRatingLessThan(rating, pageable);
+            case Operator.EQUAL -> bookRepository.findByRating(rating, pageable);
         };
     }
 
-    @Transactional
     public List<Book> findByName(String name, Pageable pageable) {
         logger.trace("Try to get all books by rating: {} ; name {}", pageable, name);
 
-        List<Book> books = bookRepository.findByName(name, pageable);
-
-        return books;
+        return bookRepository.findByName(name, pageable);
     }
 
     public Optional<Book> findById(int id) {
@@ -92,56 +88,25 @@ public class BookService {
         return bookRepository.findById(id);
     }
 
-    public List<Book> findByStatusReading(int num, String mode, String scope, Pageable pageable) {
-        logger.trace("Try to get books by status reading: num {}, mode {}, scope {}", num, mode, scope);
+    public List<Book> findByStatusReading(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
+        logger.trace("Try to get books by status reading: value {}, mode {}, scope {}", value, operator, scope);
 
-        if(mode.equals("greater")) {
+        if(operator == Operator.GREATER) {
 
             return switch (scope) {
-                case "overall" -> bookStatusesRepository.findByStatusReadingOverallGreaterThan(num, pageable);
-                case "year" -> bookStatusesRepository.findByStatusReadingLastYearGreaterThan(num, pageable);
-                case "month" -> bookStatusesRepository.findByStatusReadingLastMonthGreaterThan(num, pageable);
-                case "week" -> bookStatusesRepository.findByStatusReadingLastWeekGreaterThan(num, pageable);
-                default -> throw new BadRequestException("Incorrect value for scope. Support next values: overall, year, month, week");
+                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusReadingOverallGreaterThan(value, pageable);
+                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusReadingLastYearGreaterThan(value, pageable);
+                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusReadingLastMonthGreaterThan(value, pageable);
+                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusReadingLastWeekGreaterThan(value, pageable);
             };
 
-        } else if(mode.equals("less")) {
+        } else if(operator == Operator.LESS) {
 
             return switch (scope) {
-                case "overall" -> bookStatusesRepository.findByStatusReadingOverallLessThan(num, pageable);
-                case "year" -> bookStatusesRepository.findByStatusReadingLastYearLessThan(num, pageable);
-                case "month" -> bookStatusesRepository.findByStatusReadingLastMonthLessThan(num, pageable);
-                case "week" -> bookStatusesRepository.findByStatusReadingLastWeekLessThan(num, pageable);
-                default -> throw new BadRequestException("Incorrect value for scope. Support next values: overall, year, month, week");
-            };
-
-        } else {
-            throw new BadRequestException("Incorrect value for mode. Support next values: greater, less");
-        }
-
-    }
-
-    public List<Book> findByStatusRead(int num, String mode, String scope, Pageable pageable) {
-        logger.trace("Try to get books by status read: num {}, mode {}, scope {}", num, mode, scope);
-
-        if(mode.equals("greater")) {
-
-            return switch (scope) {
-                case "overall" -> bookStatusesRepository.findByStatusReadOverallGreaterThan(num, pageable);
-                case "year" -> bookStatusesRepository.findByStatusReadLastYearGreaterThan(num, pageable);
-                case "month" -> bookStatusesRepository.findByStatusReadLastMonthGreaterThan(num, pageable);
-                case "week" -> bookStatusesRepository.findByStatusReadLastWeekGreaterThan(num, pageable);
-                default -> throw new BadRequestException("Incorrect value for scope. Support next values: overall, year, month, week");
-            };
-
-        } else if(mode.equals("less")) {
-
-            return switch (scope) {
-                case "overall" -> bookStatusesRepository.findByStatusReadOverallLessThan(num, pageable);
-                case "year" -> bookStatusesRepository.findByStatusReadLastYearLessThan(num, pageable);
-                case "month" -> bookStatusesRepository.findByStatusReadLastMonthLessThan(num, pageable);
-                case "week" -> bookStatusesRepository.findByStatusReadLastWeekLessThan(num, pageable);
-                default -> throw new BadRequestException("Incorrect value for scope. Support next values: overall, year, month, week");
+                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusReadingOverallLessThan(value, pageable);
+                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusReadingLastYearLessThan(value, pageable);
+                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusReadingLastMonthLessThan(value, pageable);
+                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusReadingLastWeekLessThan(value, pageable);
             };
 
         } else {
@@ -150,27 +115,52 @@ public class BookService {
 
     }
 
-    public List<Book> findByStatusDrop(int num, String mode, String scope, Pageable pageable) {
-        logger.trace("Try to get books by status drop: num {}, mode {}, scope {}", num, mode, scope);
+    public List<Book> findByStatusRead(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
+        logger.trace("Try to get books by status read: value {}, mode {}, scope {}", value, operator, scope);
 
-        if(mode.equals("greater")) {
+        if(operator == Operator.GREATER) {
 
             return switch (scope) {
-                case "overall" -> bookStatusesRepository.findByStatusDropOverallGreaterThan(num, pageable);
-                case "year" -> bookStatusesRepository.findByStatusDropLastYearGreaterThan(num, pageable);
-                case "month" -> bookStatusesRepository.findByStatusDropLastMonthGreaterThan(num, pageable);
-                case "week" -> bookStatusesRepository.findByStatusDropLastWeekGreaterThan(num, pageable);
-                default -> throw new BadRequestException("Incorrect value for scope. Support next values: overall, year, month, week");
+                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusReadOverallGreaterThan(value, pageable);
+                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusReadLastYearGreaterThan(value, pageable);
+                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusReadLastMonthGreaterThan(value, pageable);
+                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusReadLastWeekGreaterThan(value, pageable);
             };
 
-        } else if(mode.equals("less")) {
+        } else if(operator == Operator.LESS) {
 
             return switch (scope) {
-                case "overall" -> bookStatusesRepository.findByStatusDropOverallLessThan(num, pageable);
-                case "year" -> bookStatusesRepository.findByStatusDropLastYearLessThan(num, pageable);
-                case "month" -> bookStatusesRepository.findByStatusDropLastMonthLessThan(num, pageable);
-                case "week" -> bookStatusesRepository.findByStatusDropLastWeekLessThan(num, pageable);
-                default -> throw new BadRequestException("Incorrect value for scope. Support next values: overall, year, month, week");
+                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusReadOverallLessThan(value, pageable);
+                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusReadLastYearLessThan(value, pageable);
+                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusReadLastMonthLessThan(value, pageable);
+                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusReadLastWeekLessThan(value, pageable);
+            };
+
+        } else {
+            throw new BadRequestException("Incorrect value for mode. Support next values: greater, less");
+        }
+
+    }
+
+    public List<Book> findByStatusDrop(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
+        logger.trace("Try to get books by status drop: value {}, mode {}, scope {}", value, operator, scope);
+
+        if(operator == Operator.GREATER) {
+
+            return switch (scope) {
+                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusDropOverallGreaterThan(value, pageable);
+                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusDropLastYearGreaterThan(value, pageable);
+                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusDropLastMonthGreaterThan(value, pageable);
+                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusDropLastWeekGreaterThan(value, pageable);
+            };
+
+        } else if(operator == Operator.LESS) {
+
+            return switch (scope) {
+                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusDropOverallLessThan(value, pageable);
+                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusDropLastYearLessThan(value, pageable);
+                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusDropLastMonthLessThan(value, pageable);
+                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusDropLastWeekLessThan(value, pageable);
             };
 
         } else {
