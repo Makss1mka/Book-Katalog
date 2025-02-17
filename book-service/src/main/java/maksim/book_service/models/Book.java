@@ -16,7 +16,6 @@ import java.util.List;
 public class Book {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
-    //@JsonBackReference
     private User author;
 
     @Id
