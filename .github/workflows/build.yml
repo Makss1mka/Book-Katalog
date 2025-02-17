@@ -33,5 +33,6 @@ jobs:
       - name: Build and analyze Book-Service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-	run: cd Book-Service
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
+	run: |
+		cd Book-Service
+		mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
