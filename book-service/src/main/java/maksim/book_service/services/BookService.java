@@ -33,13 +33,13 @@ public class BookService {
     }
 
     public List<Book> findAllBooks(Pageable pageable) {
-        logger.trace("Try to get books without filters: {}", pageable);
+        logger.trace("Try to get books without filters");
 
         return bookRepository.findAll(pageable).toList();
     }
 
     public List<Book> findAllBooksWithFilters(String rawGenresFilter, Pageable pageable) {
-        logger.trace("Try to get books with filters: {} ; genres {}", pageable, rawGenresFilter);
+        logger.trace("Try to get books with filters");
 
         List<String> genresFilter = Arrays.stream(rawGenresFilter.split(",")).toList();
 
@@ -47,19 +47,19 @@ public class BookService {
     }
 
     public List<Book> findAllByAuthorName(String authorName, Pageable pageable) {
-        logger.trace("Try to get all books by author name: {} ; author name {}", pageable, authorName);
+        logger.trace("Try to get all books by author name");
 
         return bookRepository.findByAuthorName(authorName, pageable);
     }
 
     public List<Book> findAllByAuthorId(int authorId, Pageable pageable) {
-        logger.trace("Try to get all books by author id: {} ; author id {}", pageable, authorId);
+        logger.trace("Try to get all books by author id");
 
         return bookRepository.findByAuthorId(authorId, pageable);
     }
 
     public List<Book> findAllByDate(Date date, Operator operator, Pageable pageable) {
-        logger.trace("Try to get all books by date: {} ; date {} ; operator {}", pageable, date, operator);
+        logger.trace("Try to get all books by date");
 
         return switch (operator) {
             case Operator.GREATER -> bookRepository.findByIssuedDateGreaterThan(date, pageable);
@@ -69,7 +69,7 @@ public class BookService {
     }
 
     public List<Book> findAllByRating(int rating, Operator operator, Pageable pageable) {
-        logger.trace("Try to get all books by rating: {} ; rating {} ; mode {}", pageable, rating, operator);
+        logger.trace("Try to get all books by rating");
 
         return switch (operator) {
             case Operator.GREATER -> bookRepository.findByRatingGreaterThan(rating, pageable);
@@ -79,19 +79,19 @@ public class BookService {
     }
 
     public List<Book> findByName(String name, Pageable pageable) {
-        logger.trace("Try to get all books by rating: {} ; name {}", pageable, name);
+        logger.trace("Try to get all books by name");
 
         return bookRepository.findByName(name, pageable);
     }
 
     public Optional<Book> findById(int id) {
-        logger.trace("Try to find book by id {}", id);
+        logger.trace("Try to find book by id");
 
         return bookRepository.findById(id);
     }
 
     public List<Book> findByStatusReading(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
-        logger.trace("Try to get books by status reading: value {}, mode {}, scope {}", value, operator, scope);
+        logger.trace("Try to get books by status reading");
 
         if(operator == Operator.GREATER) {
 
@@ -118,7 +118,7 @@ public class BookService {
     }
 
     public List<Book> findByStatusRead(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
-        logger.trace("Try to get books by status read: value {}, mode {}, scope {}", value, operator, scope);
+        logger.trace("Try to get books by status read");
 
         if(operator == Operator.GREATER) {
 
@@ -145,7 +145,7 @@ public class BookService {
     }
 
     public List<Book> findByStatusDrop(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
-        logger.trace("Try to get books by status drop: value {}, mode {}, scope {}", value, operator, scope);
+        logger.trace("Try to get books by status drop");
 
         if(operator == Operator.GREATER) {
 
