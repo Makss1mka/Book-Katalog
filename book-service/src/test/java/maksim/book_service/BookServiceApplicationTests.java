@@ -8,6 +8,9 @@ class BookServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
+		/*
+		Tests will be added later
+		 */
 	}
 
 }
