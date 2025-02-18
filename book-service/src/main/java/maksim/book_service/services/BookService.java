@@ -24,6 +24,8 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookStatusesRepository bookStatusesRepository;
 
+    private final String errorOperatorMessage = "Incorrect value for mode. Support next values: greater, less";
+
     @Autowired
     public BookService(BookRepository bookRepository, BookStatusesRepository bookStatusesRepository) {
         this.bookRepository = bookRepository;
@@ -110,7 +112,7 @@ public class BookService {
             };
 
         } else {
-            throw new BadRequestException("Incorrect value for mode. Support next values: greater, less");
+            throw new BadRequestException(this.errorOperatorMessage);
         }
 
     }
@@ -137,7 +139,7 @@ public class BookService {
             };
 
         } else {
-            throw new BadRequestException("Incorrect value for mode. Support next values: greater, less");
+            throw new BadRequestException(this.errorOperatorMessage);
         }
 
     }
@@ -164,7 +166,7 @@ public class BookService {
             };
 
         } else {
-            throw new BadRequestException("Incorrect value for mode. Support next values: greater, less");
+            throw new BadRequestException(this.errorOperatorMessage);
         }
 
     }

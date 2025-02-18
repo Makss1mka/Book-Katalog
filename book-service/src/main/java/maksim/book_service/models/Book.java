@@ -1,6 +1,5 @@
 package maksim.book_service.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,7 +38,7 @@ public class Book {
     @Column(name = "issued_date", nullable = false)
     private Date issuedDate;
 
-    @Column(name = "genres", nullable = true)
+    @Column(name = "genres")
     private List<String> genres;
 
 
