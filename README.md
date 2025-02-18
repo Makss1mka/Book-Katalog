@@ -1,6 +1,13 @@
 # Book-Katalog
 Distributed system for managing books. 
 
+### Stack
+Java 23
+Spring Boot 3.4.2
+Maven 4.0
+PostgreSQL
+Hibernate
+
 ### Features of book service
 - Get all books with\without genres
 - Get books by id\name
