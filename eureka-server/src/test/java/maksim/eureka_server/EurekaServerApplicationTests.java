@@ -10,6 +10,7 @@ class EurekaServerApplicationTests {
 	void contextLoads() {
 		/*
 		Tests will be added later
+		Or will be deleted from this server
 		 */
 	}
 
