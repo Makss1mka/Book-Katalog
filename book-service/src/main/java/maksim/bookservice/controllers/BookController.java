@@ -48,6 +48,7 @@ public class BookController {
         logger.trace("Try to get all books with/without genres");
 
         SortField sortField = SortField.fromValue(sortStrField);
+
         SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
 
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
