@@ -19,12 +19,12 @@ import java.util.Optional;
 
 @Service
 public class BookService {
-    private final static Logger logger = LoggerFactory.getLogger(BookService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
     private final BookRepository bookRepository;
     private final BookStatusesRepository bookStatusesRepository;
 
-    private final String errorOperatorMessage = "Incorrect value for mode. Support next values: greater, less";
+    private static final String errorOperatorMessage = "Incorrect value for mode. Support next values: greater, less";
 
     @Autowired
     public BookService(BookRepository bookRepository, BookStatusesRepository bookStatusesRepository) {
@@ -112,7 +112,7 @@ public class BookService {
             };
 
         } else {
-            throw new BadRequestException(this.errorOperatorMessage);
+            throw new BadRequestException(errorOperatorMessage);
         }
 
     }
@@ -139,7 +139,7 @@ public class BookService {
             };
 
         } else {
-            throw new BadRequestException(this.errorOperatorMessage);
+            throw new BadRequestException(errorOperatorMessage);
         }
 
     }
@@ -166,7 +166,7 @@ public class BookService {
             };
 
         } else {
-            throw new BadRequestException(this.errorOperatorMessage);
+            throw new BadRequestException(errorOperatorMessage);
         }
 
     }

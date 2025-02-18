@@ -20,7 +20,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/books/get")
 public class BookGetController {
-    private final static Logger logger = LoggerFactory.getLogger(BookGetController.class);
+    private static final Logger logger = LoggerFactory.getLogger(BookGetController.class);
 
     private final BookService bookService;
     private final Pagination pagination;
