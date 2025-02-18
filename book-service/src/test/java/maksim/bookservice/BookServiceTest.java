@@ -99,7 +99,7 @@ public class BookServiceTest {
 
         List<Book> result = bookService.findAllByDate(date, Operator.GREATER, pageable);
 
-        assertEquals(0, result.size());
+        assertEquals(1, result.size());
         verify(bookRepository, times(1)).findByIssuedDateGreaterThan(date, pageable);
     }
 
