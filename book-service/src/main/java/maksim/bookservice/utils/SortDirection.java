@@ -1,21 +1,20 @@
-package maksim.book_service.utils;
+package maksim.bookservice.utils;
 
 import lombok.Getter;
 
 @Getter
-public enum Operator {
-    GREATER("greater"),
-    EQUAL("equal"),
-    LESS("less");
+public enum SortDirection {
+    ASC("asc"),
+    DESC("desc");
 
     private final String value;
 
-    Operator(String value) {
+    SortDirection(String value) {
         this.value = value;
     }
 
-    public static Operator fromValue(String value) {
-        for (Operator field : values()) {
+    public static SortDirection fromValue(String value) {
+        for (SortDirection field : values()) {
             if (field.value.equalsIgnoreCase(value)) {
                 return field;
             }

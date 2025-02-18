@@ -1,4 +1,4 @@
-package maksim.book_service.config;
+package maksim.bookservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

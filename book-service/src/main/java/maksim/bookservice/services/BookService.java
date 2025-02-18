@@ -1,21 +1,20 @@
-package maksim.book_service.services;
+package maksim.bookservice.services;
 
 import jakarta.ws.rs.BadRequestException;
-import maksim.book_service.models.Book;
-import maksim.book_service.repositories.BookRepository;
-import maksim.book_service.repositories.BookStatusesRepository;
-import maksim.book_service.utils.Operator;
-import maksim.book_service.utils.BookStatusScope;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import maksim.bookservice.models.Book;
+import maksim.bookservice.repositories.BookRepository;
+import maksim.bookservice.repositories.BookStatusesRepository;
+import maksim.bookservice.utils.BookStatusScope;
+import maksim.bookservice.utils.Operator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BookService {

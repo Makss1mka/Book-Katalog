@@ -1,32 +1,40 @@
-package maksim.book_service.controllers;
-
-import maksim.book_service.models.Book;
-import maksim.book_service.services.BookService;
-import maksim.book_service.utils.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+package maksim.bookservice.controllers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import maksim.bookservice.models.Book;
+import maksim.bookservice.services.BookService;
+import maksim.bookservice.utils.BookStatus;
+import maksim.bookservice.utils.BookStatusScope;
+import maksim.bookservice.utils.Operator;
+import maksim.bookservice.utils.Pagination;
+import maksim.bookservice.utils.SortDirection;
+import maksim.bookservice.utils.SortField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/books/get")
-public class BookGetController {
-    private static final Logger logger = LoggerFactory.getLogger(BookGetController.class);
+public class BookController {
+    private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     private final BookService bookService;
     private final Pagination pagination;
 
     @Autowired
-    public BookGetController(BookService bookService, Pagination pagination) {
+    public BookController(BookService bookService, Pagination pagination) {
         this.bookService = bookService;
         this.pagination = pagination;
     }
@@ -46,7 +54,7 @@ public class BookGetController {
 
         List<Book> findBooks;
 
-        if(genres != null) {
+        if (genres != null) {
             findBooks = bookService.findAllBooksWithFilters(genres, pageable);
         } else {
             findBooks = bookService.findAllBooks(pageable);
@@ -63,7 +71,7 @@ public class BookGetController {
 
         Optional<Book> book = bookService.findById(id);
 
-        if(book.isPresent()) {
+        if (book.isPresent()) {
             logger.trace("Find book: {}", book);
 
             return new ResponseEntity<>(book.get(), HttpStatus.OK);

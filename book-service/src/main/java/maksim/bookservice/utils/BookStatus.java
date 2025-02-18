@@ -1,4 +1,4 @@
-package maksim.book_service.utils;
+package maksim.bookservice.utils;
 
 import lombok.Getter;
 

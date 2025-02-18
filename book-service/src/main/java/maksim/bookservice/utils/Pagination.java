@@ -1,4 +1,4 @@
-package maksim.book_service.utils;
+package maksim.bookservice.utils;
 
 import jakarta.ws.rs.BadRequestException;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +12,7 @@ public class Pagination {
     public Sort getSort(String sortField, String sortDir) {
         Sort sort = Sort.by(sortField);
 
-        if(sortDir.equals("asc")) {
+        if (sortDir.equals("asc")) {
             sort = sort.ascending();
         } else if (sortDir.equals("desc")) {
             sort = sort.descending();
