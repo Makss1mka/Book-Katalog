@@ -1,9 +1,8 @@
-package maksim.bookservice;
+package maksim.bookservice.services;
 
 import maksim.bookservice.models.Book;
 import maksim.bookservice.repositories.BookRepository;
 import maksim.bookservice.repositories.BookStatusesRepository;
-import maksim.bookservice.services.BookService;
 import maksim.bookservice.utils.BookStatusScope;
 import maksim.bookservice.utils.Operator;
 import org.junit.jupiter.api.BeforeEach;
