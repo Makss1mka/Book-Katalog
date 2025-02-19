@@ -57,12 +57,12 @@ public class BookServiceTest {
     void testFindAllBooksWithFilters() {
         String genres = "fiction,thriller";
         List<String> genresFilter = List.of("fiction", "thriller");
-        Book book = new Book();
-        when(bookRepository.findAllByGenres(genresFilter, pageable)).thenReturn(List.of(book));
+        List<Book> books = List.of(new Book());
 
-        List<Book> result = bookService.findAllBooksWithFilters(genres, pageable);
+        when(bookRepository.findAllByGenres(genresFilter, pageable)).thenReturn(books);
 
-        assertEquals(1, result.size());
+        assertEquals(books, bookService.findAllBooksWithFilters(genres, pageable));
+
         verify(bookRepository, times(1)).findAllByGenres(genresFilter, pageable);
     }
 
@@ -93,25 +93,31 @@ public class BookServiceTest {
     @Test
     void testFindAllByDate() {
         Date date = new Date();
-        Book book = new Book();
-        when(bookRepository.findByIssuedDateGreaterThan(date, pageable)).thenReturn(List.of(book));
+        List<Book> books = List.of(new Book());
 
-        List<Book> result = bookService.findAllByDate(date, Operator.GREATER, pageable);
+        when(bookRepository.findByIssuedDateGreaterThan(date, pageable)).thenReturn(books);
+        when(bookRepository.findByIssuedDateLessThan(date, pageable)).thenReturn(books);
 
-        assertEquals(1, result.size());
+        assertEquals(books, bookService.findAllByDate(date, Operator.GREATER, pageable));
+        assertEquals(books, bookService.findAllByDate(date, Operator.LESS, pageable));
+
         verify(bookRepository, times(1)).findByIssuedDateGreaterThan(date, pageable);
+        verify(bookRepository, times(1)).findByIssuedDateLessThan(date, pageable);
     }
 
     @Test
     void testFindAllByRating() {
         int rating = 5;
-        Book book = new Book();
-        when(bookRepository.findByRatingGreaterThan(rating, pageable)).thenReturn(List.of(book));
+        List<Book> books = List.of(new Book());
 
-        List<Book> result = bookService.findAllByRating(rating, Operator.GREATER, pageable);
+        when(bookRepository.findByRatingGreaterThan(rating, pageable)).thenReturn(books);
+        when(bookRepository.findByRatingLessThan(rating, pageable)).thenReturn(books);
 
-        assertEquals(1, result.size());
+        assertEquals(books, bookService.findAllByRating(rating, Operator.GREATER, pageable));
+        assertEquals(books, bookService.findAllByRating(rating, Operator.LESS, pageable));
+
         verify(bookRepository, times(1)).findByRatingGreaterThan(rating, pageable);
+        verify(bookRepository, times(1)).findByRatingLessThan(rating, pageable);
     }
 
     @Test
@@ -140,38 +146,108 @@ public class BookServiceTest {
 
     @Test
     void testFindByStatusReading() {
-        int value = 5;
-        Book book = new Book();
-        when(bookStatusesRepository.findByStatusReadingOverallGreaterThan(value, pageable)).thenReturn(List.of(book));
+        int value = 10;
+        List<Book> books = List.of(new Book());
 
-        List<Book> result = bookService.findByStatusReading(value, Operator.GREATER, BookStatusScope.OVERALL, pageable);
+        // WHENS
+        when(bookStatusesRepository.findByStatusReadingOverallGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadingLastYearGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadingLastMonthGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadingLastWeekGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadingOverallLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadingLastYearLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadingLastMonthLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadingLastWeekLessThan(value, pageable)).thenReturn(books);
 
-        assertEquals(1, result.size());
+        // ASSERTS
+        for (Operator op : Operator.values()) {
+            if (op == Operator.EQUAL) continue;
+
+            for (BookStatusScope bookStatScope : BookStatusScope.values()) {
+                assertEquals(books, bookService.findByStatusReading(value, op, bookStatScope, pageable));
+            }
+        }
+
+        // VERIFIES
         verify(bookStatusesRepository, times(1)).findByStatusReadingOverallGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadingLastYearGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadingLastMonthGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadingLastWeekGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadingOverallLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadingLastYearLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadingLastMonthLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadingLastWeekLessThan(value, pageable);
     }
 
     @Test
     void testFindByStatusRead() {
-        int value = 5;
-        Book book = new Book();
-        when(bookStatusesRepository.findByStatusReadOverallGreaterThan(value, pageable)).thenReturn(List.of(book));
+        int value = 10;
+        List<Book> books = List.of(new Book());
 
-        List<Book> result = bookService.findByStatusRead(value, Operator.GREATER, BookStatusScope.OVERALL, pageable);
 
-        assertEquals(1, result.size());
+        // WHENS
+        when(bookStatusesRepository.findByStatusReadOverallGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadLastYearGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadLastMonthGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadLastWeekGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadOverallLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadLastYearLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadLastMonthLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusReadLastWeekLessThan(value, pageable)).thenReturn(books);
+
+        // ASSERTS
+        for (Operator op : Operator.values()) {
+            if (op == Operator.EQUAL) continue;
+
+            for (BookStatusScope bookStatScope : BookStatusScope.values()) {
+                assertEquals(books, bookService.findByStatusRead(value, op, bookStatScope, pageable));
+            }
+        }
+
+        // VERIFIES
         verify(bookStatusesRepository, times(1)).findByStatusReadOverallGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadLastYearGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadLastMonthGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadLastWeekGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadOverallLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadLastYearLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadLastMonthLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusReadLastWeekLessThan(value, pageable);
     }
 
     @Test
     void testFindByStatusDrop() {
-        int value = 5;
-        Book book = new Book();
-        when(bookStatusesRepository.findByStatusDropOverallGreaterThan(value, pageable)).thenReturn(List.of(book));
+        int value = 10;
+        List<Book> books = List.of(new Book());
 
-        List<Book> result = bookService.findByStatusDrop(value, Operator.GREATER, BookStatusScope.OVERALL, pageable);
+        // WHENS
+        when(bookStatusesRepository.findByStatusDropOverallGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusDropLastYearGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusDropLastMonthGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusDropLastWeekGreaterThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusDropOverallLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusDropLastYearLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusDropLastMonthLessThan(value, pageable)).thenReturn(books);
+        when(bookStatusesRepository.findByStatusDropLastWeekLessThan(value, pageable)).thenReturn(books);
 
-        assertEquals(1, result.size());
+        // ASSERTS
+        for (Operator op : Operator.values()) {
+            if (op == Operator.EQUAL) continue;
+
+            for (BookStatusScope bookStatScope : BookStatusScope.values()) {
+                assertEquals(books, bookService.findByStatusDrop(value, op, bookStatScope, pageable));
+            }
+        }
+
+        // VERIFIES
         verify(bookStatusesRepository, times(1)).findByStatusDropOverallGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusDropLastYearGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusDropLastMonthGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusDropLastWeekGreaterThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusDropOverallLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusDropLastYearLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusDropLastMonthLessThan(value, pageable);
+        verify(bookStatusesRepository, times(1)).findByStatusDropLastWeekLessThan(value, pageable);
     }
 }
 
