@@ -198,7 +198,7 @@ class BookControllerTest {
         when(bookService.findByStatusReading(anyInt(), any(Operator.class), any(BookStatusScope.class), any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
         // Act
-        ResponseEntity<List<Book>> response = bookController.getByStatuses("reading", "all", "greater", 5, 0, 20, "rating", "desc");
+        ResponseEntity<List<Book>> response = bookController.getByStatuses("reading", "overall", "greater", 5, 0, 20, "rating", "desc");
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
