@@ -177,7 +177,7 @@ class BookControllerTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
-        verify(bookService, times(1)).findAllByDate(any(Date.class), Operator.GREATER, pageable);
+        verify(bookService, times(1)).findAllByDate(any(Date.class), eq(Operator.GREATER), pageable);
     }
 
     @Test
