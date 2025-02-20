@@ -1,5 +1,6 @@
 package maksim.bookservice.services;
 
+import jakarta.ws.rs.BadRequestException;
 import maksim.bookservice.models.Book;
 import maksim.bookservice.repositories.BookRepository;
 import maksim.bookservice.repositories.BookStatusesRepository;
@@ -100,6 +101,9 @@ public class BookServiceTest {
 
         assertEquals(books, bookService.findAllByDate(date, Operator.GREATER, pageable));
         assertEquals(books, bookService.findAllByDate(date, Operator.LESS, pageable));
+        assertThrows(BadRequestException.class, () -> {
+            bookService.findAllByDate(date, Operator.EQUAL, pageable);
+        });
 
         verify(bookRepository, times(1)).findByIssuedDateGreaterThan(date, pageable);
         verify(bookRepository, times(1)).findByIssuedDateLessThan(date, pageable);
@@ -112,12 +116,15 @@ public class BookServiceTest {
 
         when(bookRepository.findByRatingGreaterThan(rating, pageable)).thenReturn(books);
         when(bookRepository.findByRatingLessThan(rating, pageable)).thenReturn(books);
+        when(bookRepository.findByRating(rating, pageable)).thenReturn(books);
 
-        assertEquals(books, bookService.findAllByRating(rating, Operator.GREATER, pageable));
-        assertEquals(books, bookService.findAllByRating(rating, Operator.LESS, pageable));
+        for (Operator op : Operator.values()) {
+            assertEquals(books, bookService.findAllByRating(rating, op, pageable));
+        }
 
         verify(bookRepository, times(1)).findByRatingGreaterThan(rating, pageable);
         verify(bookRepository, times(1)).findByRatingLessThan(rating, pageable);
+        verify(bookRepository, times(1)).findByRating(rating, pageable);
     }
 
     @Test
@@ -161,7 +168,12 @@ public class BookServiceTest {
 
         // ASSERTS
         for (Operator op : Operator.values()) {
-            if (op == Operator.EQUAL) continue;
+            if (op == Operator.EQUAL) {
+                assertThrows(BadRequestException.class, () -> {
+                    bookService.findByStatusReading(value, op, BookStatusScope.OVERALL, pageable);
+                });
+                continue;
+            }
 
             for (BookStatusScope bookStatScope : BookStatusScope.values()) {
                 assertEquals(books, bookService.findByStatusReading(value, op, bookStatScope, pageable));
@@ -197,7 +209,12 @@ public class BookServiceTest {
 
         // ASSERTS
         for (Operator op : Operator.values()) {
-            if (op == Operator.EQUAL) continue;
+            if (op == Operator.EQUAL) {
+                assertThrows(BadRequestException.class, () -> {
+                    bookService.findByStatusRead(value, op, BookStatusScope.OVERALL, pageable);
+                });
+                continue;
+            }
 
             for (BookStatusScope bookStatScope : BookStatusScope.values()) {
                 assertEquals(books, bookService.findByStatusRead(value, op, bookStatScope, pageable));
@@ -232,7 +249,12 @@ public class BookServiceTest {
 
         // ASSERTS
         for (Operator op : Operator.values()) {
-            if (op == Operator.EQUAL) continue;
+            if (op == Operator.EQUAL) {
+                assertThrows(BadRequestException.class, () -> {
+                    bookService.findByStatusDrop(value, op, BookStatusScope.OVERALL, pageable);
+                });
+                continue;
+            }
 
             for (BookStatusScope bookStatScope : BookStatusScope.values()) {
                 assertEquals(books, bookService.findByStatusDrop(value, op, bookStatScope, pageable));
