@@ -36,7 +36,7 @@ public class Book {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "file_path", nullable = false)
+    @Column(name = "file_path")
     private String filePath;
 
     @Column(name = "rating", nullable = false)
