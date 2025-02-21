@@ -2,6 +2,8 @@ package maksim.bookservice.utils.validators;
 
 import java.util.Arrays;
 import java.util.List;
+
+import jakarta.ws.rs.BadRequestException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +32,11 @@ public class FileValidators {
         List<String> allowedExtensions = Arrays.asList("txt", "pdf", "md");
 
         String fileName = file.getOriginalFilename();
+
+        if (fileName.lastIndexOf(".") == -1) {
+            throw new BadRequestException("File doesn't contains extension");
+        }
+
         String fileExtension = fileName
                 .substring(fileName.lastIndexOf(".") + 1)
                 .toLowerCase();

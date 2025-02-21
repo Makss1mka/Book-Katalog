@@ -16,19 +16,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        logger.trace("Method argument validation error {}", ex.getMessage());
+
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<String> handleValidationExceptions(ConstraintViolationException ex) {
+        logger.trace("Validation error {}", ex.getMessage());
+
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> exceptionHandler(Exception ex, WebRequest request) {
+    public ResponseEntity<String> exceptionHandler(Exception ex, WebRequest request) {
         logger.error(ex.getMessage());
 
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
 }

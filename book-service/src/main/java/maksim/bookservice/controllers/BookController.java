@@ -92,14 +92,6 @@ public class BookController {
         List<Book> findBooks;
 
         if (genres != null) {
-            genres = stringValidators.textScreening(genres);
-
-            if (!stringValidators.isSafeFromSqlInjection(genres)) {
-                throw new BadRequestException(
-                        String.format("Error: genres contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
-                );
-            }
-
             findBooks = bookService.findAllBooksWithFilters(genres, pageable);
         } else {
             findBooks = bookService.findAllBooks(pageable);
@@ -141,13 +133,6 @@ public class BookController {
         SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
 
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
-
-        name = stringValidators.textScreening(name);
-        if (!stringValidators.isSafeFromSqlInjection(name)) {
-            throw new BadRequestException(
-                    String.format("Error: name contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
-            );
-        }
 
         List<Book> findBooks = bookService.findByName(name, pageable);
 
@@ -192,13 +177,6 @@ public class BookController {
         SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
 
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
-
-        authorName = stringValidators.textScreening(authorName);
-        if (!stringValidators.isSafeFromSqlInjection(authorName)) {
-            throw new BadRequestException(
-                    String.format("Error: author name contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
-            );
-        }
 
         List<Book> findBooks = bookService.findAllByAuthorName(authorName, pageable);
 
