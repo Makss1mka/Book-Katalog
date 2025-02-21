@@ -1,20 +1,33 @@
 package maksim.bookservice.services;
 
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import maksim.bookservice.config.AppConfig;
 import maksim.bookservice.models.Book;
+import maksim.bookservice.models.BookDtoForCreating;
+import maksim.bookservice.models.User;
 import maksim.bookservice.repositories.BookRepository;
 import maksim.bookservice.repositories.BookStatusesRepository;
-import maksim.bookservice.utils.BookStatusScope;
-import maksim.bookservice.utils.Operator;
+import maksim.bookservice.repositories.UserRepository;
+import maksim.bookservice.utils.enums.BookStatusScope;
+import maksim.bookservice.utils.enums.Operator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class BookService {
@@ -22,13 +35,22 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final BookStatusesRepository bookStatusesRepository;
+    private final UserRepository userRepository;
+    private final AppConfig appConfig;
 
     private static final String ERROR_OPERATOR_MESSAGE = "Incorrect value for mode. Support next values: greater, less";
 
     @Autowired
-    public BookService(BookRepository bookRepository, BookStatusesRepository bookStatusesRepository) {
+    public BookService(
+            BookRepository bookRepository,
+            BookStatusesRepository bookStatusesRepository,
+            UserRepository userRepository,
+            AppConfig appConfig
+    ) {
         this.bookRepository = bookRepository;
         this.bookStatusesRepository = bookStatusesRepository;
+        this.userRepository = userRepository;
+        this.appConfig = appConfig;
     }
 
     public List<Book> findAllBooks(Pageable pageable) {
@@ -162,6 +184,106 @@ public class BookService {
             default -> throw new BadRequestException(ERROR_OPERATOR_MESSAGE);
         };
 
+    }
+
+    public void addBookMetaData(BookDtoForCreating bookData) {
+        logger.trace("Try to add book metadata");
+
+        Optional<User> author = userRepository.findById(bookData.getAuthorId());
+        if (author.isEmpty()) {
+            throw new BadRequestException("Cannot add book, cause cannot find user/author with such id");
+        }
+
+        Book book = new Book();
+
+        book.setAuthor(author.get());
+        book.setName(bookData.getName());
+        book.setIssuedDate(new Date());
+        book.setGenres(bookData.getGenres());
+
+        bookRepository.save(book);
+
+        logger.trace("Book metadata was created successfully");
+    }
+
+    public void addBookFile(MultipartFile file, int bookId) {
+        logger.trace("Try to add file for book");
+
+        Optional<Book> book = bookRepository.findById(bookId);
+        String fileName = file.getOriginalFilename();
+
+        if (fileName == null || fileName.lastIndexOf(".") == -1) {
+            throw new BadRequestException("Invalid file name");
+        }
+
+        if (book.isEmpty()) {
+            throw new BadRequestException("Cannot find book with such id");
+        }
+
+        String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
+        File targetFile = null;
+
+        try {
+            Path uploadPath = Paths.get(appConfig.getBookFilesDirectory());
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            targetFile = new File(appConfig.getBookFilesDirectory() + bookId + "." + fileExtension);
+            try (InputStream inputStream = file.getInputStream();
+                 FileOutputStream outputStream = new FileOutputStream(targetFile)) {
+
+                int read;
+                byte[] bytes = new byte[1024];
+
+                while ((read = inputStream.read(bytes)) != -1) {
+                    outputStream.write(bytes, 0, read);
+                }
+
+                book.get().setFilePath(bookId + "." + fileExtension);
+
+                bookRepository.save(book.get());
+            }
+        } catch (IOException e) {
+            if (targetFile != null && targetFile.exists()) {
+                targetFile.delete();
+            }
+
+            throw new BadRequestException("Cannot open file");
+        }
+
+        logger.trace("Book file was added successfully");
+    }
+
+    public void deleteBook(int bookId) {
+        Optional<Book> book = bookRepository.findById(bookId);
+
+        if (book.isEmpty()) {
+            throw new NotFoundException("Cannot access book with such id");
+        }
+
+        File file = new File(appConfig.getBookFilesDirectory() + book.get().getFilePath());
+        if (file.exists()) {
+            file.delete();
+        }
+
+        bookRepository.delete(book.get());
+    }
+
+    public File getFile(int bookId) {
+        Optional<Book> book = bookRepository.findById(bookId);
+
+        if (book.isEmpty() || book.get().getFilePath() == null) {
+            throw new NotFoundException("Cannot find book");
+        }
+
+        File file = new File(appConfig.getBookFilesDirectory() + book.get().getFilePath());
+
+        if (!file.exists()) {
+            throw new NotFoundException("Cannot open book file" + file.getPath());
+        }
+
+        return file;
     }
 
 }
