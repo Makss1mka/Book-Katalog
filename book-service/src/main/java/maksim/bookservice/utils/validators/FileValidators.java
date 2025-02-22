@@ -12,7 +12,7 @@ public class FileValidators {
     private static final String[] DANGEROUS_PATTERNS = {"../", "./", "'", "\"", ";", "--", "/*", "*/", "xp_", "exec"};
 
     public boolean isValid(MultipartFile file) {
-        return file != null && isNotEmpty(file) && isFileTypeAllowed(file) && isFileExtensionAllowed(file) && isFileSizeValid(file);
+        return file != null && isNameAllowed(file) && isNotEmpty(file) && isFileTypeAllowed(file) && isFileExtensionAllowed(file) && isFileSizeValid(file);
     }
 
     public boolean isNameAllowed(MultipartFile file) {
