@@ -53,6 +53,8 @@ class BookControllerTest {
     @Mock
     private FileValidators fileValidators;
 
+    @Mock
+    private StringValidators stringValidators;
 
     @Mock
     private Pagination pagination;
@@ -251,6 +253,7 @@ class BookControllerTest {
     @Test
     void testAddBookMetaData_InvalidData() throws Exception {
         when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(false);
+        when(stringValidators.isSafeFromSqlInjection(any())).thenReturn(false);
 
         mockMvc.perform(post("/books/add/book/metaData")
                         .contentType(MediaType.APPLICATION_JSON)
