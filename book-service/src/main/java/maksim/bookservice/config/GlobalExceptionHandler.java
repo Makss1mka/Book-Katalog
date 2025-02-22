@@ -1,6 +1,8 @@
 package maksim.bookservice.config;
 
 import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.BadRequestException;
+import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -28,11 +30,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleNotFound(NotFoundException ex, WebRequest request) {
+        logger.error(ex.getMessage());
+
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleBadRequest(BadRequestException ex, WebRequest request) {
+        logger.error(ex.getMessage());
+
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> exceptionHandler(Exception ex, WebRequest request) {
         logger.error(ex.getMessage());
 
-        return ResponseEntity.badRequest().body(ex.getMessage());
+        return ResponseEntity.internalServerError().body(ex.getMessage());
     }
 
 }
