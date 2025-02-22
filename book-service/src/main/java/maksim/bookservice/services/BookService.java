@@ -209,12 +209,13 @@ public class BookService {
     public void addBookFile(MultipartFile file, int bookId) {
         logger.trace("Try to add file for book");
 
-        Optional<Book> book = bookRepository.findById(bookId);
         String fileName = file.getOriginalFilename();
 
         if (fileName == null || fileName.lastIndexOf(".") == -1) {
             throw new BadRequestException("Invalid file name");
         }
+
+        Optional<Book> book = bookRepository.findById(bookId);
 
         if (book.isEmpty()) {
             throw new BadRequestException("Cannot find book with such id");
