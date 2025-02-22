@@ -9,9 +9,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class FileValidators {
+    private static final String[] DANGEROUS_PATTERNS = {"../", "./", "'", "\"", ";", "--", "/*", "*/", "xp_", "exec"};
 
     public boolean isValid(MultipartFile file) {
         return file != null && isNotEmpty(file) && isFileTypeAllowed(file) && isFileExtensionAllowed(file) && isFileSizeValid(file);
+    }
+
+    public boolean isNameAllowed(MultipartFile file) {
+        if (file == null || file.getOriginalFilename() == null) return false;
+
+        for (String pattern : DANGEROUS_PATTERNS) {
+            if (file.getOriginalFilename().contains(pattern)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public boolean isNotEmpty(MultipartFile file) {
