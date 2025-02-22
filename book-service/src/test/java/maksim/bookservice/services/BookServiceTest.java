@@ -13,18 +13,15 @@ import maksim.bookservice.utils.enums.BookStatusScope;
 import maksim.bookservice.utils.enums.Operator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,11 +30,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class BookServiceTest {
+class BookServiceTest {
     @Mock
     private BookRepository bookRepository;
 
@@ -330,7 +326,7 @@ public class BookServiceTest {
     }
 
     @Test
-    void testGetFile_FileNotFound() throws Exception {
+    void testGetFile_FileNotFound() {
         int bookId = 1;
         Book book = new Book();
         book.setId(bookId);
@@ -459,7 +455,6 @@ public class BookServiceTest {
     @Test
     void testDeleteBook_Success() throws Exception {
         int bookId = 1;
-        String filePath = "books/test.pdf";
 
         Path tempFile = Files.createTempFile("test-file", ".pdf");
         Files.write(tempFile, "Test content".getBytes());

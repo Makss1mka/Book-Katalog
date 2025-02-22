@@ -8,33 +8,33 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserTest {
 
     private User user;
-    private final Date DATE = new Date();
+    private final Date date = new Date();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user = new User();
         user.setId(1);
         user.setName("John Doe");
         user.setProfilePicPath("/images/johndoe.png");
         user.setEmail("johndoe@example.com");
         user.setRole("USER");
-        user.setRegistrationDate(DATE);
+        user.setRegistrationDate(date);
         user.setPassword("password123");
     }
 
     @Test
-    public void testGetters() {
+    void testGetters() {
         assertEquals(1, user.getId());
         assertEquals("John Doe", user.getName());
         assertEquals("/images/johndoe.png", user.getProfilePicPath());
         assertEquals("johndoe@example.com", user.getEmail());
         assertEquals("USER", user.getRole());
-        assertEquals(DATE, user.getRegistrationDate());
+        assertEquals(date, user.getRegistrationDate());
         assertEquals("password123", user.getPassword());
     }
 
     @Test
-    public void testSetters() {
+    void testSetters() {
         user.setId(2);
         assertEquals(2, user.getId());
 

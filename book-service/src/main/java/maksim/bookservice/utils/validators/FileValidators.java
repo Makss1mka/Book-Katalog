@@ -32,6 +32,8 @@ public class FileValidators {
     }
 
     public boolean isFileTypeAllowed(MultipartFile file) {
+        if (file == null) return false;
+
         List<String> allowedMimeTypes = Arrays.asList(
                 "application/pdf",
                 "text/markdown",
@@ -43,6 +45,8 @@ public class FileValidators {
 
     public boolean isFileExtensionAllowed(MultipartFile file) {
         List<String> allowedExtensions = Arrays.asList("txt", "pdf", "md");
+
+        if (file == null || file.getOriginalFilename() == null) return false;
 
         String fileName = file.getOriginalFilename();
 
@@ -58,7 +62,9 @@ public class FileValidators {
     }
 
     public boolean isFileSizeValid(MultipartFile file) {
-        long maxFileSize = 2 * 1024 * 1024; // 2 MB
+        if (file == null) return false;
+
+        long maxFileSize = 2 * 1024 * 1024L; // 2 MB
         return file.getSize() <= maxFileSize;
     }
 

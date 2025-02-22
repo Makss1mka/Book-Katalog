@@ -3,7 +3,6 @@ package maksim.bookservice.controllers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-
 import jakarta.ws.rs.NotFoundException;
 import maksim.bookservice.config.GlobalExceptionHandler;
 import maksim.bookservice.models.Book;
@@ -31,13 +30,11 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -52,9 +49,6 @@ class BookControllerTest {
 
     @Mock
     private BookDtoForCreatingValidators bookDtoForCreatingValidators;
-
-    @Mock
-    private StringValidators stringValidators;
 
     @Mock
     private FileValidators fileValidators;
@@ -76,15 +70,12 @@ class BookControllerTest {
 
     @Test
     void testGetAllBooks_WithGenres() {
-        // Arrange
         Pageable pageable = mock(Pageable.class);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class))).thenReturn(pageable);
         when(bookService.findAllBooksWithFilters(anyString(), any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
-        // Act
         ResponseEntity<List<Book>> response = bookController.getAllBooks("fantasy", 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
         verify(bookService, times(1)).findAllBooksWithFilters("fantasy", pageable);
@@ -92,15 +83,12 @@ class BookControllerTest {
 
     @Test
     void testGetAllBooks_WithoutGenres() {
-        // Arrange
         Pageable pageable = mock(Pageable.class);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class))).thenReturn(pageable);
         when(bookService.findAllBooks(any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
-        // Act
         ResponseEntity<List<Book>> response = bookController.getAllBooks(null, 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
         verify(bookService, times(1)).findAllBooks(pageable);
@@ -108,14 +96,11 @@ class BookControllerTest {
 
     @Test
     void testGetBookById_Found() {
-        // Arrange
         Book book = new Book();
         when(bookService.findById(anyInt())).thenReturn(Optional.of(book));
 
-        // Act
         ResponseEntity<Book> response = bookController.getBookById(1);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(book, response.getBody());
         verify(bookService, times(1)).findById(1);
@@ -123,28 +108,22 @@ class BookControllerTest {
 
     @Test
     void testGetBookById_NotFound() {
-        // Arrange
         when(bookService.findById(anyInt())).thenReturn(Optional.empty());
 
-        // Act
         ResponseEntity<Book> response = bookController.getBookById(1);
 
-        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(bookService, times(1)).findById(1);
     }
 
     @Test
     void testGetBooksByName() {
-        // Arrange
         Pageable pageable = mock(Pageable.class);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class))).thenReturn(pageable);
         when(bookService.findByName(anyString(), any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
-        // Act
         ResponseEntity<List<Book>> response = bookController.getBooksByName("Book Name", 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
         verify(bookService, times(1)).findByName("Book Name", pageable);
@@ -152,15 +131,12 @@ class BookControllerTest {
 
     @Test
     void testGetBooksByAuthorId() {
-        // Arrange
         Pageable pageable = mock(Pageable.class);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class))).thenReturn(pageable);
         when(bookService.findAllByAuthorId(anyInt(), any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
-        // Act
         ResponseEntity<List<Book>> response = bookController.getBooksByAuthorId(1, 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
         verify(bookService, times(1)).findAllByAuthorId(1, pageable);
@@ -168,15 +144,12 @@ class BookControllerTest {
 
     @Test
     void testGetBooksByAuthorName() {
-        // Arrange
         Pageable pageable = mock(Pageable.class);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class))).thenReturn(pageable);
         when(bookService.findAllByAuthorName(anyString(), any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
-        // Act
         ResponseEntity<List<Book>> response = bookController.getBooksByAuthorId("Author Name", 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
         verify(bookService, times(1)).findAllByAuthorName("Author Name", pageable);
@@ -184,15 +157,12 @@ class BookControllerTest {
 
     @Test
     void testGetByRating() {
-        // Arrange
         Pageable pageable = mock(Pageable.class);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class))).thenReturn(pageable);
         when(bookService.findAllByRating(anyInt(), any(Operator.class), any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
-        // Act
         ResponseEntity<List<Book>> response = bookController.getByRating(5, "greater", 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
         verify(bookService, times(1)).findAllByRating(5, Operator.GREATER, pageable);
@@ -200,15 +170,12 @@ class BookControllerTest {
 
     @Test
     void testGetByDate_Success() {
-        // Arrange
         Pageable pageable = mock(Pageable.class);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class))).thenReturn(pageable);
         when(bookService.findAllByDate(any(Date.class), any(Operator.class), any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
-        // Act
         ResponseEntity<List<Book>> response = bookController.getByDate("2023-01-01", "greater", 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
         verify(bookService, times(1)).findAllByDate(any(Date.class), eq(Operator.GREATER), any(Pageable.class));
@@ -216,25 +183,20 @@ class BookControllerTest {
 
     @Test
     void testGetByDate_InvalidDate() {
-        // Act
         ResponseEntity<List<Book>> response = bookController.getByDate("invalid-date", "greater", 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(bookService, never()).findAllByDate(any(Date.class), any(Operator.class), any(Pageable.class));
     }
 
     @Test
     void testGetByStatuses() {
-        // Arrange
         Pageable pageable = mock(Pageable.class);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class))).thenReturn(pageable);
         when(bookService.findByStatusReading(anyInt(), any(Operator.class), any(BookStatusScope.class), any(Pageable.class))).thenReturn(Arrays.asList(new Book(), new Book()));
 
-        // Act
         ResponseEntity<List<Book>> response = bookController.getByStatuses("reading", "overall", "greater", 5, 0, 20, "rating", "desc");
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
         verify(bookService, times(1)).findByStatusReading(5, Operator.GREATER, BookStatusScope.OVERALL, pageable);

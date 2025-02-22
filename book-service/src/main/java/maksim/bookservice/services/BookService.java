@@ -247,7 +247,11 @@ public class BookService {
             }
         } catch (IOException e) {
             if (targetFile != null && targetFile.exists()) {
-                targetFile.delete();
+                try {
+                    Files.delete(targetFile.toPath());
+                } catch (Exception ex) {
+                    logger.warn("Cannot delete file");
+                }
             }
 
             throw new BadRequestException("Cannot open file");
