@@ -265,7 +265,11 @@ public class BookService {
 
         File file = new File(appConfig.getBookFilesDirectory() + book.get().getFilePath());
         if (file.exists()) {
-            file.delete();
+            try {
+                Files.deleteIfExists(file.toPath());
+            } catch (Exception e) {
+                logger.warn("Cannot delete file {}", file.getPath());
+            }
         }
 
         bookRepository.delete(book.get());
