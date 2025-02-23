@@ -389,6 +389,7 @@ class BookServiceTest {
                 "application/pdf",
                 "Test content".getBytes()
         );
+        when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path/");
 
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             bookService.addBookFile(file, 1);
@@ -407,7 +408,7 @@ class BookServiceTest {
         );
 
         when(bookRepository.findById(anyInt())).thenReturn(Optional.empty());
-        when(fileValidators.isPathAllowed(any())).thenReturn(true);
+        when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path/");
 
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             bookService.addBookFile(file, 1);

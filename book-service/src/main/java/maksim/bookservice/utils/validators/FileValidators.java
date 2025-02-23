@@ -32,14 +32,14 @@ public class FileValidators {
     }
 
     public boolean isNameAllowed(MultipartFile file) {
-        if (file == null || file.getOriginalFilename() == null) {
-            return false;
-        }
-
-        for (String pattern : DANGEROUS_PATTERNS) {
-            if (file.getOriginalFilename() == null || file.getOriginalFilename().contains(pattern)) {
-                return false;
+        try {
+            for (String pattern : DANGEROUS_PATTERNS) {
+                if (file.getOriginalFilename().contains(pattern)) {
+                    return false;
+                }
             }
+        } catch (NullPointerException ex) {
+            return false;
         }
 
         return true;
