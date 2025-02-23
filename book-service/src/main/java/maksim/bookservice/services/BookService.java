@@ -213,7 +213,7 @@ public class BookService {
     public void addBookFile(MultipartFile file, int bookId) {
         logger.trace("Try to add file for book");
 
-        if (fileValidators.isPathAllowed(file)) {
+        if (!fileValidators.isPathAllowed(file)) {
             throw new BadRequestException("Invalid file name");
         }
 

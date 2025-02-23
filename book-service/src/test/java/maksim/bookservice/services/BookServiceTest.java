@@ -11,6 +11,8 @@ import maksim.bookservice.repositories.BookStatusesRepository;
 import maksim.bookservice.repositories.UserRepository;
 import maksim.bookservice.utils.enums.BookStatusScope;
 import maksim.bookservice.utils.enums.Operator;
+import maksim.bookservice.utils.validators.FileValidators;
+import maksim.bookservice.utils.validators.StringValidators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -42,6 +44,12 @@ class BookServiceTest {
 
     @Mock
     private BookStatusesRepository bookStatusesRepository;
+
+    @Mock
+    private StringValidators stringValidators;
+
+    @Mock
+    private FileValidators fileValidators;
 
     @Mock
     private AppConfig appConfig;
@@ -360,6 +368,7 @@ class BookServiceTest {
 
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(appConfig.getBookFilesDirectory()).thenReturn("target/test-files/");
+        when(fileValidators.isPathAllowed(any())).thenReturn(true);
 
         bookService.addBookFile(file, bookId);
 
@@ -398,6 +407,7 @@ class BookServiceTest {
         );
 
         when(bookRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(fileValidators.isPathAllowed(any())).thenReturn(true);
 
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             bookService.addBookFile(file, 1);
