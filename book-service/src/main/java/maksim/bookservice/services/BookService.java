@@ -22,6 +22,7 @@ import maksim.bookservice.repositories.BookStatusesRepository;
 import maksim.bookservice.repositories.UserRepository;
 import maksim.bookservice.utils.enums.BookStatusScope;
 import maksim.bookservice.utils.enums.Operator;
+import maksim.bookservice.utils.validators.FileValidators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ public class BookService {
     private final BookStatusesRepository bookStatusesRepository;
     private final UserRepository userRepository;
     private final AppConfig appConfig;
+    private final FileValidators fileValidators;
 
     private static final String ERROR_OPERATOR_MESSAGE = "Incorrect value for mode. Support next values: greater, less";
 
@@ -45,12 +47,14 @@ public class BookService {
             BookRepository bookRepository,
             BookStatusesRepository bookStatusesRepository,
             UserRepository userRepository,
-            AppConfig appConfig
+            AppConfig appConfig,
+            FileValidators fileValidators
     ) {
         this.bookRepository = bookRepository;
         this.bookStatusesRepository = bookStatusesRepository;
         this.userRepository = userRepository;
         this.appConfig = appConfig;
+        this.fileValidators = fileValidators;
     }
 
     public List<Book> findAllBooks(Pageable pageable) {
@@ -208,6 +212,10 @@ public class BookService {
 
     public void addBookFile(MultipartFile file, int bookId) {
         logger.trace("Try to add file for book");
+
+        if (fileValidators.isPathAllowed(file)) {
+            throw new BadRequestException("Invalid file name");
+        }
 
         String fileName = file.getOriginalFilename();
 

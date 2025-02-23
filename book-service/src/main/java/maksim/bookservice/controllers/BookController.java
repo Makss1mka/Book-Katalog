@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.BadRequestException;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -121,7 +123,7 @@ public class BookController {
 
     @GetMapping("/get/byName/{name}")
     public ResponseEntity<List<Book>> getBooksByName(
-            @NotBlank @Min(3) @Max(50) @PathVariable String name,
+            @NotBlank @Size(min = 3, max = 50) @PathVariable String name,
             @RequestParam(required = false, defaultValue = "0") int pageNum,
             @RequestParam(required = false, defaultValue = "20") int itemsAmount,
             @RequestParam(required = false, defaultValue = "rating") String sortStrField,
@@ -188,7 +190,7 @@ public class BookController {
     @GetMapping("/get/byRating/{rating}/{strOperator}")
     public ResponseEntity<List<Book>> getByRating(
             @PathVariable int rating,
-            @NotBlank @Min(1) @Max(8) @PathVariable String strOperator,
+            @NotBlank @Size(min = 1, max = 8) @PathVariable String strOperator,
             @RequestParam(required = false, defaultValue = "0") int pageNum,
             @RequestParam(required = false, defaultValue = "20") int itemsAmount,
             @RequestParam(required = false, defaultValue = "rating") String sortStrField,
@@ -336,6 +338,18 @@ public class BookController {
 
         return ResponseEntity.ok("Book file was successfully added");
     }
+
+    @DeleteMapping("/delete/book/{bookId}")
+    public ResponseEntity<String> deleteBook(@PathVariable int bookId) {
+        logger.trace("Try to delete book metaData and file");
+
+        bookService.deleteBook(bookId);
+
+        logger.trace("Book was successfully deleted");
+
+        return ResponseEntity.ok("Book was successfully deleted");
+    }
+
 
 
 }
