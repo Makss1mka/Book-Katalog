@@ -8,15 +8,17 @@ import lombok.ToString;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 @Entity
-@Table
+@Table(name = "reviews")
 public class Review {
     @ManyToMany
     @JoinTable(
-            name = "",
-            joinColumns = @JoinColumn(name = ""),
-            inverseJoinColumns = @JoinColumn(name = "")
+            name = "user_review_like",
+            joinColumns = @JoinColumn(name = "review_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> likedUsers = new HashSet<>();
 
@@ -34,8 +36,8 @@ public class Review {
     @Column(name = "text")
     private String text;
 
-    @Column(name = "rate", nullable = false)
-    private Integer rate = 0;
+    @Column(name = "rating", nullable = false)
+    private Integer rating = 0;
 
     @Column(name = "likes", nullable = false)
     private Integer likes = 0;
