@@ -20,7 +20,7 @@ public class User {
     @Column(name="name", nullable = false, unique = true)
     private String name;
 
-    @Column(name="profile_pic_path", nullable = true)
+    @Column(name="profile_pic_path")
     private String profilePicPath;
 
     @Column(name="email", nullable = false, unique = true)

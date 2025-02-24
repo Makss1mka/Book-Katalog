@@ -1,4 +1,4 @@
-package maksim.review_service;
+package maksim.reviewservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
