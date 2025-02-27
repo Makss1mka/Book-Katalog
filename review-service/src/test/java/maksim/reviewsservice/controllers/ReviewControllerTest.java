@@ -1,6 +1,5 @@
 package maksim.reviewsservice.controllers;
 
-import maksim.reviewsservice.config.GlobalExceptionHandler;
 import maksim.reviewsservice.models.Review;
 import maksim.reviewsservice.models.dtos.LikeDtoForCreating;
 import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
