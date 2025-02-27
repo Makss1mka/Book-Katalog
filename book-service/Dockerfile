@@ -10,11 +10,11 @@ FROM openjdk:23-slim
 
 VOLUME /tmp
 
+COPY ./statics /app/statics
+
 ARG DEPENDENCY=/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-
-EXPOSE 8084
 
 ENTRYPOINT ["java","-cp","app:app/lib/*","maksim.booksservice.BookServiceApplication"]

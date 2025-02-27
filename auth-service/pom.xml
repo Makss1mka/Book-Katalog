@@ -30,7 +30,7 @@
 		<sonar.organization>makskroll134679</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.java.binaries>target/classes</sonar.java.binaries>
-		<docker.image.name>auth-service:${project.version}</docker.image.name>
+		<docker.image.name>maks1mka/auth-service</docker.image.name>
 		<java.version>23</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 	</properties>
@@ -225,7 +225,9 @@
 							<arguments>
 								<argument>build</argument>
 								<argument>-t</argument>
-								<argument>${docker.image.name}</argument>
+								<argument>${docker.image.name}:${project.version}</argument>
+								<argument>-t</argument>
+								<argument>${docker.image.name}:latest</argument>
 								<argument>.</argument>
 							</arguments>
 						</configuration>

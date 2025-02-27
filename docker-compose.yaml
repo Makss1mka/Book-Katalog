@@ -1,0 +1,87 @@
+services:
+  eureka-server:
+    container_name: eureka-server
+    image: maks1mka/eureka-server:latest
+    ports:
+      - 8081:8081
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
+  auth-service:
+    container_name: auth-service
+    depends_on:
+      eureka-server:
+        condition: service_started
+    image: maks1mka/auth-service:latest
+    ports:
+      - 8082:8082
+    networks:
+      - backend
+
+  book-service:
+    container_name: book-service
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    image: maks1mka/book-service:latest
+    ports:
+      - 8084:8084
+    networks:
+      - backend
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+  review-service:
+    container_name: review-service
+    depends_on:
+      #eureka-server:
+      book-service:
+        condition: service_started
+    image: maks1mka/review-service:latest
+    ports:
+      - 8087:8087
+    networks:
+      - backend
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.0
+    container_name: zookeeper
+    ports:
+      - 8089:8089
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 8089
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - backend
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.0
+    container_name: kafka
+    ports:
+      - 8090:8090
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:8089
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:8090
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    depends_on:
+      zookeeper:
+        condition: service_started
+    networks:
+      - backend
+
+
+networks:
+  backend:
+    driver: bridge
+

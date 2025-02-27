@@ -30,7 +30,7 @@
 		<sonar.organization>makskroll134679</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.java.binaries>target/classes</sonar.java.binaries>
-		<docker.image.name>book-service:${project.version}</docker.image.name>
+		<docker.image.name>maks1mka/book-service</docker.image.name>
 		<java.version>23</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 	</properties>
@@ -58,6 +58,19 @@
 		</dependency>
 
 
+		<!-- VALIDATION DEPS -->
+		<dependency>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
+			<version>3.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>8.0.1.Final</version>
+		</dependency>
+
+
 		<!-- SERVICE DISCOVERY DEPS -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -66,18 +79,22 @@
 
 
 		<!-- CLOUD STREAM DEPS -->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.cloud</groupId>-->
+<!--			<artifactId>spring-cloud-stream</artifactId>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.cloud</groupId>-->
+<!--			<artifactId>spring-cloud-stream-test-binder</artifactId>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.cloud</groupId>-->
+<!--			<artifactId>spring-cloud-starter-stream-kafka</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-stream</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-stream-test-binder</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-stream-kafka</artifactId>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
 		</dependency>
 
 
@@ -248,7 +265,9 @@
 							<arguments>
 								<argument>build</argument>
 								<argument>-t</argument>
-								<argument>${docker.image.name}</argument>
+								<argument>${docker.image.name}:${project.version}</argument>
+								<argument>-t</argument>
+								<argument>${docker.image.name}:latest</argument>
 								<argument>.</argument>
 							</arguments>
 						</configuration>

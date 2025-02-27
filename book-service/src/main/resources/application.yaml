@@ -1,7 +1,7 @@
 spring:
   application:
     name: book-service
-    book-files-directory: "C:/Users/maksi/Desktop/Новая папка/statics/"
+    book-files-directory: "app/statics/"
   datasource:
     url: "jdbc:postgresql://host.docker.internal:5432/postgres"
     username: "postgres"
@@ -17,11 +17,27 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  kafka:
+    bootstrap-servers: kafka:8090
+    topics:
+      changes: review-changes
+    consumer:
+      group-id: book-service
+      auto-offset-reset: earliest
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "maksim.booksservice, maksim.reviewsservice"
+
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.apache.kafka: DEBUG
+    org.springframework.kafka: DEBUG
 
 
 server:
@@ -31,4 +47,4 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: "http://localhost:8081/eureka"
+      defaultZone: "http://eureka-server:8081/eureka"

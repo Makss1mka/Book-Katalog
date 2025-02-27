@@ -15,6 +15,6 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
-EXPOSE 8084
+RUN apt-get update && apt-get install -y curl
 
 ENTRYPOINT ["java","-cp","app:app/lib/*","maksim.eurekaserver.EurekaServerApplication"]
