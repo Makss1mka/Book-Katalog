@@ -66,66 +66,66 @@ class BookServiceTest {
     }
 
     @Test
-    void testFindAllBooks() {
+    void testGetAllBooks() {
         Book book = new Book();
         Page<Book> bookPage = new PageImpl<>(List.of(book));
         when(bookRepository.findAll(pageable)).thenReturn(bookPage);
 
-        List<Book> result = bookService.findAllBooks(pageable);
+        List<Book> result = bookService.getAllBooks(pageable);
 
         assertEquals(1, result.size());
         verify(bookRepository, times(1)).findAll(pageable);
     }
 
     @Test
-    void testFindAllBooksWithFilters() {
+    void testGetAllBooksWithFilters() {
         String genres = "fiction,thriller";
         List<String> genresFilter = List.of("fiction", "thriller");
         List<Book> books = List.of(new Book());
 
         when(bookRepository.findAllByGenres(genresFilter, pageable)).thenReturn(books);
 
-        assertEquals(books, bookService.findAllBooksWithFilters(genres, pageable));
+        assertEquals(books, bookService.getAllBooksWithFilters(genres, pageable));
 
         verify(bookRepository, times(1)).findAllByGenres(genresFilter, pageable);
     }
 
     @Test
-    void testFindAllByAuthorName() {
+    void testGetAllByAuthorName() {
         String authorName = "test_author_4";
         Book book = new Book();
         when(bookRepository.findByAuthorName(authorName, pageable)).thenReturn(List.of(book));
 
-        List<Book> result = bookService.findAllByAuthorName(authorName, pageable);
+        List<Book> result = bookService.getAllByAuthorName(authorName, pageable);
 
         assertEquals(1, result.size());
         verify(bookRepository, times(1)).findByAuthorName(authorName, pageable);
     }
 
     @Test
-    void testFindAllByAuthorId() {
+    void testGetAllByAuthorId() {
         int authorId = 17;
         Book book = new Book();
         when(bookRepository.findByAuthorId(authorId, pageable)).thenReturn(List.of(book));
 
-        List<Book> result = bookService.findAllByAuthorId(authorId, pageable);
+        List<Book> result = bookService.getAllByAuthorId(authorId, pageable);
 
         assertEquals(1, result.size());
         verify(bookRepository, times(1)).findByAuthorId(authorId, pageable);
     }
 
     @Test
-    void testFindAllByDate() {
+    void testGetAllByDate() {
         Date date = new Date();
         List<Book> books = List.of(new Book());
 
         when(bookRepository.findByIssuedDateGreaterThan(date, pageable)).thenReturn(books);
         when(bookRepository.findByIssuedDateLessThan(date, pageable)).thenReturn(books);
 
-        assertEquals(books, bookService.findAllByDate(date, Operator.GREATER, pageable));
-        assertEquals(books, bookService.findAllByDate(date, Operator.LESS, pageable));
+        assertEquals(books, bookService.getAllByDate(date, Operator.GREATER, pageable));
+        assertEquals(books, bookService.getAllByDate(date, Operator.LESS, pageable));
         assertThrows(BadRequestException.class, () -> {
-            bookService.findAllByDate(date, Operator.EQUAL, pageable);
+            bookService.getAllByDate(date, Operator.EQUAL, pageable);
         });
 
         verify(bookRepository, times(1)).findByIssuedDateGreaterThan(date, pageable);
@@ -133,7 +133,7 @@ class BookServiceTest {
     }
 
     @Test
-    void testFindAllByRating() {
+    void testGetAllByRating() {
         int rating = 5;
         List<Book> books = List.of(new Book());
 
@@ -142,7 +142,7 @@ class BookServiceTest {
         when(bookRepository.findByRating(rating, pageable)).thenReturn(books);
 
         for (Operator op : Operator.values()) {
-            assertEquals(books, bookService.findAllByRating(rating, op, pageable));
+            assertEquals(books, bookService.getAllByRating(rating, op, pageable));
         }
 
         verify(bookRepository, times(1)).findByRatingGreaterThan(rating, pageable);
@@ -151,31 +151,31 @@ class BookServiceTest {
     }
 
     @Test
-    void testFindByName() {
+    void testGetByName() {
         String name = "Затерянный Мир";
         Book book = new Book();
         when(bookRepository.findByName(name, pageable)).thenReturn(List.of(book));
 
-        List<Book> result = bookService.findByName(name, pageable);
+        List<Book> result = bookService.getByName(name, pageable);
 
         assertEquals(1, result.size());
         verify(bookRepository, times(1)).findByName(name, pageable);
     }
 
     @Test
-    void testFindById() {
+    void testGetById() {
         int id = 1;
         Book book = new Book();
         when(bookRepository.findById(id)).thenReturn(Optional.of(book));
 
-        Optional<Book> result = bookService.findById(id);
+        Optional<Book> result = bookService.getById(id);
 
         assertTrue(result.isPresent());
         verify(bookRepository, times(1)).findById(id);
     }
 
     @Test
-    void testFindByStatusReading() {
+    void testGetByStatusReading() {
         int value = 10;
         List<Book> books = List.of(new Book());
 
@@ -193,13 +193,13 @@ class BookServiceTest {
         for (Operator op : Operator.values()) {
             if (op == Operator.EQUAL) {
                 assertThrows(BadRequestException.class, () -> {
-                    bookService.findByStatusReading(value, op, BookStatusScope.OVERALL, pageable);
+                    bookService.getByStatusReading(value, op, BookStatusScope.OVERALL, pageable);
                 });
                 continue;
             }
 
             for (BookStatusScope bookStatScope : BookStatusScope.values()) {
-                assertEquals(books, bookService.findByStatusReading(value, op, bookStatScope, pageable));
+                assertEquals(books, bookService.getByStatusReading(value, op, bookStatScope, pageable));
             }
         }
 
@@ -215,7 +215,7 @@ class BookServiceTest {
     }
 
     @Test
-    void testFindByStatusRead() {
+    void testGetByStatusRead() {
         int value = 10;
         List<Book> books = List.of(new Book());
 
@@ -234,13 +234,13 @@ class BookServiceTest {
         for (Operator op : Operator.values()) {
             if (op == Operator.EQUAL) {
                 assertThrows(BadRequestException.class, () -> {
-                    bookService.findByStatusRead(value, op, BookStatusScope.OVERALL, pageable);
+                    bookService.getByStatusRead(value, op, BookStatusScope.OVERALL, pageable);
                 });
                 continue;
             }
 
             for (BookStatusScope bookStatScope : BookStatusScope.values()) {
-                assertEquals(books, bookService.findByStatusRead(value, op, bookStatScope, pageable));
+                assertEquals(books, bookService.getByStatusRead(value, op, bookStatScope, pageable));
             }
         }
 
@@ -256,7 +256,7 @@ class BookServiceTest {
     }
 
     @Test
-    void testFindByStatusDrop() {
+    void testGetByStatusDrop() {
         int value = 10;
         List<Book> books = List.of(new Book());
 
@@ -274,13 +274,13 @@ class BookServiceTest {
         for (Operator op : Operator.values()) {
             if (op == Operator.EQUAL) {
                 assertThrows(BadRequestException.class, () -> {
-                    bookService.findByStatusDrop(value, op, BookStatusScope.OVERALL, pageable);
+                    bookService.getByStatusDrop(value, op, BookStatusScope.OVERALL, pageable);
                 });
                 continue;
             }
 
             for (BookStatusScope bookStatScope : BookStatusScope.values()) {
-                assertEquals(books, bookService.findByStatusDrop(value, op, bookStatScope, pageable));
+                assertEquals(books, bookService.getByStatusDrop(value, op, bookStatScope, pageable));
             }
         }
 

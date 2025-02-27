@@ -92,9 +92,9 @@ public class BookController {
         List<Book> findBooks;
 
         if (genres != null) {
-            findBooks = bookService.findAllBooksWithFilters(genres, pageable);
+            findBooks = bookService.getAllBooksWithFilters(genres, pageable);
         } else {
-            findBooks = bookService.findAllBooks(pageable);
+            findBooks = bookService.getAllBooks(pageable);
         }
 
         logger.trace("Find (all/all by genres) successfully: selected items {}", findBooks.size());
@@ -106,7 +106,7 @@ public class BookController {
     public ResponseEntity<Book> getBookById(@PathVariable int id) {
         logger.trace("Try to get book by id");
 
-        Optional<Book> book = bookService.findById(id);
+        Optional<Book> book = bookService.getById(id);
 
         if (book.isPresent()) {
             logger.trace("Find book: {}", book);
@@ -134,7 +134,7 @@ public class BookController {
 
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
 
-        List<Book> findBooks = bookService.findByName(name, pageable);
+        List<Book> findBooks = bookService.getByName(name, pageable);
 
         logger.trace("Find (by name) successfully: selected items {}", findBooks.size());
 
@@ -156,7 +156,7 @@ public class BookController {
 
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
 
-        List<Book> findBooks = bookService.findAllByAuthorId(authorId, pageable);
+        List<Book> findBooks = bookService.getAllByAuthorId(authorId, pageable);
 
         logger.trace("Find (by author id) successfully: selected items {}", findBooks.size());
 
@@ -178,7 +178,7 @@ public class BookController {
 
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
 
-        List<Book> findBooks = bookService.findAllByAuthorName(authorName, pageable);
+        List<Book> findBooks = bookService.getAllByAuthorName(authorName, pageable);
 
         logger.trace("Find (by author name) successfully: selected items {}", findBooks.size());
 
@@ -202,7 +202,7 @@ public class BookController {
 
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
 
-        List<Book> findBooks = bookService.findAllByRating(rating, operator, pageable);
+        List<Book> findBooks = bookService.getAllByRating(rating, operator, pageable);
 
         logger.trace("Find by rating successfully: selected items {}", findBooks.size());
 
@@ -236,7 +236,7 @@ public class BookController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        List<Book> findBooks = bookService.findAllByDate(date, operator, pageable);
+        List<Book> findBooks = bookService.getAllByDate(date, operator, pageable);
 
         logger.trace("Find by date successfully: selected items {}", findBooks.size());
 
@@ -265,9 +265,9 @@ public class BookController {
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
 
         List<Book> findBooks = switch (bookStatus) {
-            case BookStatus.READING -> bookService.findByStatusReading(value, operator, scope, pageable);
-            case BookStatus.READ -> bookService.findByStatusRead(value, operator, scope,  pageable);
-            case BookStatus.DROP -> bookService.findByStatusDrop(value, operator, scope, pageable);
+            case BookStatus.READING -> bookService.getByStatusReading(value, operator, scope, pageable);
+            case BookStatus.READ -> bookService.getByStatusRead(value, operator, scope,  pageable);
+            case BookStatus.DROP -> bookService.getByStatusDrop(value, operator, scope, pageable);
         };
 
         logger.trace("Find by status successfully: selected items {}", findBooks.size());

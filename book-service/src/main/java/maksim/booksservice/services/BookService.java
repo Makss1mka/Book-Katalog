@@ -17,6 +17,7 @@ import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.models.Book;
 import maksim.booksservice.models.BookDtoForCreating;
 import maksim.booksservice.models.User;
+import maksim.booksservice.models.kafkaDtos.DtoForBookReviewChanging;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.BookStatusesRepository;
 import maksim.booksservice.repositories.UserRepository;
@@ -57,13 +58,13 @@ public class BookService {
         this.fileValidators = fileValidators;
     }
 
-    public List<Book> findAllBooks(Pageable pageable) {
+    public List<Book> getAllBooks(Pageable pageable) {
         logger.trace("Try to get books without filters");
 
         return bookRepository.findAll(pageable).toList();
     }
 
-    public List<Book> findAllBooksWithFilters(String rawGenresFilter, Pageable pageable) {
+    public List<Book> getAllBooksWithFilters(String rawGenresFilter, Pageable pageable) {
         logger.trace("Try to get books with filters");
 
         List<String> genresFilter = Arrays.stream(rawGenresFilter.split(",")).toList();
@@ -71,19 +72,19 @@ public class BookService {
         return bookRepository.findAllByGenres(genresFilter, pageable);
     }
 
-    public List<Book> findAllByAuthorName(String authorName, Pageable pageable) {
+    public List<Book> getAllByAuthorName(String authorName, Pageable pageable) {
         logger.trace("Try to get all books by author name");
 
         return bookRepository.findByAuthorName(authorName, pageable);
     }
 
-    public List<Book> findAllByAuthorId(int authorId, Pageable pageable) {
+    public List<Book> getAllByAuthorId(int authorId, Pageable pageable) {
         logger.trace("Try to get all books by author id");
 
         return bookRepository.findByAuthorId(authorId, pageable);
     }
 
-    public List<Book> findAllByDate(Date date, Operator operator, Pageable pageable) {
+    public List<Book> getAllByDate(Date date, Operator operator, Pageable pageable) {
         logger.trace("Try to get all books by date");
 
         return switch (operator) {
@@ -93,7 +94,7 @@ public class BookService {
         };
     }
 
-    public List<Book> findAllByRating(int rating, Operator operator, Pageable pageable) {
+    public List<Book> getAllByRating(int rating, Operator operator, Pageable pageable) {
         logger.trace("Try to get all books by rating");
 
         return switch (operator) {
@@ -103,19 +104,19 @@ public class BookService {
         };
     }
 
-    public List<Book> findByName(String name, Pageable pageable) {
+    public List<Book> getByName(String name, Pageable pageable) {
         logger.trace("Try to get all books by name");
 
         return bookRepository.findByName(name, pageable);
     }
 
-    public Optional<Book> findById(int id) {
+    public Optional<Book> getById(int id) {
         logger.trace("Try to find book by id");
 
         return bookRepository.findById(id);
     }
 
-    public List<Book> findByStatusReading(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
+    public List<Book> getByStatusReading(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
         logger.trace("Try to get books by status reading");
 
         return switch (operator) {
@@ -140,7 +141,7 @@ public class BookService {
 
     }
 
-    public List<Book> findByStatusRead(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
+    public List<Book> getByStatusRead(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
         logger.trace("Try to get books by status read");
 
         return switch (operator) {
@@ -165,7 +166,7 @@ public class BookService {
 
     }
 
-    public List<Book> findByStatusDrop(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
+    public List<Book> getByStatusDrop(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
         logger.trace("Try to get books by status drop");
 
         return switch (operator) {
@@ -189,6 +190,24 @@ public class BookService {
         };
 
     }
+
+    public File getFile(int bookId) {
+        Optional<Book> book = bookRepository.findById(bookId);
+
+        if (book.isEmpty() || book.get().getFilePath() == null) {
+            throw new NotFoundException("Cannot find book");
+        }
+
+        File file = new File(appConfig.getBookFilesDirectory() + book.get().getFilePath());
+
+        if (!file.exists()) {
+            throw new NotFoundException("Cannot open book file" + file.getPath());
+        }
+
+        return file;
+    }
+
+
 
     public void addBookMetaData(BookDtoForCreating bookData) {
         logger.trace("Try to add book metadata");
@@ -271,6 +290,8 @@ public class BookService {
         logger.trace("Book file was added successfully");
     }
 
+
+
     public void deleteBook(int bookId) {
         Optional<Book> book = bookRepository.findById(bookId);
 
@@ -290,20 +311,76 @@ public class BookService {
         bookRepository.delete(book.get());
     }
 
-    public File getFile(int bookId) {
-        Optional<Book> book = bookRepository.findById(bookId);
 
-        if (book.isEmpty() || book.get().getFilePath() == null) {
-            throw new NotFoundException("Cannot find book");
+
+    public void changeOneRate(DtoForBookReviewChanging reviewData) {
+        logger.trace("BookService method entrance: changeOneRate | Params: {}", reviewData);
+
+        if (reviewData == null || reviewData.getBookId() == null
+                || reviewData.getAction() == 0 || reviewData.getRating() == null) {
+            logger.info("BookService method: changeOneRate | Values cannot be null (except previous rate), review data: {}", reviewData);
+
+            return;
         }
 
-        File file = new File(appConfig.getBookFilesDirectory() + book.get().getFilePath());
+        Optional<Book> optionalBook = bookRepository.findById(reviewData.getBookId());
 
-        if (!file.exists()) {
-            throw new NotFoundException("Cannot open book file" + file.getPath());
+        if (optionalBook.isEmpty()) {
+            logger.info("BookService method: changeOneRate | Cannot find book with such id: {}", reviewData);
+
+            return;
         }
 
-        return file;
+        Book book = optionalBook.get();
+
+        switch (reviewData.getAction()) {
+            case -1 -> {
+                if (book.getRatingCount() == 0) {
+                    logger.info("BookService method: changeOneRate | Rating count is 0, review data: {}", reviewData);
+
+                    return;
+                }
+
+                book.setRating(
+                        (book.getRating() * book.getRatingCount() - reviewData.getRating()) / (book.getRatingCount() - 1)
+                );
+
+                book.setRatingCount(
+                        book.getRatingCount() - 1
+                );
+            }
+            case 0 -> {
+                if (reviewData.getPreviousRate() == null) {
+                    logger.info("BookService method: changeOneRate | Previous rate is null, review data: {}", reviewData);
+
+                    return;
+                }
+
+                book.setRating(
+                        (book.getRating() * book.getRatingCount() + reviewData.getPreviousRate()
+                                - reviewData.getRating()) / book.getRatingCount()
+                );
+            }
+            case 1 -> {
+                book.setRating(
+                        (book.getRating() * book.getRatingCount() + reviewData.getRating()) / (book.getRatingCount() + 1)
+                );
+
+                book.setRatingCount(
+                        book.getRatingCount() + 1
+                );
+            }
+            default -> {
+                logger.info("BookService method: changeOneRate | Invalid action value, " +
+                        "action can be -1 - remove / 0 - change / 1 - add rate, review data: {}", reviewData);
+
+                return;
+            }
+        }
+
+        bookRepository.save(book);
+
+        logger.trace("BookService method return: changeOneRate");
     }
 
 }

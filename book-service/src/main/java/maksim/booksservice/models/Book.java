@@ -40,7 +40,7 @@ public class Book {
     private String filePath;
 
     @Column(name = "rating", nullable = false)
-    private int rating = 0;
+    private float rating = 0;
 
     @Column(name = "ratings_count", nullable = false)
     private int ratingCount = 0;
