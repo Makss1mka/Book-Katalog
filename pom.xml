@@ -5,6 +5,10 @@
     <artifactId>book-katalog</artifactId>
     <version>0.0.2</version>
     <packaging>pom</packaging>
+    <properties>
+       <sonar.organization>makskroll134679</sonar.organization>
+       <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    </properties>
 
     <modules>
         <module>book-service</module>
