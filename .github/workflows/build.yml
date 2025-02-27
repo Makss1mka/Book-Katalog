@@ -42,13 +42,21 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and analyze Book-Service
+      - name: Build and analyze Book-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd eureka-server
+          # cd eureka-server
+          # mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
+          # cd ..
+          cd book-service
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
           cd ..
-          cd book-service
+ 
+      - name: Build and analyze Review-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd review-service
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
           cd ..
