@@ -1,4 +1,4 @@
-package maksim.reviewsservice.models;
+package maksim.reviewsservice.models.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
