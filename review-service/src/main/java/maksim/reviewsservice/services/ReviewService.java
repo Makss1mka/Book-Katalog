@@ -1,11 +1,13 @@
 package maksim.reviewsservice.services;
 
 import jakarta.ws.rs.NotFoundException;
-import maksim.reviewsservice.models.*;
+import java.util.List;
+import java.util.Optional;
+import maksim.reviewsservice.models.Review;
+import maksim.reviewsservice.models.User;
 import maksim.reviewsservice.models.dtos.LikeDtoForCreating;
 import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
 import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
-import maksim.reviewsservice.models.kafkaDtos.DtoForBookReviewChanging;
 import maksim.reviewsservice.repositories.ReviewRepository;
 import maksim.reviewsservice.repositories.UserRepository;
 import maksim.reviewsservice.utils.enums.ReviewLikeTableLinkingMode;
@@ -14,13 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 @Service
 public class ReviewService {
-    private final static Logger logger = LoggerFactory.getLogger(ReviewService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReviewService.class);
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
@@ -124,9 +123,9 @@ public class ReviewService {
 
         if (prevSize != review.get().getLikedUsers().size()) {
             review.get()
-                    .setLikes(
-                            review.get().getLikes() + 1
-                    );
+                .setLikes(
+                    review.get().getLikes() + 1
+                );
 
             reviewRepository.save(review.get());
         }
@@ -163,9 +162,9 @@ public class ReviewService {
         }
 
         review.get()
-                .setLikes(
-                        review.get().getLikes() - 1
-                );
+            .setLikes(
+                review.get().getLikes() - 1
+            );
 
         review.get()
                 .getLikedUsers()
@@ -200,7 +199,7 @@ public class ReviewService {
             touchedFields++;
 
             kafkaProducerService.publishReviewChanges(review.get(), 0);
-       }
+        }
 
         if (reviewData.getText() != null && !reviewData.getText().isEmpty()) {
             review.get().setText(reviewData.getText());

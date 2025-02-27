@@ -20,8 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
@@ -29,9 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-public class ReviewControllerTest {
-    private MockMvc mockMvc;
-
+class ReviewControllerTest {
     @Mock
     private ReviewService reviewService;
 
@@ -51,9 +47,6 @@ public class ReviewControllerTest {
         pageable = PageRequest.of(0, 10);
 
         MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(reviewController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
     }
 
     @Test

@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-public class ReviewServiceTest {
+class ReviewServiceTest {
     @Mock
     private ReviewRepository reviewRepository;
 

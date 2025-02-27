@@ -1,7 +1,7 @@
 package maksim.reviewsservice.services;
 
 import maksim.reviewsservice.models.Review;
-import maksim.reviewsservice.models.kafkaDtos.DtoForBookReviewChanging;
+import maksim.reviewsservice.models.kafkadtos.DtoForBookReviewChanging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -23,7 +23,7 @@ public class KafkaProducerService {
         if (action != -1 && action != 0 && action != 1) {
             logger.trace("Kafka method: publishReviewChanges | Invalid action value");
 
-            throw new RuntimeException("Invalid action value, action can be -1, 0 or 1 for remove/change/add rate");
+            throw new IllegalArgumentException("Invalid action value, action can be -1, 0 or 1 for remove/change/add rate");
         }
 
         DtoForBookReviewChanging transferringData = new DtoForBookReviewChanging();
