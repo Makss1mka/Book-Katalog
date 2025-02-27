@@ -46,9 +46,9 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd eureka-server
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
-          cd ..
+          # cd eureka-server
+          # mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
+          # cd ..
           cd book-service
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
           cd ..
