@@ -16,3 +16,4 @@ user-service/logs/
 
 ports.txt
 statics
+book-service/statics
