@@ -6,10 +6,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.BadRequestException;
-import maksim.reviewsservice.models.LikeDtoForCreating;
+import maksim.reviewsservice.models.dtos.LikeDtoForCreating;
 import maksim.reviewsservice.models.Review;
-import maksim.reviewsservice.models.ReviewDtoForCreating;
-import maksim.reviewsservice.models.ReviewDtoForUpdating;
+import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
+import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
 import maksim.reviewsservice.services.ReviewService;
 import maksim.reviewsservice.utils.Pagination;
 import maksim.reviewsservice.utils.enums.ReviewLikeTableLinkingMode;
@@ -117,7 +117,7 @@ public class ReviewController {
 
         logger.trace("Controller method return: addReview | Review was added successfully (review id {})", createdReview.getId());
 
-        return new ResponseEntity<>(createdReview, HttpStatus.OK);
+        return new ResponseEntity<>(createdReview, HttpStatus.CREATED);
     }
 
     @PostMapping("/add/like")
@@ -128,7 +128,7 @@ public class ReviewController {
 
         logger.trace("Controller method return: addReview | Review like was added successfully");
 
-        return new ResponseEntity<>("Like was added successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Like was added successfully", HttpStatus.CREATED);
     }
 
 
@@ -168,6 +168,7 @@ public class ReviewController {
         reviewData.setText(
                 stringValidators.textScreening(reviewData.getText())
         );
+
         if (!stringValidators.isSafeFromSqlInjection(reviewData.getText())) {
             logger.trace("Controller method: updateReview | Invalid review text");
 

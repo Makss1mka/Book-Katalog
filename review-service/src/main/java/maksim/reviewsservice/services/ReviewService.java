@@ -2,6 +2,10 @@ package maksim.reviewsservice.services;
 
 import jakarta.ws.rs.NotFoundException;
 import maksim.reviewsservice.models.*;
+import maksim.reviewsservice.models.dtos.LikeDtoForCreating;
+import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
+import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
+import maksim.reviewsservice.models.kafkaDtos.DtoForBookReviewChanging;
 import maksim.reviewsservice.repositories.ReviewRepository;
 import maksim.reviewsservice.repositories.UserRepository;
 import maksim.reviewsservice.utils.enums.ReviewLikeTableLinkingMode;
@@ -12,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Service
 public class ReviewService {
@@ -19,14 +24,17 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
+    private final KafkaProducerService kafkaProducerService;
 
     @Autowired
     ReviewService(
             ReviewRepository reviewRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            KafkaProducerService kafkaProducerService
     ) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     public Review getById(int reviewId, ReviewLikeTableLinkingMode mode) {
@@ -75,9 +83,8 @@ public class ReviewService {
 
 
     public Review addReview(ReviewDtoForCreating reviewData) {
-        logger.trace("Method enter: addReview | Params: bookId {} ; userId {} ; text size {} ; rating {}",
-                reviewData.getBookId(), reviewData.getUserId(),
-                reviewData.getText().length(), reviewData.getRating());
+        logger.trace("Method enter: addReview | Params: bookId {} ; userId {} ; rating {}",
+                reviewData.getBookId(), reviewData.getUserId(), reviewData.getRating());
 
         /*
         * Тут надо проверки на то существуют ли book и user по переданным id
@@ -90,6 +97,8 @@ public class ReviewService {
         newReview.setRating(reviewData.getRating());
 
         reviewRepository.save(newReview);
+
+        kafkaProducerService.publishReviewChanges(newReview, 1);
 
         logger.trace("Method return: addReview | Result: review add successfully");
 
@@ -135,6 +144,8 @@ public class ReviewService {
         if (review.isEmpty()) {
             throw new NotFoundException("Cannot delete review (this review doesn't exist)");
         }
+
+        kafkaProducerService.publishReviewChanges(review.get(), -1);
 
         reviewRepository.delete(review.get());
 
@@ -187,6 +198,8 @@ public class ReviewService {
         if (reviewData.getRating() != null) {
             review.get().setRating(reviewData.getRating());
             touchedFields++;
+
+            kafkaProducerService.publishReviewChanges(review.get(), 0);
        }
 
         if (reviewData.getText() != null && !reviewData.getText().isEmpty()) {
@@ -194,7 +207,7 @@ public class ReviewService {
             touchedFields++;
         }
 
-        if (reviewData.getRating() != null || reviewData.getText() != null) {
+        if (reviewData.getRating() != null || (reviewData.getText() != null && !reviewData.getText().isEmpty())) {
             reviewRepository.save(review.get());
         }
 

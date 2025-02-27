@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>maksim</groupId>
 	<artifactId>review-service</artifactId>
@@ -30,7 +30,7 @@
 		<sonar.organization>makskroll134679</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.java.binaries>target/classes</sonar.java.binaries>
-		<docker.image.name>review-service:${project.version}</docker.image.name>
+		<docker.image.name>maks1mka/review-service</docker.image.name>
 		<java.version>23</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 	</properties>
@@ -74,6 +74,14 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-stream-test-binder</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-stream-kafka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
 		</dependency>
 
 
@@ -245,7 +253,9 @@
 							<arguments>
 								<argument>build</argument>
 								<argument>-t</argument>
-								<argument>${docker.image.name}</argument>
+								<argument>${docker.image.name}:${project.version}</argument>
+								<argument>-t</argument>
+								<argument>${docker.image.name}:latest</argument>
 								<argument>.</argument>
 							</arguments>
 						</configuration>
