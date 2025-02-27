@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.util.concurrent.CompletableFuture;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -20,30 +22,30 @@ class KafkaProducerServiceTest {
     @InjectMocks
     private KafkaProducerService kafkaProducerService;
 
+    private Review review;
+
     @BeforeEach
     void setUp() {
+        this.review = new Review();
+        review.setBookId(1);
+        review.setRating(1);
+
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void publishReviewChanges_Success() {
-        Review review = new Review();
+        when(kafkaTemplate.send(any(), any())).thenReturn(new CompletableFuture<>());
 
-        doNothing().when(kafkaTemplate).send(any(), any());
-
-        kafkaProducerService.publishReviewChanges(review, 1);
+        kafkaProducerService.publishReviewChanges(this.review, 1);
 
         verify(kafkaTemplate, times(1)).send(any(), any());
     }
 
     @Test
     void publishReviewChanges_InvalidAction() {
-        Review review = new Review();
-
-        doNothing().when(kafkaTemplate).send(any(), any());
-
-        assertThrows(RuntimeException.class, () -> {
-            kafkaProducerService.publishReviewChanges(review, 200);
+        assertThrows(IllegalArgumentException.class, () -> {
+            kafkaProducerService.publishReviewChanges(this.review, 200);
         });
     }
 

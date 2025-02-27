@@ -29,7 +29,7 @@ public class KafkaProducerService {
         DtoForBookReviewChanging transferringData = new DtoForBookReviewChanging();
 
         transferringData.setBookId(review.getBookId());
-        transferringData.setBookId(review.getRating());
+        transferringData.setRating(review.getRating());
         transferringData.setAction(action);
 
         kafkaTemplate.send("review-changes", transferringData);
