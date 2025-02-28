@@ -1,4 +1,4 @@
-package maksim.booksservice.models.kafkaDtos;
+package maksim.booksservice.models.kafkadtos;
 
 import lombok.Getter;
 import lombok.Setter;

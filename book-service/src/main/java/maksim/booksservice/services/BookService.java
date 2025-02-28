@@ -17,7 +17,7 @@ import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.models.Book;
 import maksim.booksservice.models.BookDtoForCreating;
 import maksim.booksservice.models.User;
-import maksim.booksservice.models.kafkaDtos.DtoForBookReviewChanging;
+import maksim.booksservice.models.kafkadtos.DtoForBookReviewChanging;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.BookStatusesRepository;
 import maksim.booksservice.repositories.UserRepository;
@@ -239,10 +239,10 @@ public class BookService {
             throw new BadRequestException("Invalid file name");
         }
 
-        String fileName = file.getOriginalFilename();
+        String fileName = testFile.getPath();
 
-        if (fileName == null || fileName.lastIndexOf(".") == -1) {
-            throw new BadRequestException("Invalid file name");
+        if (fileName.isEmpty() || fileName.lastIndexOf(".") == -1) {
+            throw new BadRequestException("Invalid file extension");
         }
 
         Optional<Book> book = bookRepository.findById(bookId);

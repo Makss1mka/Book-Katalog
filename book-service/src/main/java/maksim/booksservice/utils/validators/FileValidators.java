@@ -32,14 +32,14 @@ public class FileValidators {
     }
 
     public boolean isNameAllowed(MultipartFile file) {
-        if (file == null) return false;
-
+        if (file == null || file.getOriginalFilename() == null) {
+            return false;
+        }
         for (String pattern : DANGEROUS_PATTERNS) {
-            if (file.getOriginalFilename() == null || file.getOriginalFilename().contains(pattern)) {
+            if (file.getOriginalFilename().contains(pattern)) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -77,7 +77,7 @@ public class FileValidators {
 
         String fileName = file.getOriginalFilename();
 
-        if (fileName.lastIndexOf(".") == -1) {
+        if (fileName == null || fileName.lastIndexOf(".") == -1) {
             throw new BadRequestException("File doesn't contains extension");
         }
 

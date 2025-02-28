@@ -41,14 +41,14 @@ class FileValidatorsTest {
 
 
     @Test
-    void isPathAllowed_ValidPath_ReturnsTrue() throws IOException {
+    void isPathAllowed_ValidPath_ReturnsTrue() {
         when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path/");
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", "content".getBytes());
         assertTrue(fileValidators.isPathAllowed(file));
     }
 
     @Test
-    void isPathAllowed_InvalidPath_ReturnsFalse() throws IOException {
+    void isPathAllowed_InvalidPath_ReturnsFalse() {
         when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path");
         MultipartFile file = new MockMultipartFile("test.txt", "../../test.txt", "text/plain", "content".getBytes());
         assertFalse(fileValidators.isPathAllowed(file));

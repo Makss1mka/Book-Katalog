@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserTest {
+class UserTest {
 
     private User user;
     private final Date date = new Date();

@@ -1,4 +1,17 @@
 spring:
+  kafka:
+    bootstrap-servers: kafka:8090
+    topics:
+      changes: review-changes
+    consumer:
+      group-id: book-service
+      auto-offset-reset: earliest
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "maksim.booksservice, maksim.reviewsservice"
   application:
     name: book-service
     book-files-directory: "app/statics/"
@@ -17,27 +30,12 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  kafka:
-    bootstrap-servers: kafka:8090
-    topics:
-      changes: review-changes
-    consumer:
-      group-id: book-service
-      auto-offset-reset: earliest
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring:
-          json:
-            trusted:
-              packages: "maksim.booksservice, maksim.reviewsservice"
 
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.apache.kafka: DEBUG
-    org.springframework.kafka: DEBUG
 
 
 server:
