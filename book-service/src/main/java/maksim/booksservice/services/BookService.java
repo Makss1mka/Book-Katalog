@@ -371,8 +371,8 @@ public class BookService {
                 );
             }
             default -> {
-                logger.info("BookService method: changeOneRate | Invalid action value, " +
-                        "action can be -1 - remove / 0 - change / 1 - add rate, review data: {}", reviewData);
+                logger.info("BookService method: changeOneRate | Invalid action value, "
+                        + "action can be -1 - remove / 0 - change / 1 - add rate, review data: {}", reviewData);
 
                 return;
             }
