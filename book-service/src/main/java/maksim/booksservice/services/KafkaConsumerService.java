@@ -1,6 +1,6 @@
 package maksim.booksservice.services;
 
-import maksim.booksservice.models.kafkaDtos.DtoForBookReviewChanging;
+import maksim.booksservice.models.kafkadtos.DtoForBookReviewChanging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
