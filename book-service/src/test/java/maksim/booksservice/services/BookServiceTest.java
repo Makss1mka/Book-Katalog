@@ -395,7 +395,7 @@ class BookServiceTest {
             bookService.addBookFile(file, 1);
         });
 
-        assertEquals("Invalid file name", exception.getMessage());
+        assertEquals("Invalid file extension", exception.getMessage());
     }
 
     @Test
