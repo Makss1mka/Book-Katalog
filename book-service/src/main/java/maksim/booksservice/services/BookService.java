@@ -39,7 +39,6 @@ public class BookService {
     private final BookStatusesRepository bookStatusesRepository;
     private final UserRepository userRepository;
     private final AppConfig appConfig;
-    private final FileValidators fileValidators;
 
     private static final String ERROR_OPERATOR_MESSAGE = "Incorrect value for mode. Support next values: greater, less";
 
@@ -48,14 +47,12 @@ public class BookService {
             BookRepository bookRepository,
             BookStatusesRepository bookStatusesRepository,
             UserRepository userRepository,
-            AppConfig appConfig,
-            FileValidators fileValidators
+            AppConfig appConfig
     ) {
         this.bookRepository = bookRepository;
         this.bookStatusesRepository = bookStatusesRepository;
         this.userRepository = userRepository;
         this.appConfig = appConfig;
-        this.fileValidators = fileValidators;
     }
 
     public List<Book> getAllBooks(Pageable pageable) {
