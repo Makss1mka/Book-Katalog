@@ -8,10 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-@Component
+import java.util.Map;
+
 public class Pagination {
 
-    public Sort getSort(String sortField, String sortDir) {
+    public static Sort getSort(String sortField, String sortDir) {
         Sort sort = Sort.by(sortField);
 
         if (sortDir.equals("asc")) {
@@ -25,12 +26,25 @@ public class Pagination {
         return sort;
     }
 
-    public Pageable getPageable(int pageNum, int itemsAmount, Sort sort) {
+    public static Pageable getPageable(int pageNum, int itemsAmount, Sort sort) {
         return PageRequest.of(pageNum, itemsAmount, sort);
     }
 
-    public Pageable getPageable(int pageNum, int itemsAmount, SortField sortField, SortDirection sortDirection) {
+    public static Pageable getPageable(int pageNum, int itemsAmount, SortField sortField, SortDirection sortDirection) {
         return PageRequest.of(pageNum, itemsAmount, getSort(sortField.getValue(), sortDirection.getValue()));
+    }
+
+    public static Pageable getPageable(Map<String, String> params) {
+        SortField sortField = (params.containsKey("sortField")) ?
+                SortField.fromValue(params.get("sortField")) : SortField.fromValue("rating");
+
+        SortDirection sortDir = (params.containsKey("sortDirection")) ?
+                SortDirection.fromValue(params.get("sortDirection")) : SortDirection.fromValue("desc");
+
+        int pageNum = (params.containsKey("pageNum")) ? Integer.parseInt(params.get("pageNum")) : 0;
+        int pageSize = (params.containsKey("pageSize")) ? Integer.parseInt(params.get("pageSize")) : 20;
+
+        return PageRequest.of(pageNum, pageSize, getSort(sortField.getValue(), sortDir.getValue()));
     }
 
 }
