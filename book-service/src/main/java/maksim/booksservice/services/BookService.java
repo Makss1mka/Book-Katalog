@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -19,11 +18,10 @@ import maksim.booksservice.models.BookDtoForCreating;
 import maksim.booksservice.models.User;
 import maksim.booksservice.models.kafkadtos.DtoForBookReviewChanging;
 import maksim.booksservice.repositories.BookRepository;
-import maksim.booksservice.repositories.BookStatusesRepository;
 import maksim.booksservice.repositories.UserRepository;
-import maksim.booksservice.utils.enums.BookStatusScope;
-import maksim.booksservice.utils.enums.Operator;
-import maksim.booksservice.utils.validators.FileValidators;
+import maksim.booksservice.utils.bookutils.BookSearchCriteria;
+import maksim.booksservice.utils.bookutils.BookSpecification;
+import maksim.booksservice.utils.enums.JoinMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +34,6 @@ public class BookService {
     private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
     private final BookRepository bookRepository;
-    private final BookStatusesRepository bookStatusesRepository;
     private final UserRepository userRepository;
     private final AppConfig appConfig;
 
@@ -45,147 +42,40 @@ public class BookService {
     @Autowired
     public BookService(
             BookRepository bookRepository,
-            BookStatusesRepository bookStatusesRepository,
             UserRepository userRepository,
             AppConfig appConfig
     ) {
         this.bookRepository = bookRepository;
-        this.bookStatusesRepository = bookStatusesRepository;
         this.userRepository = userRepository;
         this.appConfig = appConfig;
     }
 
-    public List<Book> getAllBooks(Pageable pageable) {
-        logger.trace("Try to get books without filters");
+    public Optional<Book> getById(int id, JoinMode joinMode) {
+        logger.trace("BookService method entrance: getById | Params: book id {}", id);
 
-        return bookRepository.findAll(pageable).toList();
-    }
-
-    public List<Book> getAllBooksWithFilters(String rawGenresFilter, Pageable pageable) {
-        logger.trace("Try to get books with filters");
-
-        List<String> genresFilter = Arrays.stream(rawGenresFilter.split(",")).toList();
-
-        return bookRepository.findAllByGenres(genresFilter, pageable);
-    }
-
-    public List<Book> getAllByAuthorName(String authorName, Pageable pageable) {
-        logger.trace("Try to get all books by author name");
-
-        return bookRepository.findByAuthorName(authorName, pageable);
-    }
-
-    public List<Book> getAllByAuthorId(int authorId, Pageable pageable) {
-        logger.trace("Try to get all books by author id");
-
-        return bookRepository.findByAuthorId(authorId, pageable);
-    }
-
-    public List<Book> getAllByDate(Date date, Operator operator, Pageable pageable) {
-        logger.trace("Try to get all books by date");
-
-        return switch (operator) {
-            case Operator.GREATER -> bookRepository.findByIssuedDateGreaterThan(date, pageable);
-            case Operator.LESS -> bookRepository.findByIssuedDateLessThan(date, pageable);
-            default -> throw new BadRequestException("Incorrect mode for selecting by date. Acceptable modes: more, less");
-        };
-    }
-
-    public List<Book> getAllByRating(int rating, Operator operator, Pageable pageable) {
-        logger.trace("Try to get all books by rating");
-
-        return switch (operator) {
-            case Operator.GREATER -> bookRepository.findByRatingGreaterThan(rating, pageable);
-            case Operator.LESS -> bookRepository.findByRatingLessThan(rating, pageable);
-            case Operator.EQUAL -> bookRepository.findByRating(rating, pageable);
-        };
-    }
-
-    public List<Book> getByName(String name, Pageable pageable) {
-        logger.trace("Try to get all books by name");
-
-        return bookRepository.findByName(name, pageable);
-    }
-
-    public Optional<Book> getById(int id) {
-        logger.trace("Try to find book by id");
-
-        return bookRepository.findById(id);
-    }
-
-    public List<Book> getByStatusReading(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
-        logger.trace("Try to get books by status reading");
-
-        return switch (operator) {
-            case GREATER -> switch (scope) {
-
-                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusReadingOverallGreaterThan(value, pageable);
-                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusReadingLastYearGreaterThan(value, pageable);
-                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusReadingLastMonthGreaterThan(value, pageable);
-                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusReadingLastWeekGreaterThan(value, pageable);
-
-            };
-            case LESS -> switch (scope) {
-
-                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusReadingOverallLessThan(value, pageable);
-                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusReadingLastYearLessThan(value, pageable);
-                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusReadingLastMonthLessThan(value, pageable);
-                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusReadingLastWeekLessThan(value, pageable);
-
-            };
-            default -> throw new BadRequestException(ERROR_OPERATOR_MESSAGE);
+        Optional<Book> book = switch (joinMode) {
+            case WITH_JOIN -> bookRepository.findByIdWithJoin(id);
+            case WITHOUT_JOIN -> bookRepository.findById(id);
         };
 
+        logger.trace("BookService return: getAllBooks | Result is found {}", book.isPresent());
+
+        return book;
     }
 
-    public List<Book> getByStatusRead(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
-        logger.trace("Try to get books by status read");
+    public List<Book> getAllBooks(BookSearchCriteria criteria, JoinMode joinMode, Pageable pageable) {
+        logger.trace("BookService method entrance: getAllBooks | Params: {} ; {}", criteria, pageable);
 
-        return switch (operator) {
-            case GREATER -> switch (scope) {
+        BookSpecification spec = new BookSpecification(criteria);
 
-                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusReadOverallGreaterThan(value, pageable);
-                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusReadLastYearGreaterThan(value, pageable);
-                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusReadLastMonthGreaterThan(value, pageable);
-                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusReadLastWeekGreaterThan(value, pageable);
-
-            };
-            case LESS -> switch (scope) {
-
-                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusReadOverallLessThan(value, pageable);
-                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusReadLastYearLessThan(value, pageable);
-                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusReadLastMonthLessThan(value, pageable);
-                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusReadLastWeekLessThan(value, pageable);
-
-            };
-            default -> throw new BadRequestException(ERROR_OPERATOR_MESSAGE);
+        List<Book> books = switch (joinMode) {
+            case WITH_JOIN -> bookRepository.findByAllWithJoin(spec, pageable).toList();
+            case WITHOUT_JOIN -> bookRepository.findAll(spec, pageable).toList();
         };
 
-    }
+        logger.trace("BookService return: getAllBooks | Result: found items {}", books.size());
 
-    public List<Book> getByStatusDrop(int value, Operator operator, BookStatusScope scope, Pageable pageable) {
-        logger.trace("Try to get books by status drop");
-
-        return switch (operator) {
-            case GREATER -> switch (scope) {
-
-                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusDropOverallGreaterThan(value, pageable);
-                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusDropLastYearGreaterThan(value, pageable);
-                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusDropLastMonthGreaterThan(value, pageable);
-                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusDropLastWeekGreaterThan(value, pageable);
-
-            };
-            case LESS -> switch (scope) {
-
-                case BookStatusScope.OVERALL -> bookStatusesRepository.findByStatusDropOverallLessThan(value, pageable);
-                case BookStatusScope.LAST_YEAR -> bookStatusesRepository.findByStatusDropLastYearLessThan(value, pageable);
-                case BookStatusScope.LAST_MONTH -> bookStatusesRepository.findByStatusDropLastMonthLessThan(value, pageable);
-                case BookStatusScope.LAST_WEEK -> bookStatusesRepository.findByStatusDropLastWeekLessThan(value, pageable);
-
-            };
-            default -> throw new BadRequestException(ERROR_OPERATOR_MESSAGE);
-        };
-
+        return books;
     }
 
     public File getFile(int bookId) {
@@ -206,8 +96,8 @@ public class BookService {
 
 
 
-    public void addBookMetaData(BookDtoForCreating bookData) {
-        logger.trace("Try to add book metadata");
+    public Book addBookMetaData(BookDtoForCreating bookData) {
+        logger.trace("BookService method entrance: addBookMetaData");
 
         Optional<User> author = userRepository.findById(bookData.getAuthorId());
         if (author.isEmpty()) {
@@ -223,7 +113,9 @@ public class BookService {
 
         bookRepository.save(book);
 
-        logger.trace("Book metadata was created successfully");
+        logger.trace("BookService method end: addBookMetaData | Book metadata was created successfully");
+
+        return book;
     }
 
     public void addBookFile(MultipartFile file, int bookId) {

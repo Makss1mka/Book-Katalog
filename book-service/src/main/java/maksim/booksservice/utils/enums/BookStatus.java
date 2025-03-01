@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum BookStatus {
-    DROP("drop"),
-    READ("read"),
-    READING("reading");
+    DROP("Drop"),
+    READ("Read"),
+    READING("Reading");
 
     private final String value;
 
@@ -20,6 +20,6 @@ public enum BookStatus {
                 return field;
             }
         }
-        throw new IllegalArgumentException("Unknown sort dir field: " + value);
+        throw new IllegalArgumentException("Unknown book status: " + value);
     }
 }
