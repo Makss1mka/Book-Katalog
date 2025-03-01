@@ -1,8 +1,6 @@
 package maksim.booksservice.controllers;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.BadRequestException;
 import java.io.File;
 import java.io.IOException;
@@ -12,19 +10,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import jakarta.ws.rs.NotFoundException;
 import maksim.booksservice.models.Book;
 import maksim.booksservice.models.BookDtoForCreating;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.utils.Pagination;
-import maksim.booksservice.utils.enums.BookStatus;
-import maksim.booksservice.utils.enums.BookStatusScope;
-import maksim.booksservice.utils.enums.Operator;
-import maksim.booksservice.utils.enums.SortDirection;
-import maksim.booksservice.utils.enums.SortField;
+import maksim.booksservice.utils.bookutils.BookSearchCriteria;
+import maksim.booksservice.utils.enums.*;
+import maksim.booksservice.utils.enums.NumberOperator;
 import maksim.booksservice.utils.validators.BookDtoForCreatingValidators;
 import maksim.booksservice.utils.validators.FileValidators;
 import maksim.booksservice.utils.validators.StringValidators;
+import org.hibernate.mapping.Join;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,6 @@ public class BookController {
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     private final BookService bookService;
-    private final Pagination pagination;
     private final FileValidators fileValidators;
     private final StringValidators stringValidators;
     private final BookDtoForCreatingValidators bookDtoForCreatingValidators;
@@ -61,225 +60,89 @@ public class BookController {
     @Autowired
     public BookController(
             BookService bookService,
-            Pagination pagination,
             FileValidators fileValidator,
             StringValidators stringValidators,
             BookDtoForCreatingValidators bookDtoForCreatingValidators
     ) {
         this.bookService = bookService;
-        this.pagination = pagination;
         this.fileValidators = fileValidator;
         this.stringValidators = stringValidators;
         this.bookDtoForCreatingValidators = bookDtoForCreatingValidators;
     }
 
-    @GetMapping("/get/all")
-    public ResponseEntity<List<Book>> getAllBooks(
-            @RequestParam(required = false) String genres,
-            @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
-            @RequestParam(name = "itemsAmount", required = false, defaultValue = "20") int itemsAmount,
-            @RequestParam(name = "sortField", required = false, defaultValue = "rating") String sortStrField,
-            @RequestParam(name = "sortDir", required = false, defaultValue = "desc") String sortStrDirection
-    ) {
-        logger.trace("Try to get all books with/without genres");
+    @GetMapping("/")
+    public ResponseEntity<List<Book>> getAllBooks(@RequestParam Map<String, String> params) {
+        /*
+        * QUERY PARAMS:
+        *
+        * name - str
+        * authorId - int
+        * authorName - str
+        *
+        * issuedDate - str
+        * issuedDateOperator - newer \ older ; default "newer"
+        *
+        * rating - int
+        * ratingOperator - greater \ less ; default "greater"
+        *
+        * genres - string like "genre1,genre2,genre3"
+        *
+        * status - read \ reading \ drop ; default "read"
+        * statusCount - int
+        * statusScope - overall \ last_year \ last_month \ last_week ; default "overall"
+        * statusOperator - greater \ less ; default "greater"
+        *
+        * joinMode - with \ without ; default "without"
+        *
+        * SORTING:
+        *   sortField - default "rating"
+        *   sortDirection - asc \ desc ; default "desc"
+        *   pageNum - default 0
+        *   pageSize - default 20
+        * */
 
-        SortField sortField = SortField.fromValue(sortStrField);
+        logger.trace("BookController method entrance: getAllBooks");
 
-        SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
+        Pageable pageable = Pagination.getPageable(params);
+        BookSearchCriteria criteria = new BookSearchCriteria(params);
+        JoinMode joinMode = (params.containsKey("joinMode")) ?
+                JoinMode.fromValue(params.get("joinMode")) : JoinMode.fromValue("without");
 
-        Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
+        List<Book> findBooks = bookService.getAllBooks(criteria, joinMode, pageable);
 
-        List<Book> findBooks;
-
-        if (genres != null) {
-            findBooks = bookService.getAllBooksWithFilters(genres, pageable);
-        } else {
-            findBooks = bookService.getAllBooks(pageable);
-        }
-
-        logger.trace("Find (all/all by genres) successfully: selected items {}", findBooks.size());
+        logger.trace("BookController method end | Return: selected items {}", findBooks.size());
 
         return new ResponseEntity<>(findBooks, HttpStatus.OK);
     }
 
-    @GetMapping("/get/byId/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable int id) {
-        logger.trace("Try to get book by id");
+    @GetMapping("/{id}")
+    public ResponseEntity<Book> getBookById(
+            @PathVariable int id,
+            @RequestParam(name = "joinMode", required = false, defaultValue = "without") String strJoinMode
+    ) {
+        logger.trace("BookController method entrance: getBookById | Params: id {}", id);
 
-        Optional<Book> book = bookService.getById(id);
+        JoinMode joinMode = (strJoinMode != null) ?
+                JoinMode.fromValue(strJoinMode) : JoinMode.WITHOUT_JOIN;
+
+        Optional<Book> book = bookService.getById(id, joinMode);
 
         if (book.isPresent()) {
-            logger.trace("Find book: {}", book);
+            logger.trace("BookController method end: getBookById | Found book: {}", book);
 
             return new ResponseEntity<>(book.get(), HttpStatus.OK);
         } else {
-            logger.trace("Cannot find book with such id");
+            logger.trace("BookController method end: getBookById | Book not found");
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Cannot find such book");
         }
     }
 
-    @GetMapping("/get/byName/{name}")
-    public ResponseEntity<List<Book>> getBooksByName(
-            @NotBlank @Size(min = 3, max = 50) @PathVariable String name,
-            @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
-            @RequestParam(name = "itemsAmount", required = false, defaultValue = "20") int itemsAmount,
-            @RequestParam(name = "sortField", required = false, defaultValue = "rating") String sortStrField,
-            @RequestParam(name = "sortDir", required = false, defaultValue = "desc") String sortStrDirection
-    ) {
-        logger.trace("Try to get books by name");
+    @GetMapping("/{id}/file")
+    public ResponseEntity<Resource> getBookFile(@PathVariable int id) {
+        logger.trace("BookController method entrance: getFile | Params: book id {}", id);
 
-        SortField sortField = SortField.fromValue(sortStrField);
-        SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
-
-        Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
-
-        List<Book> findBooks = bookService.getByName(name, pageable);
-
-        logger.trace("Find (by name) successfully: selected items {}", findBooks.size());
-
-        return new ResponseEntity<>(findBooks, HttpStatus.OK);
-    }
-
-    @GetMapping("/get/byAuthorId/{authorId}")
-    public ResponseEntity<List<Book>> getBooksByAuthorId(
-            @PathVariable int authorId,
-            @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
-            @RequestParam(name = "itemsAmount", required = false, defaultValue = "20") int itemsAmount,
-            @RequestParam(name = "sortField", required = false, defaultValue = "rating") String sortStrField,
-            @RequestParam(name = "sortDir", required = false, defaultValue = "desc") String sortStrDirection
-    ) {
-        logger.trace("Try to find books by author id");
-
-        SortField sortField = SortField.fromValue(sortStrField);
-        SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
-
-        Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
-
-        List<Book> findBooks = bookService.getAllByAuthorId(authorId, pageable);
-
-        logger.trace("Find (by author id) successfully: selected items {}", findBooks.size());
-
-        return new ResponseEntity<>(findBooks, HttpStatus.OK);
-    }
-
-    @GetMapping("/get/byAuthorName/{authorName}")
-    public ResponseEntity<List<Book>> getBooksByAuthorId(
-            @PathVariable String authorName,
-            @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
-            @RequestParam(name = "itemsAmount", required = false, defaultValue = "20") int itemsAmount,
-            @RequestParam(name = "sortField", required = false, defaultValue = "rating") String sortStrField,
-            @RequestParam(name = "sortDir", required = false, defaultValue = "desc") String sortStrDirection
-    ) {
-        logger.trace("Try to find books by author name");
-
-        SortField sortField = SortField.fromValue(sortStrField);
-        SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
-
-        Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
-
-        List<Book> findBooks = bookService.getAllByAuthorName(authorName, pageable);
-
-        logger.trace("Find (by author name) successfully: selected items {}", findBooks.size());
-
-        return new ResponseEntity<>(findBooks, HttpStatus.OK);
-    }
-
-    @GetMapping("/get/byRating/{rating}/{strOperator}")
-    public ResponseEntity<List<Book>> getByRating(
-            @PathVariable int rating,
-            @NotBlank @Size(min = 1, max = 8) @PathVariable String strOperator,
-            @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
-            @RequestParam(name = "itemsAmount", required = false, defaultValue = "20") int itemsAmount,
-            @RequestParam(name = "sortField", required = false, defaultValue = "rating") String sortStrField,
-            @RequestParam(name = "sortDir", required = false, defaultValue = "desc") String sortStrDirection
-    ) {
-        logger.trace("Try to find books by rating");
-
-        SortField sortField = SortField.fromValue(sortStrField);
-        SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
-        Operator operator = Operator.fromValue(strOperator);
-
-        Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
-
-        List<Book> findBooks = bookService.getAllByRating(rating, operator, pageable);
-
-        logger.trace("Find by rating successfully: selected items {}", findBooks.size());
-
-        return new ResponseEntity<>(findBooks, HttpStatus.OK);
-    }
-
-    @GetMapping("/get/byDate/{strDate}/{strOperator}")
-    public ResponseEntity<List<Book>> getByDate(
-            @PathVariable String strDate,
-            @PathVariable String strOperator,
-            @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
-            @RequestParam(name = "itemsAmount", required = false, defaultValue = "20") int itemsAmount,
-            @RequestParam(name = "sortField", required = false, defaultValue = "rating") String sortStrField,
-            @RequestParam(name = "sortDir", required = false, defaultValue = "desc") String sortStrDirection
-    ) {
-        logger.trace("Try to find books by date");
-
-        SortField sortField = SortField.fromValue(sortStrField);
-        SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
-        Operator operator = Operator.fromValue(strOperator);
-
-        Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date date;
-        try {
-            date = formatter.parse(strDate);
-        } catch (ParseException e) {
-            logger.trace("Cannot format date");
-
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        List<Book> findBooks = bookService.getAllByDate(date, operator, pageable);
-
-        logger.trace("Find by date successfully: selected items {}", findBooks.size());
-
-        return new ResponseEntity<>(findBooks, HttpStatus.OK);
-    }
-
-    @GetMapping("/get/byStatuses/{strStatus}/{strScope}/{strOperator}/{value}")
-    public ResponseEntity<List<Book>> getByStatuses(
-            @PathVariable String strStatus,
-            @PathVariable String strScope,
-            @PathVariable String strOperator,
-            @PathVariable int value,
-            @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
-            @RequestParam(name = "itemsAmount", required = false, defaultValue = "20") int itemsAmount,
-            @RequestParam(name = "sortField", required = false, defaultValue = "rating") String sortStrField,
-            @RequestParam(name = "sortDir", required = false, defaultValue = "desc") String sortStrDirection
-    ) {
-        logger.trace("Try to find books by status");
-
-        SortField sortField = SortField.fromValue(sortStrField);
-        SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
-        Operator operator = Operator.fromValue(strOperator);
-        BookStatusScope scope = BookStatusScope.fromValue(strScope);
-        BookStatus bookStatus = BookStatus.fromValue(strStatus);
-
-        Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
-
-        List<Book> findBooks = switch (bookStatus) {
-            case BookStatus.READING -> bookService.getByStatusReading(value, operator, scope, pageable);
-            case BookStatus.READ -> bookService.getByStatusRead(value, operator, scope,  pageable);
-            case BookStatus.DROP -> bookService.getByStatusDrop(value, operator, scope, pageable);
-        };
-
-        logger.trace("Find by status successfully: selected items {}", findBooks.size());
-
-        return new ResponseEntity<>(findBooks, HttpStatus.OK);
-    }
-
-    @GetMapping("/get/book/file/{bookId}")
-    public ResponseEntity<Resource> getBookFile(@PathVariable int bookId) {
-        logger.trace("Try to get book file");
-
-        File file = bookService.getFile(bookId);
+        File file = bookService.getFile(id);
 
         HttpHeaders headers = new HttpHeaders();
 
@@ -292,7 +155,7 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
 
-        logger.trace("File has successfully found");
+        logger.trace("BookController method end: getFile | File has successfully found");
 
         return ResponseEntity.ok()
                 .headers(headers)
@@ -300,27 +163,28 @@ public class BookController {
                 .body(new FileSystemResource(file));
     }
 
-    @PostMapping("/add/book/metaData")
-    public ResponseEntity<String> addBookMetaData(@Valid @RequestBody BookDtoForCreating bookData) {
-        logger.trace("Try to add new book meta data");
+    @PostMapping("/metaData")
+    public ResponseEntity<Book> addBookMetaData(@Valid @RequestBody BookDtoForCreating bookData) {
+        logger.trace("BookController method entrance: addBookMetaData");
 
         bookDtoForCreatingValidators.screenStringValue(bookData);
+
         if (!bookDtoForCreatingValidators.isSafeFromSqlInjection(bookData)) {
             throw new BadRequestException(
                     String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
             );
         }
 
-        bookService.addBookMetaData(bookData);
+        Book book = bookService.addBookMetaData(bookData);
 
-        logger.trace("Book metadata was successfully added");
+        logger.trace("BookController method end: addBookMetaData | Book metadata was successfully added");
 
-        return ResponseEntity.ok("Book metadata was successfully added");
+        return ResponseEntity.ok(book);
     }
 
-    @PostMapping("/add/book/file/{bookId}")
-    public ResponseEntity<String> addBookFile(@PathVariable int bookId, @RequestBody MultipartFile file) {
-        logger.trace("Try to add book file");
+    @PostMapping("/{id}/file")
+    public ResponseEntity<String> addBookFile(@PathVariable int id, @RequestBody MultipartFile file) {
+        logger.trace("BookController method entrance: addBookFile | Params: id {}", id);
 
         boolean isValid = fileValidators.isValid(file);
 
@@ -330,20 +194,20 @@ public class BookController {
             );
         }
 
-        bookService.addBookFile(file, bookId);
+        bookService.addBookFile(file, id);
 
-        logger.trace("Book file was successfully added");
+        logger.trace("BookController method entrance: addBookFile |Book file was successfully added");
 
         return ResponseEntity.ok("Book file was successfully added");
     }
 
-    @DeleteMapping("/delete/book/{bookId}")
-    public ResponseEntity<String> deleteBook(@PathVariable int bookId) {
-        logger.trace("Try to delete book metaData and file");
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteBook(@PathVariable int id) {
+        logger.trace("BookController method entrance: deleteBook | Params: book id {}", id);
 
-        bookService.deleteBook(bookId);
+        bookService.deleteBook(id);
 
-        logger.trace("Book was successfully deleted");
+        logger.trace("BookController method end: deleteBook | Book has successfully deleted");
 
         return ResponseEntity.ok("Book was successfully deleted");
     }
