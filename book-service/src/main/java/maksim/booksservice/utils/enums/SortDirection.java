@@ -19,6 +19,6 @@ public enum SortDirection {
                 return field;
             }
         }
-        throw new IllegalArgumentException("Unknown sort dir field: " + value);
+        throw new IllegalArgumentException("Unknown sort field direction: " + value);
     }
 }

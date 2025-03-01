@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum BookStatusScope {
-    OVERALL("overall"),
-    LAST_YEAR("year"),
-    LAST_MONTH("month"),
-    LAST_WEEK("week");
+    OVERALL("Overall"),
+    LAST_YEAR("Year"),
+    LAST_MONTH("Month"),
+    LAST_WEEK("Week");
 
     private final String value;
 
@@ -21,6 +21,6 @@ public enum BookStatusScope {
                 return field;
             }
         }
-        throw new IllegalArgumentException("Unknown sort dir field: " + value);
+        throw new IllegalArgumentException("Unknown book status scope: " + value);
     }
 }

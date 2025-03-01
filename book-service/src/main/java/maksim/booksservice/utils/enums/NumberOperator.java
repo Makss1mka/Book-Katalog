@@ -3,23 +3,23 @@ package maksim.booksservice.utils.enums;
 import lombok.Getter;
 
 @Getter
-public enum Operator {
+public enum NumberOperator {
     GREATER("greater"),
     EQUAL("equal"),
     LESS("less");
 
     private final String value;
 
-    Operator(String value) {
+    NumberOperator(String value) {
         this.value = value;
     }
 
-    public static Operator fromValue(String value) {
-        for (Operator field : values()) {
+    public static NumberOperator fromValue(String value) {
+        for (NumberOperator field : values()) {
             if (field.value.equalsIgnoreCase(value)) {
                 return field;
             }
         }
-        throw new IllegalArgumentException("Unknown sort dir field: " + value);
+        throw new IllegalArgumentException("Unknown number operator: " + value);
     }
 }
