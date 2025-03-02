@@ -11,8 +11,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface BookRepository extends JpaRepository<Book, Integer>, JpaSpecificationExecutor<Book> {
     @EntityGraph(value = "Book.author", type = EntityGraph.EntityGraphType.FETCH)
-    public Optional<Book> findByIdWithJoin(int id);
+    Optional<Book> findByIdWithJoin(int id);
 
     @EntityGraph(value = "Book.author", type = EntityGraph.EntityGraphType.FETCH)
-    public Page<Book> findByAllWithJoin(Specification<Book> spec, Pageable pageable);
+    Page<Book> findAllWithJoin(Specification<Book> spec, Pageable pageable);
 }

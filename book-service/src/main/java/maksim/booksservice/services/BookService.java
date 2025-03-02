@@ -37,8 +37,6 @@ public class BookService {
     private final UserRepository userRepository;
     private final AppConfig appConfig;
 
-    private static final String ERROR_OPERATOR_MESSAGE = "Incorrect value for mode. Support next values: greater, less";
-
     @Autowired
     public BookService(
             BookRepository bookRepository,
@@ -69,7 +67,7 @@ public class BookService {
         BookSpecification spec = new BookSpecification(criteria);
 
         List<Book> books = switch (joinMode) {
-            case WITH_JOIN -> bookRepository.findByAllWithJoin(spec, pageable).toList();
+            case WITH_JOIN -> bookRepository.findAllWithJoin(spec, pageable).toList();
             case WITHOUT_JOIN -> bookRepository.findAll(spec, pageable).toList();
         };
 

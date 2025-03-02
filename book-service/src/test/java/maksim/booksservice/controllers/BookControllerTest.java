@@ -7,11 +7,8 @@ import jakarta.ws.rs.NotFoundException;
 import maksim.booksservice.config.GlobalExceptionHandler;
 import maksim.booksservice.models.Book;
 import maksim.booksservice.services.BookService;
-import maksim.booksservice.utils.*;
-import maksim.booksservice.utils.enums.BookStatusScope;
-import maksim.booksservice.utils.enums.NumberOperator;
-import maksim.booksservice.utils.enums.SortDirection;
-import maksim.booksservice.utils.enums.SortField;
+import maksim.booksservice.utils.bookutils.BookSearchCriteria;
+import maksim.booksservice.utils.enums.JoinMode;
 import maksim.booksservice.utils.validators.BookDtoForCreatingValidators;
 import maksim.booksservice.utils.validators.FileValidators;
 import maksim.booksservice.utils.validators.StringValidators;
@@ -21,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,10 +33,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class BookControllerTest {
@@ -56,9 +54,6 @@ class BookControllerTest {
     @Mock
     private StringValidators stringValidators;
 
-    @Mock
-    private Pagination pagination;
-
     @InjectMocks
     private BookController bookController;
 
@@ -69,6 +64,43 @@ class BookControllerTest {
                 .setControllerAdvice(new GlobalExceptionHandler()) // Добавляем глобальный обработчик
                 .build();
     }
+
+    @Test
+    void testGetBookById() {
+        Book book = new Book();
+
+        when(bookService.getById(1, JoinMode.WITHOUT_JOIN)).thenReturn(Optional.of(book));
+        when(bookService.getById(1, JoinMode.WITH_JOIN)).thenReturn(Optional.of(book));
+
+        ResponseEntity<Book> result;
+
+        result = bookController.getBookById(1, "with");
+        assertNotNull(result);
+        assertEquals(result.getBody(), book);
+
+        result = bookController.getBookById(1, "without");
+        assertNotNull(result);
+        assertEquals(result.getBody(), book);
+
+        verify(bookService, times(2)).getById(anyInt(), any(JoinMode.class));
+    }
+
+
+    @Test
+    void testGet() {
+        List<Book> books = Arrays.asList(new Book(), new Book(), new Book());
+
+        Map<String, String> params = new HashMap<>();
+
+        when(bookService.getAllBooks(any(BookSearchCriteria.class), any(JoinMode.class), any(Pageable.class))).thenReturn(books);
+
+        ResponseEntity<List<Book>> result = bookController.getAllBooks(params);
+        assertNotNull(result);
+        assertEquals(result.getBody(), books);
+
+        verify(bookService, times(1)).getAllBooks(any(BookSearchCriteria.class), any(JoinMode.class), any(Pageable.class));
+    }
+
 
     @Test
     void testGetBookFile_Success() throws IOException {
@@ -105,11 +137,10 @@ class BookControllerTest {
     void testAddBookMetaData_Success() throws Exception {
         when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(true);
 
-        mockMvc.perform(post("/books/add/book/metaData")
+        mockMvc.perform(post("/books/metaData")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"TEST NAME\", \"authorId\": 17}"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Book metadata was successfully added"));
+                .andExpect(status().isOk());
 
         verify(bookService, times(1)).addBookMetaData(any());
     }
@@ -119,7 +150,7 @@ class BookControllerTest {
         when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(false);
         when(stringValidators.isSafeFromSqlInjection(any())).thenReturn(false);
 
-        mockMvc.perform(post("/books/add/book/metaData")
+        mockMvc.perform(post("/books/metaData")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"TEST NAME\", \"authorId\": 17}"))
                 .andExpect(status().isBadRequest());
@@ -140,7 +171,7 @@ class BookControllerTest {
                 "Test content".getBytes()
         );
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/books/add/book/file/1")
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/books/1/file")
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
@@ -160,7 +191,7 @@ class BookControllerTest {
                 "Test content".getBytes()
         );
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/books/add/book/file/1")
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/books/1/file")
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isBadRequest())

@@ -8,10 +8,9 @@ import maksim.booksservice.models.BookDtoForCreating;
 import maksim.booksservice.models.User;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.UserRepository;
-import maksim.booksservice.utils.enums.BookStatusScope;
-import maksim.booksservice.utils.enums.NumberOperator;
+import maksim.booksservice.utils.bookutils.BookSearchCriteria;
+import maksim.booksservice.utils.enums.JoinMode;
 import maksim.booksservice.utils.validators.FileValidators;
-import maksim.booksservice.utils.validators.StringValidators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,16 +20,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -40,9 +38,6 @@ class BookServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private StringValidators stringValidators;
 
     @Mock
     private FileValidators fileValidators;
@@ -60,6 +55,29 @@ class BookServiceTest {
         MockitoAnnotations.openMocks(this);
         pageable = PageRequest.of(0, 10);
     }
+
+    @Test
+    void testGetAll() {
+        Page<Book> page = new PageImpl<>(Arrays.asList(new Book(), new Book()), pageable, 2);
+
+        when(bookRepository.findAllWithJoin(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(bookRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+
+        List<Book> result;
+
+        Map<String, String> params = new HashMap<>();
+        BookSearchCriteria criteria = new BookSearchCriteria(params);
+
+        result = bookService.getAllBooks(criteria, JoinMode.WITH_JOIN, pageable);
+        assertEquals(page.stream().toList(), result);
+
+        result = bookService.getAllBooks(criteria, JoinMode.WITHOUT_JOIN, pageable);
+        assertEquals(page.stream().toList(), result);
+
+        verify(bookRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
+        verify(bookRepository, times(1)).findAllWithJoin(any(Specification.class), any(Pageable.class));
+    }
+
 
     @Test
     void testGetFile_Success() throws Exception {
@@ -89,9 +107,7 @@ class BookServiceTest {
     void testGetFile_BookNotFound() {
         when(bookRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            bookService.getFile(1);
-        });
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.getFile(1));
 
         assertEquals("Cannot find book", exception.getMessage());
         verify(bookRepository, times(1)).findById(anyInt());
@@ -107,9 +123,7 @@ class BookServiceTest {
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(appConfig.getBookFilesDirectory()).thenReturn("/");
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            bookService.getFile(bookId);
-        });
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.getFile(bookId));
 
         assertTrue(exception.getMessage().contains("Cannot open book file"));
         verify(bookRepository, times(1)).findById(bookId);
@@ -155,9 +169,7 @@ class BookServiceTest {
         );
         when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path/");
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
-            bookService.addBookFile(file, 1);
-        });
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookService.addBookFile(file, 1));
 
         assertEquals("Invalid file extension", exception.getMessage());
     }
@@ -174,9 +186,7 @@ class BookServiceTest {
         when(bookRepository.findById(anyInt())).thenReturn(Optional.empty());
         when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path/");
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
-            bookService.addBookFile(file, 1);
-        });
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookService.addBookFile(file, 1));
 
         assertEquals("Cannot find book with such id", exception.getMessage());
         verify(bookRepository, times(1)).findById(anyInt());
@@ -216,9 +226,7 @@ class BookServiceTest {
 
         when(userRepository.findById(authorId)).thenReturn(Optional.empty());
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
-            bookService.addBookMetaData(bookData);
-        });
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookService.addBookMetaData(bookData));
 
         assertEquals("Cannot add book, cause cannot find user/author with such id", exception.getMessage());
         verify(userRepository, times(1)).findById(authorId);
@@ -256,9 +264,7 @@ class BookServiceTest {
         int bookId = 1;
         when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            bookService.deleteBook(bookId);
-        });
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.deleteBook(bookId));
 
         assertEquals("Cannot access book with such id", exception.getMessage());
         verify(bookRepository, times(1)).findById(bookId);
