@@ -92,15 +92,14 @@ class BookControllerTest {
 
         Map<String, String> params = new HashMap<>();
 
-        when(bookService.getAllBooks(any(BookSearchCriteria.class), any(JoinMode.class), any(Pageable.class))).thenReturn(books);
+        when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(books);
 
         ResponseEntity<List<Book>> result = bookController.getAllBooks(params);
         assertNotNull(result);
         assertEquals(result.getBody(), books);
 
-        verify(bookService, times(1)).getAllBooks(any(BookSearchCriteria.class), any(JoinMode.class), any(Pageable.class));
+        verify(bookService, times(1)).getAllBooks(any(BookSearchCriteria.class), any(Pageable.class));
     }
-
 
     @Test
     void testGetBookFile_Success() throws IOException {

@@ -60,22 +60,15 @@ class BookServiceTest {
     void testGetAll() {
         Page<Book> page = new PageImpl<>(Arrays.asList(new Book(), new Book()), pageable, 2);
 
-        when(bookRepository.findAllWithJoin(any(Specification.class), any(Pageable.class))).thenReturn(page);
         when(bookRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
-
-        List<Book> result;
 
         Map<String, String> params = new HashMap<>();
         BookSearchCriteria criteria = new BookSearchCriteria(params);
 
-        result = bookService.getAllBooks(criteria, JoinMode.WITH_JOIN, pageable);
-        assertEquals(page.stream().toList(), result);
-
-        result = bookService.getAllBooks(criteria, JoinMode.WITHOUT_JOIN, pageable);
+        List<Book> result = bookService.getAllBooks(criteria, pageable);
         assertEquals(page.stream().toList(), result);
 
         verify(bookRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
-        verify(bookRepository, times(1)).findAllWithJoin(any(Specification.class), any(Pageable.class));
     }
 
 

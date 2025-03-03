@@ -12,6 +12,8 @@ import java.util.Map;
 
 public class Pagination {
 
+    private Pagination() {}
+
     public static Sort getSort(String sortField, String sortDir) {
         Sort sort = Sort.by(sortField);
 

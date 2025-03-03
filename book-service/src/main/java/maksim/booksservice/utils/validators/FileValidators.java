@@ -22,13 +22,13 @@ public class FileValidators {
 
     public boolean isValid(MultipartFile file) {
         return
-                file != null
-                && isNotEmpty(file)
-                && isNameAllowed(file)
-                && isPathAllowed(file)
-                && isFileTypeAllowed(file)
-                && isFileExtensionAllowed(file)
-                && isFileSizeValid(file);
+            file != null
+            && isNotEmpty(file)
+            && isNameAllowed(file)
+            && isPathAllowed(file)
+            && isFileTypeAllowed(file)
+            && isFileExtensionAllowed(file)
+            && isFileSizeValid(file);
     }
 
     public boolean isNameAllowed(MultipartFile file) {
