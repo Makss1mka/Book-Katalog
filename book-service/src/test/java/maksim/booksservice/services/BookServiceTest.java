@@ -9,7 +9,6 @@ import maksim.booksservice.models.User;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.UserRepository;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
-import maksim.booksservice.utils.enums.JoinMode;
 import maksim.booksservice.utils.validators.FileValidators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

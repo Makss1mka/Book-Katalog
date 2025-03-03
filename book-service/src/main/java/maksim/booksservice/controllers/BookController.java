@@ -17,6 +17,7 @@ import maksim.booksservice.utils.Pagination;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.*;
 import maksim.booksservice.utils.validators.BookDtoForCreatingValidators;
+import maksim.booksservice.utils.validators.BookSearchCriteriaValidators;
 import maksim.booksservice.utils.validators.FileValidators;
 import maksim.booksservice.utils.validators.StringValidators;
 import org.slf4j.Logger;
@@ -50,18 +51,21 @@ public class BookController {
     private final FileValidators fileValidators;
     private final StringValidators stringValidators;
     private final BookDtoForCreatingValidators bookDtoForCreatingValidators;
+    private final BookSearchCriteriaValidators bookSearchCriteriaValidators;
 
     @Autowired
     public BookController(
             BookService bookService,
             FileValidators fileValidator,
             StringValidators stringValidators,
-            BookDtoForCreatingValidators bookDtoForCreatingValidators
+            BookDtoForCreatingValidators bookDtoForCreatingValidators,
+            BookSearchCriteriaValidators bookSearchCriteriaValidators
     ) {
         this.bookService = bookService;
         this.fileValidators = fileValidator;
         this.stringValidators = stringValidators;
         this.bookDtoForCreatingValidators = bookDtoForCreatingValidators;
+        this.bookSearchCriteriaValidators = bookSearchCriteriaValidators;
     }
 
     @GetMapping
@@ -97,6 +101,11 @@ public class BookController {
 
         Pageable pageable = Pagination.getPageable(params);
         BookSearchCriteria criteria = new BookSearchCriteria(params);
+
+        bookSearchCriteriaValidators.screenStringValues(criteria);
+        if (!bookSearchCriteriaValidators.isSafeFromSqlInjection(criteria)) {
+            throw new BadRequestException("Unsecured input params");
+        }
 
         List<Book> findBooks = bookService.getAllBooks(criteria, pageable);
 

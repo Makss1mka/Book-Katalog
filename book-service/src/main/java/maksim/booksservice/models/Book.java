@@ -3,6 +3,7 @@ package maksim.booksservice.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.Getter;
@@ -45,7 +46,7 @@ public class Book {
     private Date issuedDate;
 
     @Column(name = "genres")
-    private List<String> genres;
+    private List<String> genres = new ArrayList<>();
 
 
     // STATUSES: READING

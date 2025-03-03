@@ -8,7 +8,7 @@ import java.util.List;
 
 public class BookSpecification implements Specification<Book> {
 
-    private final BookSearchCriteria criteria;
+    private final transient BookSearchCriteria criteria;
 
     public BookSpecification(BookSearchCriteria criteria) {
         this.criteria = criteria;
@@ -31,9 +31,7 @@ public class BookSpecification implements Specification<Book> {
         }
 
         if (criteria.getGenres() != null && !criteria.getGenres().isEmpty()) {
-            for (String genre : criteria.getGenres()) {
-                predicates.add(builder.isMember(genre, root.get("genres")));
-            }
+            // Write logic later
         }
 
         if (criteria.getIssuedDate() != null && criteria.getIssuedDateOperator() != null) {

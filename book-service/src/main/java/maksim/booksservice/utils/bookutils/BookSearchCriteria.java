@@ -31,15 +31,7 @@ public class BookSearchCriteria {
     private BookStatus status = null;
     private BookStatusScope statusScope = null;
 
-    public BookSearchCriteria(Map<String, String> params) {
-        this.name = params.get("name");
-        this.authorId = params.containsKey("authorId") ? Integer.parseInt(params.get("authorId")) : null;
-        this.authorName = params.get("authorName");
-
-        if (params.containsKey("genres")) {
-            this.genres = Arrays.stream(params.get("genres").split(",")).toList();
-        }
-
+    private void includeDate(Map<String, String> params) {
         if (params.containsKey("issuedDate")) {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -50,8 +42,20 @@ public class BookSearchCriteria {
             }
 
             this.issuedDateOperator = (params.containsKey("issueDateOperator")) ?
-                DateOperator.fromValue(params.get("issueDateOperator")) : DateOperator.NEWER;
+                    DateOperator.fromValue(params.get("issueDateOperator")) : DateOperator.NEWER;
         }
+    }
+
+    public BookSearchCriteria(Map<String, String> params) {
+        this.name = params.get("name");
+        this.authorId = params.containsKey("authorId") ? Integer.parseInt(params.get("authorId")) : null;
+        this.authorName = params.get("authorName");
+
+        if (params.containsKey("genres")) {
+            this.genres = Arrays.stream(params.get("genres").split(",")).toList();
+        }
+
+        this.includeDate(params);
 
         if (params.containsKey("rating")) {
             this.rating = Integer.parseInt(params.get("rating"));
