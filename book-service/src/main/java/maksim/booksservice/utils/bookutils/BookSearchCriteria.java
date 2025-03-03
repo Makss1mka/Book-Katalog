@@ -1,8 +1,13 @@
 package maksim.booksservice.utils.bookutils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import jakarta.ws.rs.BadRequestException;
 import lombok.Getter;
 import lombok.Setter;
 import maksim.booksservice.utils.enums.BookStatus;
@@ -17,7 +22,7 @@ public class BookSearchCriteria {
     private Integer authorId;
     private String authorName;
     private List<String> genres = null;
-    private String issuedDate = null;
+    private Date issuedDate = null;
     private DateOperator issuedDateOperator = null;
     private Integer rating = null;
     private NumberOperator ratingOperator = null;
@@ -36,9 +41,16 @@ public class BookSearchCriteria {
         }
 
         if (params.containsKey("issuedDate")) {
-            this.issuedDate = params.get("issuedDate");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+            try {
+                this.issuedDate = formatter.parse(params.get("issuedDate"));
+            } catch (ParseException e) {
+                throw new BadRequestException("Date format is invalid. Date shoud be in format 'yyyy-MM-dd'");
+            }
+
             this.issuedDateOperator = (params.containsKey("issueDateOperator")) ?
-                    DateOperator.fromValue(params.get("issueDateOperator")) : DateOperator.NEWER;
+                DateOperator.fromValue(params.get("issueDateOperator")) : DateOperator.NEWER;
         }
 
         if (params.containsKey("rating")) {

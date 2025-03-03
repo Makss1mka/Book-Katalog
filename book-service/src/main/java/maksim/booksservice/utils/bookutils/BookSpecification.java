@@ -1,12 +1,8 @@
 package maksim.booksservice.utils.bookutils;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import maksim.booksservice.models.Book;
 import org.springframework.data.jpa.domain.Specification;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,29 +37,29 @@ public class BookSpecification implements Specification<Book> {
         }
 
         if (criteria.getIssuedDate() != null && criteria.getIssuedDateOperator() != null) {
-            LocalDate issuedDate = LocalDate.parse(criteria.getIssuedDate());
-
             predicates.add(
                 switch (criteria.getIssuedDateOperator()) {
-                    case OLDER -> builder.lessThan(root.get("issuedDate"), issuedDate);
-                    case NEWER -> builder.greaterThan(root.get("issuedDate"), issuedDate);
+                    case OLDER -> builder.lessThan(root.get("issuedDate"), criteria.getIssuedDate());
+                    case NEWER -> builder.greaterThan(root.get("issuedDate"), criteria.getIssuedDate());
                 }
             );
         }
 
         if (criteria.getRating() != null && criteria.getRatingOperator() != null) {
+            String rating = "rating";
+
             predicates.add(
                 switch (criteria.getRatingOperator()) {
-                    case GREATER -> builder.greaterThan(root.get("rating"), criteria.getRating());
-                    case LESS -> builder.lessThan(root.get("rating"), criteria.getRating());
-                    case EQUAL -> builder.equal(root.get("rating"), criteria.getRating());
+                    case GREATER -> builder.greaterThan(root.get(rating), criteria.getRating());
+                    case LESS -> builder.lessThan(root.get(rating), criteria.getRating());
+                    case EQUAL -> builder.equal(root.get(rating), criteria.getRating());
                 }
             );
         }
 
         if (criteria.getStatusCount() != null && criteria.getStatusOperator() != null
             && criteria.getStatus() != null && criteria.getStatusScope() != null) {
-            String status = "status" + criteria.getStatus() + criteria.getStatusScope();
+            String status = "status" + criteria.getStatus().getValue() + criteria.getStatusScope().getValue();
 
             predicates.add(
                 switch (criteria.getStatusOperator()) {

@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public enum BookStatusScope {
     OVERALL("Overall"),
-    LAST_YEAR("Year"),
-    LAST_MONTH("Month"),
-    LAST_WEEK("Week");
+    LAST_YEAR("LastYear"),
+    LAST_MONTH("LastMonth"),
+    LAST_WEEK("LastWeek");
 
     private final String value;
 
