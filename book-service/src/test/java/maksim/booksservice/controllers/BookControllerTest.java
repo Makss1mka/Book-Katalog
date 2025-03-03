@@ -10,6 +10,7 @@ import maksim.booksservice.services.BookService;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.JoinMode;
 import maksim.booksservice.utils.validators.BookDtoForCreatingValidators;
+import maksim.booksservice.utils.validators.BookSearchCriteriaValidators;
 import maksim.booksservice.utils.validators.FileValidators;
 import maksim.booksservice.utils.validators.StringValidators;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,9 @@ class BookControllerTest {
     @Mock
     private StringValidators stringValidators;
 
+    @Mock
+    private BookSearchCriteriaValidators bookSearchCriteriaValidators;
+
     @InjectMocks
     private BookController bookController;
 
@@ -91,6 +95,8 @@ class BookControllerTest {
 
         Map<String, String> params = new HashMap<>();
 
+        //doNothing().when(bookSearchCriteriaValidators).screenStringValues(any(BookSearchCriteria.class));
+        when(bookSearchCriteriaValidators.isSafeFromSqlInjection(any(BookSearchCriteria.class))).thenReturn(true);
         when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(books);
 
         ResponseEntity<List<Book>> result = bookController.getAllBooks(params);
