@@ -14,15 +14,14 @@ import lombok.ToString;
 @ToString
 @Entity
 @Table(name = "books")
-@NamedEntityGraph(name = "Book.withAuthor",
-    attributeNodes = {
-        @NamedAttributeNode("author")
-    }
-)
 public class Book {
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
-    private User author;
+    private User author = null;
+
+    @Transient
+    private User bookAuthor = null;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,12 +88,15 @@ public class Book {
     @Column(name = "status_read_last_week", nullable = false)
     private int statusReadLastWeek;
 
+    @JsonIgnore
     @Column(name = "status_read_current_year", nullable = false)
     private int statusReadCurrentYear;
 
+    @JsonIgnore
     @Column(name = "status_read_current_month", nullable = false)
     private int statusReadCurrentMonth;
 
+    @JsonIgnore
     @Column(name = "status_read_current_week", nullable = false)
     private int statusReadCurrentWeek;
 
@@ -113,12 +115,15 @@ public class Book {
     @Column(name = "status_drop_last_week", nullable = false)
     private int statusDropLastWeek;
 
+    @JsonIgnore
     @Column(name = "status_drop_current_year", nullable = false)
     private int statusDropCurrentYear;
 
+    @JsonIgnore
     @Column(name = "status_drop_current_month", nullable = false)
     private int statusDropCurrentMonth;
 
+    @JsonIgnore
     @Column(name = "status_drop_current_week", nullable = false)
     private int statusDropCurrentWeek;
 
