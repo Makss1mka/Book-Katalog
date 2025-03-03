@@ -6,13 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import jakarta.ws.rs.NotFoundException;
 import maksim.booksservice.models.Book;
 import maksim.booksservice.models.BookDtoForCreating;
@@ -20,11 +16,9 @@ import maksim.booksservice.services.BookService;
 import maksim.booksservice.utils.Pagination;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.*;
-import maksim.booksservice.utils.enums.NumberOperator;
 import maksim.booksservice.utils.validators.BookDtoForCreatingValidators;
 import maksim.booksservice.utils.validators.FileValidators;
 import maksim.booksservice.utils.validators.StringValidators;
-import org.hibernate.mapping.Join;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +64,7 @@ public class BookController {
         this.bookDtoForCreatingValidators = bookDtoForCreatingValidators;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<Book>> getAllBooks(@RequestParam Map<String, String> params) {
         /*
         * QUERY PARAMS:
@@ -92,8 +86,6 @@ public class BookController {
         * statusScope - overall \ last_year \ last_month \ last_week ; default "overall"
         * statusOperator - greater \ less ; default "greater"
         *
-        * joinMode - with \ without ; default "without"
-        *
         * SORTING:
         *   sortField - default "rating"
         *   sortDirection - asc \ desc ; default "desc"
@@ -105,10 +97,8 @@ public class BookController {
 
         Pageable pageable = Pagination.getPageable(params);
         BookSearchCriteria criteria = new BookSearchCriteria(params);
-        JoinMode joinMode = (params.containsKey("joinMode")) ?
-                JoinMode.fromValue(params.get("joinMode")) : JoinMode.fromValue("without");
 
-        List<Book> findBooks = bookService.getAllBooks(criteria, joinMode, pageable);
+        List<Book> findBooks = bookService.getAllBooks(criteria, pageable);
 
         logger.trace("BookController method end | Return: selected items {}", findBooks.size());
 
@@ -128,7 +118,11 @@ public class BookController {
         Optional<Book> book = bookService.getById(id, joinMode);
 
         if (book.isPresent()) {
-            logger.trace("BookController method end: getBookById | Found book: {}", book);
+            if (joinMode == JoinMode.WITH_JOIN) {
+                book.get().setBookAuthor(book.get().getAuthor());
+            }
+
+            logger.trace("BookController method end: getBookById | Found book");
 
             return new ResponseEntity<>(book.get(), HttpStatus.OK);
         } else {

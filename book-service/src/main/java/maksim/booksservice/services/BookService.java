@@ -49,11 +49,11 @@ public class BookService {
     }
 
     public Optional<Book> getById(int id, JoinMode joinMode) {
-        logger.trace("BookService method entrance: getById | Params: book id {}", id);
+        logger.trace("BookService method entrance: getById | Params: id {} ; join mode {}", id, joinMode);
 
         Optional<Book> book = switch (joinMode) {
-            case WITH_JOIN -> bookRepository.findByIdWithJoin(id);
-            case WITHOUT_JOIN -> bookRepository.findById(id);
+            case WITH_JOIN -> bookRepository.findByIdWithAuthor(id);
+            case WITHOUT_JOIN -> bookRepository.findByIdWithoutAuthor(id);
         };
 
         logger.trace("BookService return: getAllBooks | Result is found {}", book.isPresent());
@@ -61,15 +61,12 @@ public class BookService {
         return book;
     }
 
-    public List<Book> getAllBooks(BookSearchCriteria criteria, JoinMode joinMode, Pageable pageable) {
+    public List<Book> getAllBooks(BookSearchCriteria criteria, Pageable pageable) {
         logger.trace("BookService method entrance: getAllBooks | Params: {} ; {}", criteria, pageable);
 
         BookSpecification spec = new BookSpecification(criteria);
 
-        List<Book> books = switch (joinMode) {
-            case WITH_JOIN -> bookRepository.findAllWithJoin(spec, pageable).toList();
-            case WITHOUT_JOIN -> bookRepository.findAll(spec, pageable).toList();
-        };
+        List<Book> books = bookRepository.findAll(spec, pageable).toList();
 
         logger.trace("BookService return: getAllBooks | Result: found items {}", books.size());
 
