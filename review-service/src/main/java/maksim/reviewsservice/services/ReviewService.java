@@ -38,12 +38,18 @@ public class ReviewService {
         logger.trace("Method enter: findByUd | Params: review id {} ; mode {}", reviewId, mode);
 
         Optional<Review> review = switch (mode) {
-            case JoinMode.WITH -> reviewRepository.findById(reviewId);
-            case JoinMode.WITHOUT -> reviewRepository.findByIdWithoutLinkingTables(reviewId);
+            case JoinMode.WITH -> reviewRepository.findByIdWithJoin(reviewId);
+            case JoinMode.WITHOUT -> reviewRepository.findByIdWithoutJoin(reviewId);
         };
 
         if (review.isEmpty()) {
             throw new NotFoundException("Cannot find review");
+        }
+
+        if (mode == JoinMode.WITH) {
+            review.get().setReviewLikedUsers(
+                review.get().getLikedUsers()
+            );
         }
 
         logger.trace("Method return: findById | Result: found successfully");
@@ -56,14 +62,22 @@ public class ReviewService {
 
         List<Review> reviews = switch (criteria) {
             case BOOK -> switch (mode) {
-                case WITH -> reviewRepository.findByBookId(id, pageable);
-                case WITHOUT -> reviewRepository.findByBookIdWithoutLinkingTables(id, pageable);
+                case WITH -> reviewRepository.findByBookIdWithJoin(id, pageable);
+                case WITHOUT -> reviewRepository.findByBookIdWithoutJoin(id, pageable);
             };
             case USER -> switch (mode) {
-                case WITH -> reviewRepository.findByUserId(id, pageable);
-                case WITHOUT -> reviewRepository.findByUserIdWithoutLinkingTables(id, pageable);
+                case WITH -> reviewRepository.findByUserIdWithJoin(id, pageable);
+                case WITHOUT -> reviewRepository.findByUserIdWithoutJoin(id, pageable);
             };
         };
+
+        if (mode == JoinMode.WITH) {
+            reviews.forEach((review) -> {
+                review.setReviewLikedUsers(
+                    review.getLikedUsers()
+                );
+            });
+        }
 
         logger.trace("Method return: getAllByBookOrUserId | found {} items", reviews.size());
 
@@ -126,7 +140,7 @@ public class ReviewService {
     public void deleteReview(int reviewId) {
         logger.trace("Method enter: deleteReview | Params: reviewId {}", reviewId);
 
-        Optional<Review> review = reviewRepository.findById(reviewId);
+        Optional<Review> review = reviewRepository.findByIdWithJoin(reviewId);
 
         if (review.isEmpty()) {
             throw new NotFoundException("Cannot delete review (this review doesn't exist)");
@@ -140,7 +154,7 @@ public class ReviewService {
     public void deleteLike(int reviewId, int userId) {
         logger.trace("Method enter: deleteLike | Params: reviewId {} ; userId {}", reviewId, userId);
 
-        Optional<Review> review = reviewRepository.findById(reviewId);
+        Optional<Review> review = reviewRepository.findByIdWithJoin(reviewId);
         Optional<User> user = userRepository.findById(userId);
 
         if (review.isEmpty() || user.isEmpty()) {
@@ -172,7 +186,7 @@ public class ReviewService {
                     reviewId, reviewData.getRating());
         }
 
-        Optional<Review> review = reviewRepository.findById(reviewId);
+        Optional<Review> review = reviewRepository.findByIdWithJoin(reviewId);
 
         if (review.isEmpty()) {
             throw new NotFoundException("Cannot update review (such review doesn't exist)");

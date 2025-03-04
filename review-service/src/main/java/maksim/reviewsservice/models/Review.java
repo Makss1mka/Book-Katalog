@@ -1,14 +1,8 @@
 package maksim.reviewsservice.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
@@ -21,13 +15,17 @@ import lombok.ToString;
 @Entity
 @Table(name = "reviews")
 public class Review {
-    @ManyToMany
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_review_like",
             joinColumns = @JoinColumn(name = "review_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> likedUsers = new HashSet<>();
+
+    @Transient
+    private Set<User> reviewLikedUsers = null;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

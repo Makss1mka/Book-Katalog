@@ -11,20 +11,23 @@ import org.springframework.data.jpa.repository.Query;
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     @Query("SELECT r FROM Review r WHERE r.id = :id")
-    Optional<Review> findByIdWithoutLinkingTables(@QueryParam("id") int id);
+    Optional<Review> findByIdWithoutJoin(@QueryParam("id") int id);
 
-    Optional<Review> findById(int id);
+    @Query("SELECT r FROM Review r JOIN FETCH r.likedUsers u WHERE r.id = :id")
+    Optional<Review> findByIdWithJoin(@QueryParam("id") int id);
 
 
     @Query("SELECT r FROM Review r WHERE r.userId = :userId")
-    List<Review> findByUserIdWithoutLinkingTables(@QueryParam("userId") int userId, Pageable pageable);
+    List<Review> findByUserIdWithoutJoin(@QueryParam("userId") int userId, Pageable pageable);
 
-    List<Review> findByUserId(int id, Pageable pageable);
+    @Query("SELECT r FROM Review r JOIN FETCH r.likedUsers u WHERE r.userId = :userId")
+    List<Review> findByUserIdWithJoin(@QueryParam("userId") int userId, Pageable pageable);
 
 
     @Query("SELECT r FROM Review r WHERE r.bookId = :bookId")
-    List<Review> findByBookIdWithoutLinkingTables(@QueryParam("bookId") int bookId, Pageable pageable);
+    List<Review> findByBookIdWithoutJoin(@QueryParam("bookId") int bookId, Pageable pageable);
 
-    List<Review> findByBookId(int id, Pageable pageable);
+    @Query("SELECT r FROM Review r JOIN FETCH r.likedUsers u WHERE r.bookId = :bookId")
+    List<Review> findByBookIdWithJoin(@QueryParam("bookId") int bookId, Pageable pageable);
 
 }
