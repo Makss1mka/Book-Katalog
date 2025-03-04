@@ -6,7 +6,8 @@ import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
 import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
 import maksim.reviewsservice.services.ReviewService;
 import maksim.reviewsservice.utils.Pagination;
-import maksim.reviewsservice.utils.enums.ReviewLikeTableLinkingMode;
+import maksim.reviewsservice.utils.enums.JoinMode;
+import maksim.reviewsservice.utils.enums.SelectionCriteria;
 import maksim.reviewsservice.utils.enums.SortDirection;
 import maksim.reviewsservice.utils.enums.SortField;
 import maksim.reviewsservice.utils.validators.StringValidators;
@@ -52,7 +53,7 @@ class ReviewControllerTest {
     void getReviewById() {
         Review review = new Review();
 
-        when(reviewService.getById(anyInt(), any(ReviewLikeTableLinkingMode.class))).thenReturn(review);
+        when(reviewService.getById(anyInt(), any(JoinMode.class))).thenReturn(review);
 
         ResponseEntity<Review> response = reviewController.getReviewById(1, "without");
 
@@ -60,14 +61,14 @@ class ReviewControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(review, response.getBody());
 
-        verify(reviewService, times(1)).getById(1, ReviewLikeTableLinkingMode.WITHOUT_LINKING);
+        verify(reviewService, times(1)).getById(1, JoinMode.WITHOUT);
     }
 
     @Test
     void getReviewsByUserOrBookId() {
         List<Review> reviews = List.of(new Review());
 
-        when(reviewService.getByBookId(anyInt(), any(ReviewLikeTableLinkingMode.class), any(Pageable.class)))
+        when(reviewService.getAllByBookOrUserId(anyInt(), any(SelectionCriteria.class), any(JoinMode.class), any(Pageable.class)))
                 .thenReturn(reviews);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class)))
                 .thenReturn(pageable);
@@ -79,7 +80,7 @@ class ReviewControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
 
-        verify(reviewService, times(1)).getByBookId(1, ReviewLikeTableLinkingMode.WITHOUT_LINKING, pageable);
+        verify(reviewService, times(1)).getAllByBookOrUserId(anyInt(), any(SelectionCriteria.class), any(JoinMode.class), any(Pageable.class));
     }
 
     @Test

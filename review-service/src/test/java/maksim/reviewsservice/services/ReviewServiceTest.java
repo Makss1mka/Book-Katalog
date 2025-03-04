@@ -7,7 +7,8 @@ import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
 import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
 import maksim.reviewsservice.repositories.ReviewRepository;
 import maksim.reviewsservice.repositories.UserRepository;
-import maksim.reviewsservice.utils.enums.ReviewLikeTableLinkingMode;
+import maksim.reviewsservice.utils.enums.JoinMode;
+import maksim.reviewsservice.utils.enums.SelectionCriteria;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -31,9 +32,6 @@ class ReviewServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private KafkaProducerService kafkaProducerService;
-
     @InjectMocks
     private ReviewService reviewService;
 
@@ -49,66 +47,57 @@ class ReviewServiceTest {
     void getById() {
         Review review = new Review();
 
-        when(reviewRepository.findById(anyInt())).thenReturn(Optional.of(review));
-        when(reviewRepository.findByIdWithoutLinkingTables(anyInt())).thenReturn(Optional.of(review));
+        when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
+        when(reviewRepository.findByIdWithoutJoin(anyInt())).thenReturn(Optional.of(review));
 
         Review result;
 
-        result = reviewService.getById(1, ReviewLikeTableLinkingMode.WITH_LINKING);
+        result = reviewService.getById(1, JoinMode.WITH);
         assertNotNull(result);
 
-        result = reviewService.getById(1, ReviewLikeTableLinkingMode.WITHOUT_LINKING);
+        result = reviewService.getById(1, JoinMode.WITHOUT);
         assertNotNull(result);
 
-        verify(reviewRepository, times(1)).findById(1);
-        verify(reviewRepository, times(1)).findByIdWithoutLinkingTables(1);
+        verify(reviewRepository, times(1)).findByIdWithJoin(1);
+        verify(reviewRepository, times(1)).findByIdWithoutJoin(1);
     }
 
     @Test
     void getById_NotFound() {
-        when(reviewRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> {
-            reviewService.getById(1, ReviewLikeTableLinkingMode.WITH_LINKING);
+            reviewService.getById(1, JoinMode.WITH);
         });
     }
 
     @Test
-    void getByBookId() {
+    void getAllByBookOrUserId() {
         List<Review> reviews = List.of(new Review());
 
-        when(reviewRepository.findByBookId(1, pageable)).thenReturn(reviews);
-        when(reviewRepository.findByBookIdWithoutLinkingTables(1, pageable)).thenReturn(reviews);
+        when(reviewRepository.findByBookIdWithJoin(1, pageable)).thenReturn(reviews);
+        when(reviewRepository.findByBookIdWithoutJoin(1, pageable)).thenReturn(reviews);
+        when(reviewRepository.findByUserIdWithJoin(1, pageable)).thenReturn(reviews);
+        when(reviewRepository.findByUserIdWithoutJoin(1, pageable)).thenReturn(reviews);
 
         List<Review> result;
 
-        result = reviewService.getByBookId(1, ReviewLikeTableLinkingMode.WITH_LINKING, pageable);
+        result = reviewService.getAllByBookOrUserId(1, SelectionCriteria.BOOK, JoinMode.WITH, pageable);
         assertEquals(1, result.size());
 
-        result = reviewService.getByBookId(1, ReviewLikeTableLinkingMode.WITHOUT_LINKING, pageable);
+        result = reviewService.getAllByBookOrUserId(1, SelectionCriteria.BOOK, JoinMode.WITHOUT, pageable);
         assertEquals(1, result.size());
 
-        verify(reviewRepository, times(1)).findByBookId(1, pageable);
-        verify(reviewRepository, times(1)).findByBookIdWithoutLinkingTables(1, pageable);
-    }
-
-    @Test
-    void getByUserId() {
-        List<Review> reviews = List.of(new Review());
-
-        when(reviewRepository.findByUserId(1, pageable)).thenReturn(reviews);
-        when(reviewRepository.findByUserIdWithoutLinkingTables(1, pageable)).thenReturn(reviews);
-
-        List<Review> result;
-
-        result = reviewService.getByUserId(1, ReviewLikeTableLinkingMode.WITH_LINKING, pageable);
+        result = reviewService.getAllByBookOrUserId(1, SelectionCriteria.USER, JoinMode.WITH, pageable);
         assertEquals(1, result.size());
 
-        result = reviewService.getByUserId(1, ReviewLikeTableLinkingMode.WITHOUT_LINKING, pageable);
+        result = reviewService.getAllByBookOrUserId(1, SelectionCriteria.USER, JoinMode.WITHOUT, pageable);
         assertEquals(1, result.size());
 
-        verify(reviewRepository, times(1)).findByUserId(1, pageable);
-        verify(reviewRepository, times(1)).findByUserIdWithoutLinkingTables(1, pageable);
+        verify(reviewRepository, times(1)).findByBookIdWithJoin(1, pageable);
+        verify(reviewRepository, times(1)).findByBookIdWithoutJoin(1, pageable);
+        verify(reviewRepository, times(1)).findByUserIdWithJoin(1, pageable);
+        verify(reviewRepository, times(1)).findByUserIdWithoutJoin(1, pageable);
     }
 
     @Test
@@ -118,7 +107,6 @@ class ReviewServiceTest {
         ReviewDtoForCreating reviewDtoForCreating = new ReviewDtoForCreating();
 
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
-        doNothing().when(kafkaProducerService).publishReviewChanges(any(Review.class), anyInt());
 
         Review result = reviewService.addReview(reviewDtoForCreating);
 
@@ -154,12 +142,11 @@ class ReviewServiceTest {
     void deleteReview() {
         Review review = new Review();
 
-        when(reviewRepository.findById(anyInt())).thenReturn(Optional.of(review));
-        doNothing().when(kafkaProducerService).publishReviewChanges(any(Review.class), anyInt());
+        when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
 
         reviewService.deleteReview(1);
 
-        verify(reviewRepository, times(1)).findById(1);
+        verify(reviewRepository, times(1)).findByIdWithJoin(1);
         verify(reviewRepository, times(1)).delete(review);
     }
 
@@ -171,13 +158,13 @@ class ReviewServiceTest {
         review.setLikes(1);
         review.getLikedUsers().add(user);
 
-        when(reviewRepository.findById(anyInt())).thenReturn(Optional.of(review));
+        when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
 
         reviewService.deleteLike(1, 1);
 
         assertEquals(0, review.getLikes());
-        verify(reviewRepository, times(1)).findById(1);
+        verify(reviewRepository, times(1)).findByIdWithJoin(1);
         verify(userRepository, times(1)).findById(1);
         verify(reviewRepository, times(1)).save(review);
     }
@@ -189,8 +176,7 @@ class ReviewServiceTest {
         reviewDtoForUpdating.setText("Updated review text");
         reviewDtoForUpdating.setRating(4);
 
-        when(reviewRepository.findById(anyInt())).thenReturn(Optional.of(review));
-        doNothing().when(kafkaProducerService).publishReviewChanges(any(Review.class), anyInt());
+        when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
 
         Review result;
 
@@ -209,7 +195,7 @@ class ReviewServiceTest {
         assertEquals("Updated review text", result.getText());
         assertEquals(4, result.getRating());
 
-        verify(reviewRepository, times(3)).findById(1);
+        verify(reviewRepository, times(3)).findByIdWithJoin(1);
         verify(reviewRepository, times(1)).save(review);
     }
 }
