@@ -2,9 +2,7 @@ package maksim.reviewsservice.controllers;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.BadRequestException;
 import java.util.List;
 import maksim.reviewsservice.models.Review;
@@ -13,7 +11,7 @@ import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
 import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
 import maksim.reviewsservice.services.ReviewService;
 import maksim.reviewsservice.utils.Pagination;
-import maksim.reviewsservice.utils.enums.ReviewLikeTableLinkingMode;
+import maksim.reviewsservice.utils.enums.JoinMode;
 import maksim.reviewsservice.utils.enums.SelectionCriteria;
 import maksim.reviewsservice.utils.enums.SortDirection;
 import maksim.reviewsservice.utils.enums.SortField;
@@ -54,12 +52,12 @@ public class ReviewController {
         this.stringValidators = stringValidators;
     }
 
-    @GetMapping("/get/by/id/{reviewId}")
+    @GetMapping("/{reviewId}")
     public ResponseEntity<Review> getReviewById(
             @NotNull @Min(0) @PathVariable int reviewId,
             @RequestParam(name = "linkMode", required = false, defaultValue = "without") String strLinkingMode
     ) {
-        ReviewLikeTableLinkingMode linkingMode = ReviewLikeTableLinkingMode.fromValue(strLinkingMode);
+        JoinMode linkingMode = JoinMode.fromValue(strLinkingMode);
 
         logger.trace("Controller method enter: getReviewById | Params: reviewId {} ; linking mode {}",
                 reviewId, linkingMode);
@@ -71,11 +69,11 @@ public class ReviewController {
         return new ResponseEntity<>(review, HttpStatus.OK);
     }
 
-    @GetMapping("/get/by/{strSelectionCriteria}/{id}")
+    @GetMapping
     public ResponseEntity<List<Review>> getReviewsByUserOrBookId(
-            @NotNull @Min(0) @PathVariable int id,
-            @NotBlank @Size(min = 3, max = 7) @PathVariable String strSelectionCriteria,
-            @RequestParam(name = "linkMode", required = false, defaultValue = "without") String strLinkingMode,
+            @RequestParam(name = "id") int id,
+            @RequestParam(name = "criteria") String strSelectionCriteria,
+            @RequestParam(name = "joinMode", required = false, defaultValue = "without") String strJoinMode,
             @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
             @RequestParam(name = "itemsAmount", required = false, defaultValue = "20") int itemsAmount,
             @RequestParam(name = "sortField", required = false, defaultValue = "rating") String sortStrField,
@@ -84,20 +82,17 @@ public class ReviewController {
         SortField sortField = SortField.fromValue(sortStrField);
         SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
         SelectionCriteria selectionCriteria = SelectionCriteria.fromValue(strSelectionCriteria);
-        ReviewLikeTableLinkingMode linkingMode = ReviewLikeTableLinkingMode.fromValue(strLinkingMode);
+        JoinMode joinMode = JoinMode.fromValue(strJoinMode);
 
         Pageable pageable = pagination.getPageable(pageNum, itemsAmount, sortField, sortDirection);
 
         logger.trace("""
                 Controller method enter: getReviewById |\s
-                Params: linking mode {} ; selection criteria {} ; id {} ; pageable {},
+                Params: join mode {} ; selection criteria {} ; id {} ; pageable {},
                \s""",
-                linkingMode, selectionCriteria, id, pageable);
+                joinMode, selectionCriteria, id, pageable);
 
-        List<Review> reviews = switch (selectionCriteria) {
-            case BOOK -> reviewService.getByBookId(id, linkingMode, pageable);
-            case USER -> reviewService.getByUserId(id, linkingMode, pageable);
-        };
+        List<Review> reviews = reviewService.getAllByBookOrUserId(id, selectionCriteria, joinMode, pageable);
 
         logger.trace("Controller method return: getReviewById | Result: found {} items", reviews.size());
 

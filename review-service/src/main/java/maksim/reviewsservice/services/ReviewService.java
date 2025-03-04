@@ -10,7 +10,8 @@ import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
 import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
 import maksim.reviewsservice.repositories.ReviewRepository;
 import maksim.reviewsservice.repositories.UserRepository;
-import maksim.reviewsservice.utils.enums.ReviewLikeTableLinkingMode;
+import maksim.reviewsservice.utils.enums.JoinMode;
+import maksim.reviewsservice.utils.enums.SelectionCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,25 +24,22 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
-    private final KafkaProducerService kafkaProducerService;
 
     @Autowired
     ReviewService(
             ReviewRepository reviewRepository,
-            UserRepository userRepository,
-            KafkaProducerService kafkaProducerService
+            UserRepository userRepository
     ) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
-        this.kafkaProducerService = kafkaProducerService;
     }
 
-    public Review getById(int reviewId, ReviewLikeTableLinkingMode mode) {
+    public Review getById(int reviewId, JoinMode mode) {
         logger.trace("Method enter: findByUd | Params: review id {} ; mode {}", reviewId, mode);
 
         Optional<Review> review = switch (mode) {
-            case ReviewLikeTableLinkingMode.WITH_LINKING -> reviewRepository.findById(reviewId);
-            case ReviewLikeTableLinkingMode.WITHOUT_LINKING -> reviewRepository.findByIdWithoutLinkingTables(reviewId);
+            case JoinMode.WITH -> reviewRepository.findById(reviewId);
+            case JoinMode.WITHOUT -> reviewRepository.findByIdWithoutLinkingTables(reviewId);
         };
 
         if (review.isEmpty()) {
@@ -53,32 +51,24 @@ public class ReviewService {
         return review.get();
     }
 
-    public List<Review> getByBookId(int bookId, ReviewLikeTableLinkingMode mode, Pageable pageable) {
-        logger.trace("Method enter: getByBookId | Params: book id {} ; mode {}", bookId, mode);
+    public List<Review> getAllByBookOrUserId(int id, SelectionCriteria criteria, JoinMode mode, Pageable pageable) {
+        logger.trace("Method enter: getAllByBookOrUserId | Params: id {} ; mode {} ; criteria {}", id, mode, criteria);
 
-        List<Review> reviews = switch (mode) {
-            case WITH_LINKING -> reviewRepository.findByBookId(bookId, pageable);
-            case WITHOUT_LINKING -> reviewRepository.findByBookIdWithoutLinkingTables(bookId, pageable);
+        List<Review> reviews = switch (criteria) {
+            case BOOK -> switch (mode) {
+                case WITH -> reviewRepository.findByBookId(id, pageable);
+                case WITHOUT -> reviewRepository.findByBookIdWithoutLinkingTables(id, pageable);
+            };
+            case USER -> switch (mode) {
+                case WITH -> reviewRepository.findByUserId(id, pageable);
+                case WITHOUT -> reviewRepository.findByUserIdWithoutLinkingTables(id, pageable);
+            };
         };
 
-        logger.trace("Method return: findByBookId | found {} items", reviews.size());
+        logger.trace("Method return: getAllByBookOrUserId | found {} items", reviews.size());
 
         return reviews;
     }
-
-    public List<Review> getByUserId(int userId, ReviewLikeTableLinkingMode mode, Pageable pageable) {
-        logger.trace("Method enter: getByUserId | Params: user id {} ; mode {}", userId, mode);
-
-        List<Review> reviews = switch (mode) {
-            case WITH_LINKING -> reviewRepository.findByUserId(userId, pageable);
-            case WITHOUT_LINKING -> reviewRepository.findByUserIdWithoutLinkingTables(userId, pageable);
-        };
-
-        logger.trace("Method return: findByUserId | found {} items", reviews.size());
-
-        return reviews;
-    }
-
 
 
     public Review addReview(ReviewDtoForCreating reviewData) {
@@ -96,8 +86,6 @@ public class ReviewService {
         newReview.setRating(reviewData.getRating());
 
         reviewRepository.save(newReview);
-
-        kafkaProducerService.publishReviewChanges(newReview, 1);
 
         logger.trace("Method return: addReview | Result: review add successfully");
 
@@ -143,8 +131,6 @@ public class ReviewService {
         if (review.isEmpty()) {
             throw new NotFoundException("Cannot delete review (this review doesn't exist)");
         }
-
-        kafkaProducerService.publishReviewChanges(review.get(), -1);
 
         reviewRepository.delete(review.get());
 
@@ -197,8 +183,6 @@ public class ReviewService {
         if (reviewData.getRating() != null) {
             review.get().setRating(reviewData.getRating());
             touchedFields++;
-
-            kafkaProducerService.publishReviewChanges(review.get(), 0);
         }
 
         if (reviewData.getText() != null && !reviewData.getText().isEmpty()) {

@@ -3,18 +3,18 @@ package maksim.reviewsservice.utils.enums;
 import lombok.Getter;
 
 @Getter
-public enum ReviewLikeTableLinkingMode {
-    WITH_LINKING("with"),
-    WITHOUT_LINKING("without");
+public enum JoinMode {
+    WITH("with"),
+    WITHOUT("without");
 
     private final String value;
 
-    ReviewLikeTableLinkingMode(String value) {
+    JoinMode(String value) {
         this.value = value;
     }
 
-    public static ReviewLikeTableLinkingMode fromValue(String value) {
-        for (ReviewLikeTableLinkingMode field : values()) {
+    public static JoinMode fromValue(String value) {
+        for (JoinMode field : values()) {
             if (field.value.equalsIgnoreCase(value)) {
                 return field;
             }
