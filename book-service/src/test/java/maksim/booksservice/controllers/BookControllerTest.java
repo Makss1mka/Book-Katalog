@@ -141,7 +141,7 @@ class BookControllerTest {
     void testAddBookMetaData_Success() throws Exception {
         when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(true);
 
-        mockMvc.perform(post("/books/metaData")
+        mockMvc.perform(post("/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"TEST NAME\", \"authorId\": 17}"))
                 .andExpect(status().isOk());
@@ -154,7 +154,7 @@ class BookControllerTest {
         when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(false);
         when(stringValidators.isSafeFromSqlInjection(any())).thenReturn(false);
 
-        mockMvc.perform(post("/books/metaData")
+        mockMvc.perform(post("/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"TEST NAME\", \"authorId\": 17}"))
                 .andExpect(status().isBadRequest());

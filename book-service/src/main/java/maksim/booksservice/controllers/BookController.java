@@ -166,7 +166,7 @@ public class BookController {
                 .body(new FileSystemResource(file));
     }
 
-    @PostMapping("/metaData")
+    @PostMapping
     public ResponseEntity<Book> addBookMetaData(@Valid @RequestBody BookDtoForCreating bookData) {
         logger.trace("BookController method entrance: addBookMetaData");
 
