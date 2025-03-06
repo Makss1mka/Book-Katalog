@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: user-service
+    users-profiles-directory: "app/statics/"
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/postgres"          # host.docker.internal
+    username: "postgres"
+    password: "postgres"
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8086
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: "http://localhost:8081/eureka"

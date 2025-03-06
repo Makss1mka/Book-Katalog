@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>maksim</groupId>
 	<artifactId>user-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>user-service</name>
 	<description>user-service</description>
 	<url/>
@@ -27,11 +27,14 @@
 		<url/>
 	</scm>
 	<properties>
+		<sonar.organization>makskroll134679</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.java.binaries>target/classes</sonar.java.binaries>
+		<docker.image.name>maks1mka/user-service</docker.image.name>
 		<java.version>23</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 	</properties>
 	<dependencies>
-		<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -44,10 +47,6 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
 		</dependency>
-		<!--		<dependency>-->
-		<!--			<groupId>org.springframework.cloud</groupId>-->
-		<!--			<artifactId>spring-cloud-starter-config</artifactId>-->
-		<!--		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
@@ -59,22 +58,23 @@
 		</dependency>
 
 
+		<!-- VALIDATION DEPS -->
+		<dependency>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
+			<version>3.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>8.0.1.Final</version>
+		</dependency>
+
+
 		<!-- SERVICE DISCOVERY DEPS -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-		</dependency>
-
-
-		<!-- CLOUD STREAM DEPS -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-stream</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-stream-test-binder</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 
@@ -138,6 +138,13 @@
 		</dependency>
 
 
+		<dependency>
+			<groupId>org.owasp.encoder</groupId>
+			<artifactId>encoder</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+
+
 		<!-- LOGGING DEPS -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -155,8 +162,20 @@
 			<version>1.5.16</version>
 		</dependency>
 
-	</dependencies>
 
+		<!-- FOR TESTS -->
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-common</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.inject</groupId>
+			<artifactId>jersey-hk2</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -184,7 +203,57 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<id>docker-build</id>
+						<phase>install</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>docker</executable>
+							<arguments>
+								<argument>build</argument>
+								<argument>-t</argument>
+								<argument>${docker.image.name}:${project.version}</argument>
+								<argument>-t</argument>
+								<argument>${docker.image.name}:latest</argument>
+								<argument>.</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>
