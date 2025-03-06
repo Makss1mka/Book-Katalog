@@ -6,7 +6,7 @@ gateway/target/
 review-service/target/
 user-service/target/
 
-auth-ervice/logs/
+auth-service/logs/
 book-service/logs/
 config-service/logs/
 eureka-server/logs/
@@ -14,6 +14,7 @@ gateway/logs/
 review-service/logs/
 user-service/logs/
 
+my_google_checks.xml
 ports.txt
 statics
 book-service/statics
