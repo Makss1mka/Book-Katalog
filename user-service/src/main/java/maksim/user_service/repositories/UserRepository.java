@@ -31,6 +31,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "AND u.id = :userId")
     List<Book> findAllBooksByUserStatus(@Param("userId") int userId, @Param("status") String status, Pageable pageable);
 
+    Optional<User> findByName(String name);
 
+    Optional<User> findByEmail(String name);
 
 }
