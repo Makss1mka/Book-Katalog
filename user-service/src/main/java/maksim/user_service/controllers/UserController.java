@@ -1,43 +1,44 @@
 package maksim.user_service.controllers;
 
-import jakarta.ws.rs.NotFoundException;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.BadRequestException;
 import maksim.user_service.models.Book;
 import maksim.user_service.models.User;
-import maksim.user_service.models.dtos.UserDtoForCreating;
+import maksim.user_service.models.dtos.CreateUserDto;
 import maksim.user_service.services.UserService;
 import maksim.user_service.utils.enums.BookStatus;
 import maksim.user_service.utils.enums.JoinMode;
 import maksim.user_service.utils.validators.StringValidators;
-import maksim.user_service.utils.validators.UserDtoForCreatingValidators;
+import maksim.user_service.utils.validators.CreateUserDtoValidators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@Valid
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserService userService;
     private final StringValidators stringValidators;
-    private final UserDtoForCreatingValidators userDtoForCreatingValidators;
+    private final CreateUserDtoValidators createUserDtoValidators;
 
     @Autowired
     UserController(
         UserService userService,
         StringValidators stringValidators,
-        UserDtoForCreatingValidators userDtoForCreatingValidators
+        CreateUserDtoValidators createUserDtoValidators
     ) {
         this.userService = userService;
         this.stringValidators = stringValidators;
-        this.userDtoForCreatingValidators = userDtoForCreatingValidators;
+        this.createUserDtoValidators = createUserDtoValidators;
     }
 
     @GetMapping("/{userId}/books")
@@ -81,14 +82,18 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody UserDtoForCreating userDtoForCreating) {
+    public ResponseEntity<User> createUser(@RequestBody CreateUserDto createUserDto) {
         logger.trace("BookController method entrance: createUser");
 
-        User user;
+        if (!createUserDtoValidators.isValid(createUserDto)) {
+            throw new BadRequestException("Body contains invalid symbols");
+        }
+
+        User user = userService.createUser(createUserDto);
 
         logger.trace("BookController method return: createUser | User was successfully created");
 
-        return ResponseEntity.ok(user);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
 
