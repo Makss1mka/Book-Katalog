@@ -1,19 +1,19 @@
 package maksim.user_service.utils.validators;
 
-import maksim.user_service.models.dtos.UserDtoForCreating;
+import maksim.user_service.models.dtos.CreateUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserDtoForCreatingValidators {
+public class CreateUserDtoValidators {
     private final StringValidators stringValidators;
 
     @Autowired
-    public UserDtoForCreatingValidators(StringValidators stringValidators) {
+    public CreateUserDtoValidators(StringValidators stringValidators) {
         this.stringValidators = stringValidators;
     }
 
-    public boolean isValid(UserDtoForCreating dto) {
+    public boolean isValid(CreateUserDto dto) {
         if (isEmpty(dto)) return false;
 
         screenStringValues(dto);
@@ -21,17 +21,17 @@ public class UserDtoForCreatingValidators {
         return isSafeFromSqlInjection(dto);
     }
 
-    public boolean isEmpty(UserDtoForCreating dto) {
+    public boolean isEmpty(CreateUserDto dto) {
         return dto.getPassword() == null || dto.getEmail() == null || dto.getName() == null;
     }
 
-    public void screenStringValues(UserDtoForCreating dto) {
+    public void screenStringValues(CreateUserDto dto) {
         dto.setPassword(stringValidators.textScreening(dto.getPassword()));
         dto.setEmail(stringValidators.textScreening(dto.getEmail()));
         dto.setName(stringValidators.textScreening(dto.getName()));
     }
 
-    public boolean isSafeFromSqlInjection(UserDtoForCreating dto) {
+    public boolean isSafeFromSqlInjection(CreateUserDto dto) {
         return stringValidators.isSafeFromSqlInjection(dto.getEmail())
                 && stringValidators.isSafeFromSqlInjection(dto.getPassword())
                 && stringValidators.isSafeFromSqlInjection(dto.getName());
