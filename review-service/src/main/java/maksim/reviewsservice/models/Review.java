@@ -18,7 +18,7 @@ public class Review {
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "user_review_like",
+            name = "user_review_likes",
             joinColumns = @JoinColumn(name = "review_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )

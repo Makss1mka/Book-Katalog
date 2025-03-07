@@ -101,7 +101,7 @@ public class ReviewController {
     }
 
 
-    @PostMapping("/add/review")
+    @PostMapping("")
     public ResponseEntity<Review> addReview(@Valid @RequestBody ReviewDtoForCreating reviewData) {
         logger.trace("Controller method entry: addReview");
 
@@ -122,7 +122,7 @@ public class ReviewController {
         return new ResponseEntity<>(createdReview, HttpStatus.CREATED);
     }
 
-    @PostMapping("/add/like")
+    @PostMapping("/like")
     public ResponseEntity<String> addLike(@Valid @RequestBody LikeDtoForCreating likeData) {
         logger.trace("Controller method entry: addLike");
 
@@ -134,7 +134,7 @@ public class ReviewController {
     }
 
 
-    @DeleteMapping("/delete/review/{reviewId}")
+    @DeleteMapping("/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable @Min(0) int reviewId) {
         logger.trace("Controller method entry: deleteReview");
 
@@ -145,10 +145,10 @@ public class ReviewController {
         return ResponseEntity.ok("Review was successfully deleted");
     }
 
-    @DeleteMapping("/delete/like/fromUser/{userId}/toReview/{reviewId}")
+    @DeleteMapping("/like")
     public ResponseEntity<String> deleteLike(
-            @PathVariable @Min(0) int userId,
-            @PathVariable @Min(0) int reviewId
+            @RequestParam(name = "fromUser") int userId,
+            @RequestParam(name = "toReview") int reviewId
     ) {
         logger.trace("Controller method entry: deleteLike");
 
@@ -160,7 +160,7 @@ public class ReviewController {
     }
 
 
-    @PutMapping("/put/review/{reviewId}")
+    @PutMapping("/{reviewId}")
     public ResponseEntity<Review> updateReview(
             @PathVariable @Min(0) int reviewId,
             @Valid @RequestBody ReviewDtoForUpdating reviewData
