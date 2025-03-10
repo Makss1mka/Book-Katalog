@@ -4,12 +4,16 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.BadRequestException;
 import maksim.user_service.models.Book;
 import maksim.user_service.models.User;
+import maksim.user_service.models.dtos.CreateBookStatusDto;
 import maksim.user_service.models.dtos.CreateUserDto;
+import maksim.user_service.models.dtos.UpdateBookStatusDto;
+import maksim.user_service.models.dtos.UpdateUserDto;
 import maksim.user_service.services.UserService;
 import maksim.user_service.utils.enums.BookStatus;
 import maksim.user_service.utils.enums.JoinMode;
 import maksim.user_service.utils.validators.StringValidators;
 import maksim.user_service.utils.validators.CreateUserDtoValidators;
+import maksim.user_service.utils.validators.UpdateUserDtoValidators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,21 +28,21 @@ import java.util.List;
 @RequestMapping("/users")
 @Valid
 public class UserController {
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
-    private final StringValidators stringValidators;
     private final CreateUserDtoValidators createUserDtoValidators;
+    private final UpdateUserDtoValidators updateUserDtoValidators;
 
     @Autowired
     UserController(
         UserService userService,
-        StringValidators stringValidators,
-        CreateUserDtoValidators createUserDtoValidators
+        CreateUserDtoValidators createUserDtoValidators,
+        UpdateUserDtoValidators updateUserDtoValidators
     ) {
         this.userService = userService;
-        this.stringValidators = stringValidators;
         this.createUserDtoValidators = createUserDtoValidators;
+        this.updateUserDtoValidators = updateUserDtoValidators;
     }
 
     @GetMapping("/{userId}/books")
@@ -96,7 +100,79 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
+    @PostMapping("/{userId}/book-status")
+    public ResponseEntity<User> createStatus(
+        @PathVariable(name = "userId") int userId,
+        @RequestBody CreateBookStatusDto statusDto
+    ) {
+        logger.trace("BookController method entrance: createStatus");
+
+        User user = userService.createStatus(userId, statusDto);
+
+        logger.trace("BookController method return: createStatus | User was successfully created");
+
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
 
 
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<User> updateUser(
+        @PathVariable(name = "userId") int userId,
+        @RequestBody UpdateUserDto updateUserDto
+    ) {
+        logger.trace("BookController method entrance: updateUser");
+
+        if (!updateUserDtoValidators.isValid(updateUserDto)) {
+            throw new BadRequestException("Body contains invalid symbols");
+        }
+
+        User user = userService.updateUser(userId, updateUserDto);
+
+        logger.trace("BookController method return: updateUser | User was successfully updated");
+
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{userId}/book-status")
+    public ResponseEntity<User> updateStatus(
+        @PathVariable(name = "userId") int userId,
+        @RequestBody UpdateBookStatusDto statusDto
+    ) {
+        logger.trace("BookController method entrance: updateStatus");
+
+        User user = userService.updateStatus(userId, statusDto);
+
+        logger.trace("BookController method return: updateStatus | Status was successfully updated");
+
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable(name = "userId") int userId) {
+        logger.trace("BookController method entrance: deleteUser");
+
+        userService.deleteUser(userId);
+
+        logger.trace("BookController method return: deleteUser | User was successfully deleted");
+
+        return new ResponseEntity<>("User was successfully deleted", HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{userId}/book-status/{bookId}")
+    public ResponseEntity<User> deleteStatus(
+        @PathVariable(name = "userId") int userId,
+        @PathVariable(name = "bookId") int bookId
+    ) {
+        logger.trace("BookController method entrance: deleteUser");
+
+        User user = userService.deleteStatusEntity(userId, bookId);
+
+        logger.trace("BookController method return: deleteUser | Status was successfully deleted");
+
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
 
 }
