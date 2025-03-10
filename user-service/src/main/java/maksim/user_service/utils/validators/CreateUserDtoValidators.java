@@ -14,7 +14,7 @@ public class CreateUserDtoValidators {
     }
 
     public boolean isValid(CreateUserDto dto) {
-        if (isEmpty(dto)) return false;
+        if (isEmpty(dto) || isPasswordValid(dto.getPassword())) return false;
 
         screenStringValues(dto);
 
@@ -25,6 +25,32 @@ public class CreateUserDtoValidators {
         return dto.getPassword() == null || dto.getEmail() == null || dto.getName() == null;
     }
 
+    public boolean isPasswordValid(String password) {
+        boolean isPasswordContainsDigit = false;
+        boolean isPasswordContainsSpecs = false;
+        boolean isPasswordContainsLetters = false;
+
+        byte[] chars = password.getBytes();
+
+        for (int i = 0; i < password.length(); i++) {
+            if (!isPasswordContainsDigit && (chars[i] >= 48 && chars[i] <= 57)) {
+                isPasswordContainsDigit = true;
+                continue;
+            }
+
+            if (!isPasswordContainsLetters && ((chars[i] >= 65 && chars[i] <= 90) || (chars[i] >= 97 && chars[i] <= 122))) {
+                isPasswordContainsLetters = true;
+                continue;
+            }
+
+            if (!isPasswordContainsSpecs && (chars[i] >= 33 && chars[i] <= 42)) {
+                isPasswordContainsSpecs = true;
+            }
+        }
+
+        return isPasswordContainsDigit && isPasswordContainsLetters && isPasswordContainsSpecs;
+    }
+
     public void screenStringValues(CreateUserDto dto) {
         dto.setPassword(stringValidators.textScreening(dto.getPassword()));
         dto.setEmail(stringValidators.textScreening(dto.getEmail()));
@@ -33,8 +59,8 @@ public class CreateUserDtoValidators {
 
     public boolean isSafeFromSqlInjection(CreateUserDto dto) {
         return stringValidators.isSafeFromSqlInjection(dto.getEmail())
-                && stringValidators.isSafeFromSqlInjection(dto.getPassword())
-                && stringValidators.isSafeFromSqlInjection(dto.getName());
+            && stringValidators.isSafeFromSqlInjection(dto.getPassword())
+            && stringValidators.isSafeFromSqlInjection(dto.getName());
     }
 
 }
