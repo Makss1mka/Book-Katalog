@@ -12,7 +12,6 @@ import lombok.Setter;
 import maksim.booksservice.utils.enums.BookStatus;
 import maksim.booksservice.utils.enums.BookStatusScope;
 import maksim.booksservice.utils.enums.DateOperator;
-import maksim.booksservice.utils.enums.JoinMode;
 import maksim.booksservice.utils.enums.NumberOperator;
 
 @Getter

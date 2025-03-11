@@ -1,9 +1,7 @@
 package maksim.booksservice.repositories;
 
-import java.util.List;
 import java.util.Optional;
 import maksim.booksservice.models.Book;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

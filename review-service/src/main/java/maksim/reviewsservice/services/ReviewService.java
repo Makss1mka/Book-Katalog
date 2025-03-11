@@ -72,7 +72,7 @@ public class ReviewService {
         };
 
         if (mode == JoinMode.WITH) {
-            reviews.forEach((review) -> {
+            reviews.forEach(review -> {
                 review.setLikedUsers(
                     review.getNoneJsonLikedUsers()
                 );

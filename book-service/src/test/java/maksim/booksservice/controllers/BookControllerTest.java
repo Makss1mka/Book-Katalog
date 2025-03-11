@@ -95,7 +95,6 @@ class BookControllerTest {
 
         Map<String, String> params = new HashMap<>();
 
-        //doNothing().when(bookSearchCriteriaValidators).screenStringValues(any(BookSearchCriteria.class));
         when(bookSearchCriteriaValidators.isSafeFromSqlInjection(any(BookSearchCriteria.class))).thenReturn(true);
         when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(books);
 
