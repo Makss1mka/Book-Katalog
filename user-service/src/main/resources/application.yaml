@@ -7,7 +7,7 @@ spring:
   datasource:
     url: "jdbc:postgresql://localhost:5432/postgres"          # host.docker.internal
     username: "postgres"
-    password: "postgres"
+    password: ${PASSWORD}
   jpa:
     show-sql: true
     hibernate:
