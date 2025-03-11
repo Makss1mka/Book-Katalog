@@ -127,11 +127,11 @@ class ReviewServiceTest {
         reviewService.addLike(likeDtoForCreating);
 
         assertEquals(1, review.getLikes());
-        assertEquals(1, review.getLikedUsers().size());
+        assertEquals(1, review.getNoneJsonLikedUsers().size());
 
         reviewService.addLike(likeDtoForCreating);
         assertEquals(1, review.getLikes());
-        assertEquals(1, review.getLikedUsers().size());
+        assertEquals(1, review.getNoneJsonLikedUsers().size());
 
         verify(reviewRepository, times(2)).findById(any());
         verify(userRepository, times(2)).findById(any());
@@ -156,7 +156,7 @@ class ReviewServiceTest {
 
         Review review = new Review();
         review.setLikes(1);
-        review.getLikedUsers().add(user);
+        review.getNoneJsonLikedUsers().add(user);
 
         when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));

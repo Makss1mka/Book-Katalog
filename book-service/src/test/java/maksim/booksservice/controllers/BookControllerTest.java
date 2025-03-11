@@ -72,8 +72,8 @@ class BookControllerTest {
     void testGetBookById() {
         Book book = new Book();
 
-        when(bookService.getById(1, JoinMode.WITHOUT_JOIN)).thenReturn(Optional.of(book));
-        when(bookService.getById(1, JoinMode.WITH_JOIN)).thenReturn(Optional.of(book));
+        when(bookService.getById(1, JoinMode.WITHOUT_JOIN)).thenReturn(book);
+        when(bookService.getById(1, JoinMode.WITH_JOIN)).thenReturn(book);
 
         ResponseEntity<Book> result;
 
@@ -141,7 +141,7 @@ class BookControllerTest {
     void testAddBookMetaData_Success() throws Exception {
         when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(true);
 
-        mockMvc.perform(post("/books")
+        mockMvc.perform(post("/api/v1/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"TEST NAME\", \"authorId\": 17}"))
                 .andExpect(status().isOk());
@@ -154,7 +154,7 @@ class BookControllerTest {
         when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(false);
         when(stringValidators.isSafeFromSqlInjection(any())).thenReturn(false);
 
-        mockMvc.perform(post("/books")
+        mockMvc.perform(post("/api/v1/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"TEST NAME\", \"authorId\": 17}"))
                 .andExpect(status().isBadRequest());
@@ -175,7 +175,7 @@ class BookControllerTest {
                 "Test content".getBytes()
         );
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/books/1/file")
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/books/1/file")
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
@@ -195,7 +195,7 @@ class BookControllerTest {
                 "Test content".getBytes()
         );
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/books/1/file")
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/books/1/file")
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isBadRequest())

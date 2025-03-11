@@ -1,10 +1,13 @@
 package maksim.booksservice.utils.bookutils;
 
-import jakarta.persistence.criteria.*;
-import maksim.booksservice.models.Book;
-import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import maksim.booksservice.models.Book;
+import org.springframework.data.jpa.domain.Specification;
 
 public class BookSpecification implements Specification<Book> {
 

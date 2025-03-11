@@ -47,8 +47,8 @@ public class ReviewService {
         }
 
         if (mode == JoinMode.WITH) {
-            review.get().setReviewLikedUsers(
-                review.get().getLikedUsers()
+            review.get().setLikedUsers(
+                review.get().getNoneJsonLikedUsers()
             );
         }
 
@@ -73,8 +73,8 @@ public class ReviewService {
 
         if (mode == JoinMode.WITH) {
             reviews.forEach((review) -> {
-                review.setReviewLikedUsers(
-                    review.getLikedUsers()
+                review.setLikedUsers(
+                    review.getNoneJsonLikedUsers()
                 );
             });
         }
@@ -117,13 +117,13 @@ public class ReviewService {
             throw new NotFoundException("Cannot add like (cannot find review or user)");
         }
 
-        int prevSize = review.get().getLikedUsers().size();
+        int prevSize = review.get().getNoneJsonLikedUsers().size();
 
         review.get()
-                .getLikedUsers()
+                .getNoneJsonLikedUsers()
                 .add(user.get());
 
-        if (prevSize != review.get().getLikedUsers().size()) {
+        if (prevSize != review.get().getNoneJsonLikedUsers().size()) {
             review.get()
                 .setLikes(
                     review.get().getLikes() + 1
@@ -167,7 +167,7 @@ public class ReviewService {
             );
 
         review.get()
-                .getLikedUsers()
+                .getNoneJsonLikedUsers()
                 .remove(user.get());
 
         reviewRepository.save(review.get());

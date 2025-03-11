@@ -1,14 +1,12 @@
 package maksim.booksservice.utils;
 
 import jakarta.ws.rs.BadRequestException;
+import java.util.Map;
 import maksim.booksservice.utils.enums.SortDirection;
 import maksim.booksservice.utils.enums.SortField;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 public class Pagination {
 
@@ -37,11 +35,11 @@ public class Pagination {
     }
 
     public static Pageable getPageable(Map<String, String> params) {
-        SortField sortField = (params.containsKey("sortField")) ?
-                SortField.fromValue(params.get("sortField")) : SortField.fromValue("rating");
+        SortField sortField = (params.containsKey("sortField"))
+                ? SortField.fromValue(params.get("sortField")) : SortField.fromValue("rating");
 
-        SortDirection sortDir = (params.containsKey("sortDirection")) ?
-                SortDirection.fromValue(params.get("sortDirection")) : SortDirection.fromValue("desc");
+        SortDirection sortDir = (params.containsKey("sortDirection"))
+                ? SortDirection.fromValue(params.get("sortDirection")) : SortDirection.fromValue("desc");
 
         int pageNum = (params.containsKey("pageNum")) ? Integer.parseInt(params.get("pageNum")) : 0;
         int pageSize = (params.containsKey("pageSize")) ? Integer.parseInt(params.get("pageSize")) : 20;

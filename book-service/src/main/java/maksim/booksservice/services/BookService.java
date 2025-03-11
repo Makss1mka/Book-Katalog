@@ -48,7 +48,7 @@ public class BookService {
         this.appConfig = appConfig;
     }
 
-    public Optional<Book> getById(int id, JoinMode joinMode) {
+    public Book getById(int id, JoinMode joinMode) {
         logger.trace("BookService method entrance: getById | Params: id {} ; join mode {}", id, joinMode);
 
         Optional<Book> book = switch (joinMode) {
@@ -56,9 +56,17 @@ public class BookService {
             case WITHOUT_JOIN -> bookRepository.findByIdWithoutAuthor(id);
         };
 
-        logger.trace("BookService return: getAllBooks | Result is found {}", book.isPresent());
+        if (book.isEmpty()) {
+            throw new NotFoundException("Cannot find book");
+        }
 
-        return book;
+        if (joinMode == JoinMode.WITH_JOIN) {
+            book.get().setBookAuthor(book.get().getNoneJsonAuthor());
+        }
+
+        logger.trace("BookService return: getAllBooks | Result is found");
+
+        return book.get();
     }
 
     public List<Book> getAllBooks(BookSearchCriteria criteria, Pageable pageable) {
@@ -101,7 +109,7 @@ public class BookService {
 
         Book book = new Book();
 
-        book.setAuthor(author.get());
+        book.setNoneJsonAuthor(author.get());
         book.setName(bookData.getName());
         book.setIssuedDate(new Date());
         book.setGenres(bookData.getGenres());

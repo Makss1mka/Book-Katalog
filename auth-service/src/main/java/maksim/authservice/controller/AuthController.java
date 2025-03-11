@@ -11,12 +11,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
 @RestController
+@RequestMapping(value = "/api/v1")
 public class AuthController {
     private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -26,7 +28,7 @@ public class AuthController {
     @Autowired
     private JwtTokenService jwtTokenService;
 
-    @GetMapping("auth")
+    @GetMapping("/auth")
     public ResponseEntity<?> login(HttpServletRequest request,
                                    @RequestParam(required = false) String username,
                                    @RequestParam(required = false) String password,
@@ -119,7 +121,7 @@ public class AuthController {
         return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping("reg")
+    @GetMapping("/reg")
     public ResponseEntity<?> registration(@RequestParam(required = true) String username,
                                           @RequestParam(required = true) String password,
                                           @RequestParam(required = true) String email) {

@@ -8,14 +8,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import jakarta.ws.rs.NotFoundException;
 import maksim.booksservice.models.Book;
 import maksim.booksservice.models.BookDtoForCreating;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.utils.Pagination;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
-import maksim.booksservice.utils.enums.*;
+import maksim.booksservice.utils.enums.JoinMode;
 import maksim.booksservice.utils.validators.BookDtoForCreatingValidators;
 import maksim.booksservice.utils.validators.BookSearchCriteriaValidators;
 import maksim.booksservice.utils.validators.FileValidators;
@@ -42,7 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
-@RequestMapping(value = "/books")
+@RequestMapping(value = "/api/v1/books")
 @Validated
 public class BookController {
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);
@@ -121,24 +119,14 @@ public class BookController {
     ) {
         logger.trace("BookController method entrance: getBookById | Params: id {}", id);
 
-        JoinMode joinMode = (strJoinMode != null) ?
-                JoinMode.fromValue(strJoinMode) : JoinMode.WITHOUT_JOIN;
+        JoinMode joinMode = (strJoinMode != null)
+                ? JoinMode.fromValue(strJoinMode) : JoinMode.WITHOUT_JOIN;
 
-        Optional<Book> book = bookService.getById(id, joinMode);
+        Book book = bookService.getById(id, joinMode);
 
-        if (book.isPresent()) {
-            if (joinMode == JoinMode.WITH_JOIN) {
-                book.get().setBookAuthor(book.get().getAuthor());
-            }
+        logger.trace("BookController method end: getBookById | Found book");
 
-            logger.trace("BookController method end: getBookById | Found book");
-
-            return new ResponseEntity<>(book.get(), HttpStatus.OK);
-        } else {
-            logger.trace("BookController method end: getBookById | Book not found");
-
-            throw new NotFoundException("Cannot find such book");
-        }
+        return new ResponseEntity<>(book, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/file")
@@ -174,7 +162,7 @@ public class BookController {
 
         if (!bookDtoForCreatingValidators.isSafeFromSqlInjection(bookData)) {
             throw new BadRequestException(
-                    String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
+                String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
             );
         }
 
@@ -192,9 +180,7 @@ public class BookController {
         boolean isValid = fileValidators.isValid(file);
 
         if (!isValid) {
-            throw new BadRequestException(
-                    "Error: book file is not valid. File support extensions: pdf, txt, md. FIle should be less than 2mb"
-            );
+            throw new BadRequestException("Error: book file is not valid. File support extensions: pdf, txt, md. FIle should be less than 2mb");
         }
 
         bookService.addBookFile(file, id);

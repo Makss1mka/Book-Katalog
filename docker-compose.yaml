@@ -24,6 +24,17 @@ services:
     networks:
       - backend
 
+  user-service:
+    container_name: user-service
+    depends_on:
+      eureka-server:
+        condition: service_started
+    image: maks1mka/user-service:latest
+    ports:
+      - 8086:8086
+    networks:
+      - backend
+
   book-service:
     container_name: book-service
     depends_on:
@@ -43,9 +54,8 @@ services:
   review-service:
     container_name: review-service
     depends_on:
-      #eureka-server:
-      book-service:
-        condition: service_started
+      eureka-server:
+        condition: service_healthy
     image: maks1mka/review-service:latest
     ports:
       - 8087:8087
