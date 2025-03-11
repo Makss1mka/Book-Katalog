@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>maksim</groupId>
 	<artifactId>book-service</artifactId>
-	<version>0.0.6</version>
+	<version>0.0.2</version>
 	<name>book-service</name>
 	<description>book-service</description>
 	<url/>
