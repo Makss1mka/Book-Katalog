@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ReviewDtoForUpdating {
+public class UpdateReviewDto {
     private Integer rating;
 
     @Size(max = 200, message = "Review text should be less than 200 chars.")

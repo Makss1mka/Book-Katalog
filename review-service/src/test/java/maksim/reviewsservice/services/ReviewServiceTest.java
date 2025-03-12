@@ -1,10 +1,11 @@
 package maksim.reviewsservice.services;
 
 import jakarta.ws.rs.NotFoundException;
-import maksim.reviewsservice.models.*;
-import maksim.reviewsservice.models.dtos.LikeDtoForCreating;
-import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
-import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
+import maksim.reviewsservice.models.dtos.CreateLikeDto;
+import maksim.reviewsservice.models.dtos.CreateReviewDto;
+import maksim.reviewsservice.models.dtos.UpdateReviewDto;
+import maksim.reviewsservice.models.entities.Review;
+import maksim.reviewsservice.models.entities.User;
 import maksim.reviewsservice.repositories.ReviewRepository;
 import maksim.reviewsservice.repositories.UserRepository;
 import maksim.reviewsservice.utils.enums.JoinMode;
@@ -104,11 +105,11 @@ class ReviewServiceTest {
     void addReview() {
         Review review = new Review();
 
-        ReviewDtoForCreating reviewDtoForCreating = new ReviewDtoForCreating();
+        CreateReviewDto createReviewDto = new CreateReviewDto();
 
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
 
-        Review result = reviewService.addReview(reviewDtoForCreating);
+        Review result = reviewService.addReview(createReviewDto);
 
         assertNotNull(result);
 
@@ -119,17 +120,17 @@ class ReviewServiceTest {
     void addLike() {
         User user = new User();
         Review review = new Review();
-        LikeDtoForCreating likeDtoForCreating = new LikeDtoForCreating();
+        CreateLikeDto createLikeDto = new CreateLikeDto();
 
         when(reviewRepository.findById(any())).thenReturn(Optional.of(review));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
-        reviewService.addLike(likeDtoForCreating);
+        reviewService.addLike(createLikeDto);
 
         assertEquals(1, review.getLikes());
         assertEquals(1, review.getNoneJsonLikedUsers().size());
 
-        reviewService.addLike(likeDtoForCreating);
+        reviewService.addLike(createLikeDto);
         assertEquals(1, review.getLikes());
         assertEquals(1, review.getNoneJsonLikedUsers().size());
 
@@ -172,26 +173,26 @@ class ReviewServiceTest {
     @Test
     void updateReview() {
         Review review = new Review();
-        ReviewDtoForUpdating reviewDtoForUpdating = new ReviewDtoForUpdating();
-        reviewDtoForUpdating.setText("Updated review text");
-        reviewDtoForUpdating.setRating(4);
+        UpdateReviewDto updateReviewDto = new UpdateReviewDto();
+        updateReviewDto.setText("Updated review text");
+        updateReviewDto.setRating(4);
 
         when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
 
         Review result;
 
-        result = reviewService.updateReview(1, reviewDtoForUpdating);
+        result = reviewService.updateReview(1, updateReviewDto);
         assertEquals("Updated review text", result.getText());
         assertEquals(4, result.getRating());
 
-        reviewDtoForUpdating.setText(null);
-        reviewDtoForUpdating.setRating(null);
-        result = reviewService.updateReview(1, reviewDtoForUpdating);
+        updateReviewDto.setText(null);
+        updateReviewDto.setRating(null);
+        result = reviewService.updateReview(1, updateReviewDto);
         assertEquals("Updated review text", result.getText());
         assertEquals(4, result.getRating());
 
-        reviewDtoForUpdating.setText("");
-        result = reviewService.updateReview(1, reviewDtoForUpdating);
+        updateReviewDto.setText("");
+        result = reviewService.updateReview(1, updateReviewDto);
         assertEquals("Updated review text", result.getText());
         assertEquals(4, result.getRating());
 

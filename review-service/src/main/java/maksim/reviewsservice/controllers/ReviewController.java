@@ -5,10 +5,10 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BadRequestException;
 import java.util.List;
-import maksim.reviewsservice.models.Review;
-import maksim.reviewsservice.models.dtos.LikeDtoForCreating;
-import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
-import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
+import maksim.reviewsservice.models.entities.Review;
+import maksim.reviewsservice.models.dtos.CreateLikeDto;
+import maksim.reviewsservice.models.dtos.CreateReviewDto;
+import maksim.reviewsservice.models.dtos.UpdateReviewDto;
 import maksim.reviewsservice.services.ReviewService;
 import maksim.reviewsservice.utils.Pagination;
 import maksim.reviewsservice.utils.enums.JoinMode;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/reviews")
+@RequestMapping(value = "/api/v1/reviews")
 public class ReviewController {
     private static final Logger logger = LoggerFactory.getLogger(ReviewController.class);
 
@@ -102,7 +102,7 @@ public class ReviewController {
 
 
     @PostMapping("")
-    public ResponseEntity<Review> addReview(@Valid @RequestBody ReviewDtoForCreating reviewData) {
+    public ResponseEntity<Review> addReview(@Valid @RequestBody CreateReviewDto reviewData) {
         logger.trace("Controller method entry: addReview");
 
         reviewData.setText(
@@ -123,7 +123,7 @@ public class ReviewController {
     }
 
     @PostMapping("/like")
-    public ResponseEntity<String> addLike(@Valid @RequestBody LikeDtoForCreating likeData) {
+    public ResponseEntity<String> addLike(@Valid @RequestBody CreateLikeDto likeData) {
         logger.trace("Controller method entry: addLike");
 
         reviewService.addLike(likeData);
@@ -163,7 +163,7 @@ public class ReviewController {
     @PutMapping("/{reviewId}")
     public ResponseEntity<Review> updateReview(
             @PathVariable @Min(0) int reviewId,
-            @Valid @RequestBody ReviewDtoForUpdating reviewData
+            @Valid @RequestBody UpdateReviewDto reviewData
     ) {
         logger.trace("Controller method entry: updateReview");
 

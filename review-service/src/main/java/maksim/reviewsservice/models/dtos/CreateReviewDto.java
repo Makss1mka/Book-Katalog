@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ReviewDtoForCreating {
+public class CreateReviewDto {
     @NotNull(message = "Review id is required")
     private Integer bookId;
 

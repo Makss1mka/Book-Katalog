@@ -3,7 +3,7 @@ package maksim.reviewsservice.repositories;
 import jakarta.ws.rs.QueryParam;
 import java.util.List;
 import java.util.Optional;
-import maksim.reviewsservice.models.Review;
+import maksim.reviewsservice.models.entities.Review;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

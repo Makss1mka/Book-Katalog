@@ -1,6 +1,5 @@
-package maksim.reviewsservice.models;
+package maksim.reviewsservice.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
@@ -22,19 +20,15 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "/api/v1/reviews")
+@Table(name = "reviews")
 public class Review {
-    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "user_review_likes",
         joinColumns = @JoinColumn(name = "review_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> noneJsonLikedUsers = new HashSet<>();
-
-    @Transient
-    private Set<User> likedUsers = null;
+    private Set<User> likedUsers = new HashSet<>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

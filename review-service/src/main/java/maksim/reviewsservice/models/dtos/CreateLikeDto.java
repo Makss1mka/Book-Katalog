@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class LikeDtoForCreating {
+public class CreateLikeDto {
     @NotNull(message = "Review id is required")
     private Integer reviewId;
 

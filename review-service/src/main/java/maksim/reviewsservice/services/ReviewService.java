@@ -3,11 +3,11 @@ package maksim.reviewsservice.services;
 import jakarta.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.Optional;
-import maksim.reviewsservice.models.Review;
-import maksim.reviewsservice.models.User;
-import maksim.reviewsservice.models.dtos.LikeDtoForCreating;
-import maksim.reviewsservice.models.dtos.ReviewDtoForCreating;
-import maksim.reviewsservice.models.dtos.ReviewDtoForUpdating;
+import maksim.reviewsservice.models.entities.Review;
+import maksim.reviewsservice.models.entities.User;
+import maksim.reviewsservice.models.dtos.CreateLikeDto;
+import maksim.reviewsservice.models.dtos.CreateReviewDto;
+import maksim.reviewsservice.models.dtos.UpdateReviewDto;
 import maksim.reviewsservice.repositories.ReviewRepository;
 import maksim.reviewsservice.repositories.UserRepository;
 import maksim.reviewsservice.utils.enums.JoinMode;
@@ -85,7 +85,7 @@ public class ReviewService {
     }
 
 
-    public Review addReview(ReviewDtoForCreating reviewData) {
+    public Review addReview(CreateReviewDto reviewData) {
         logger.trace("Method enter: addReview | Params: bookId {} ; userId {} ; rating {}",
                 reviewData.getBookId(), reviewData.getUserId(), reviewData.getRating());
 
@@ -106,7 +106,7 @@ public class ReviewService {
         return newReview;
     }
 
-    public void addLike(LikeDtoForCreating likeData) {
+    public void addLike(CreateLikeDto likeData) {
         logger.trace("Method enter: addLike | Params: reviewId {} ; userId {}",
                 likeData.getReviewId(), likeData.getUserId());
 
@@ -177,7 +177,7 @@ public class ReviewService {
 
 
 
-    public Review updateReview(int reviewId, ReviewDtoForUpdating reviewData) {
+    public Review updateReview(int reviewId, UpdateReviewDto reviewData) {
         if (reviewData.getText() != null) {
             logger.trace("Method enter: deleteLike | Params: reviewId {} ; rating {} ; new text length {}",
                     reviewId, reviewData.getRating(), reviewData.getText().length());
