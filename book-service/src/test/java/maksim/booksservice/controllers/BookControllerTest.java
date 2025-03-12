@@ -5,7 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import jakarta.ws.rs.NotFoundException;
 import maksim.booksservice.config.GlobalExceptionHandler;
-import maksim.booksservice.models.Book;
+import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.JoinMode;
@@ -70,12 +71,12 @@ class BookControllerTest {
 
     @Test
     void testGetBookById() {
-        Book book = new Book();
+        BookDto book = new BookDto();
 
-        when(bookService.getById(1, JoinMode.WITHOUT_JOIN)).thenReturn(book);
-        when(bookService.getById(1, JoinMode.WITH_JOIN)).thenReturn(book);
+        when(bookService.getById(1, JoinMode.WITHOUT)).thenReturn(book);
+        when(bookService.getById(1, JoinMode.WITH)).thenReturn(book);
 
-        ResponseEntity<Book> result;
+        ResponseEntity<BookDto> result;
 
         result = bookController.getBookById(1, "with");
         assertNotNull(result);

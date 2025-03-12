@@ -1,12 +1,14 @@
 package maksim.booksservice.utils.bookutils;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import maksim.booksservice.models.Book;
+import maksim.booksservice.models.entities.Book;
+import maksim.booksservice.models.entities.BookStatusLog;
+import maksim.booksservice.models.entities.User;
+import maksim.booksservice.utils.enums.BookStatus;
+import maksim.booksservice.utils.enums.JoinMode;
 import org.springframework.data.jpa.domain.Specification;
 
 public class BookSpecification implements Specification<Book> {
@@ -20,6 +22,10 @@ public class BookSpecification implements Specification<Book> {
     @Override
     public Predicate toPredicate(Root<Book> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
         List<Predicate> predicates = new ArrayList<>();
+
+        if (criteria.getJoinMode() == JoinMode.WITH) {
+            Join<Book, User> joinAuthor = root.join("author", JoinType.INNER);
+        }
 
         if (criteria.getName() != null) {
             predicates.add(builder.like(root.get("name"), "%" + criteria.getName() + "%"));
@@ -58,17 +64,23 @@ public class BookSpecification implements Specification<Book> {
             );
         }
 
-        if (criteria.getStatusCount() != null && criteria.getStatusOperator() != null
-            && criteria.getStatus() != null && criteria.getStatusScope() != null) {
-            String status = "status" + criteria.getStatus().getValue() + criteria.getStatusScope().getValue();
+        if (criteria.getStatusCount() != null) {
+            Join<Book, BookStatusLog> joinStatusLogs = root.join("statusesLogs", JoinType.INNER);
 
-            predicates.add(
-                switch (criteria.getStatusOperator()) {
-                    case GREATER -> builder.greaterThan(root.get(status), criteria.getStatusCount());
-                    case LESS -> builder.lessThan(root.get(status), criteria.getStatusCount());
-                    case EQUAL -> builder.equal(root.get(status), criteria.getStatusCount());
-                }
+            Predicate datePredicate = builder.between(
+                joinStatusLogs.get("time"),
+                criteria.getStatusDateMin(),
+                criteria.getStatusDateMax()
             );
+
+            if (criteria.getStatus() != BookStatus.ALL) {
+                Predicate statusPredicate = builder.equal(joinStatusLogs.get("status"), criteria.getStatus());
+
+                predicates.add(builder.and(statusPredicate, datePredicate));
+            } else {
+                predicates.add(datePredicate);
+            }
+
         }
 
         return builder.and(predicates.toArray(new Predicate[0]));

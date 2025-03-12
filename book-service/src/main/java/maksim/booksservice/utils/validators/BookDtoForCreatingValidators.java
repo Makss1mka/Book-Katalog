@@ -1,6 +1,6 @@
 package maksim.booksservice.utils.validators;
 
-import maksim.booksservice.models.BookDtoForCreating;
+import maksim.booksservice.models.dtos.CreateBookDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ public class BookDtoForCreatingValidators {
         this.stringValidators = stringValidators;
     }
 
-    public BookDtoForCreating screenStringValue(BookDtoForCreating bookData) {
+    public CreateBookDto screenStringValue(CreateBookDto bookData) {
         bookData.setName(stringValidators.textScreening(bookData.getName()));
 
         bookData.getGenres().replaceAll(stringValidators::textScreening);
@@ -21,7 +21,7 @@ public class BookDtoForCreatingValidators {
         return bookData;
     }
 
-    public boolean isSafeFromSqlInjection(BookDtoForCreating bookData) {
+    public boolean isSafeFromSqlInjection(CreateBookDto bookData) {
         if (!stringValidators.isSafeFromSqlInjection(bookData.getName())) {
             return false;
         }

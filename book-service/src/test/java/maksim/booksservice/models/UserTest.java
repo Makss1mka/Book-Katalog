@@ -1,5 +1,6 @@
 package maksim.booksservice.models;
 
+import maksim.booksservice.models.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.Date;

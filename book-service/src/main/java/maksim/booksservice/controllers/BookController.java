@@ -8,8 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import maksim.booksservice.models.Book;
-import maksim.booksservice.models.BookDtoForCreating;
+
+import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.models.entities.Book;
+import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.utils.Pagination;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
@@ -113,16 +115,16 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(
+    public ResponseEntity<BookDto> getBookById(
             @PathVariable int id,
             @RequestParam(name = "joinMode", required = false, defaultValue = "without") String strJoinMode
     ) {
         logger.trace("BookController method entrance: getBookById | Params: id {}", id);
 
         JoinMode joinMode = (strJoinMode != null)
-                ? JoinMode.fromValue(strJoinMode) : JoinMode.WITHOUT_JOIN;
+                ? JoinMode.fromValue(strJoinMode) : JoinMode.WITHOUT;
 
-        Book book = bookService.getById(id, joinMode);
+        BookDto book = bookService.getById(id, joinMode);
 
         logger.trace("BookController method end: getBookById | Found book");
 
@@ -155,7 +157,7 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<Book> addBookMetaData(@Valid @RequestBody BookDtoForCreating bookData) {
+    public ResponseEntity<Book> addBookMetaData(@Valid @RequestBody CreateBookDto bookData) {
         logger.trace("BookController method entrance: addBookMetaData");
 
         bookDtoForCreatingValidators.screenStringValue(bookData);

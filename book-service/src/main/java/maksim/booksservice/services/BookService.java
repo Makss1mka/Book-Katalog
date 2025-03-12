@@ -9,18 +9,19 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import maksim.booksservice.config.AppConfig;
-import maksim.booksservice.models.Book;
-import maksim.booksservice.models.BookDtoForCreating;
-import maksim.booksservice.models.User;
+import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.models.entities.Book;
+import maksim.booksservice.models.dtos.CreateBookDto;
+import maksim.booksservice.models.entities.User;
 import maksim.booksservice.models.kafkadtos.DtoForBookReviewChanging;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.UserRepository;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.bookutils.BookSpecification;
+import maksim.booksservice.utils.enums.BookStatus;
 import maksim.booksservice.utils.enums.JoinMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,33 +49,57 @@ public class BookService {
         this.appConfig = appConfig;
     }
 
-    public Book getById(int id, JoinMode joinMode) {
+    public BookDto getById(int id, JoinMode joinMode) {
         logger.trace("BookService method entrance: getById | Params: id {} ; join mode {}", id, joinMode);
 
         Optional<Book> book = switch (joinMode) {
-            case WITH_JOIN -> bookRepository.findByIdWithAuthor(id);
-            case WITHOUT_JOIN -> bookRepository.findByIdWithoutAuthor(id);
+            case WITH -> bookRepository.findByIdWithAuthor(id);
+            case WITHOUT -> bookRepository.findByIdWithoutAuthor(id);
         };
 
         if (book.isEmpty()) {
             throw new NotFoundException("Cannot find book");
         }
 
-        if (joinMode == JoinMode.WITH_JOIN) {
-            book.get().setBookAuthor(book.get().getNoneJsonAuthor());
-        }
-
         logger.trace("BookService return: getAllBooks | Result is found");
 
-        return book.get();
+        return new BookDto(book.get(), joinMode, null);
     }
 
-    public List<Book> getAllBooks(BookSearchCriteria criteria, Pageable pageable) {
+    public List<BookDto> getAllBooks(BookSearchCriteria criteria, Pageable pageable) {
         logger.trace("BookService method entrance: getAllBooks | Params: {} ; {}", criteria, pageable);
 
         BookSpecification spec = new BookSpecification(criteria);
 
-        List<Book> books = bookRepository.findAll(spec, pageable).toList();
+        List<Book> booksEntities = bookRepository.findAll(spec, pageable).toList();
+        List<BookDto> books = new ArrayList<>();
+
+        List<Map<String, String>> statuses = null;
+        if (criteria.getStatusCount() != null) {
+            statuses = new ArrayList<>(3);
+
+            if (criteria.getStatus() != BookStatus.ALL) {
+                Map<String, String> oneStatus = new HashMap<>(4);
+
+                oneStatus.put("status_name", criteria.getStatus().getValue());
+                oneStatus.put("min_date", criteria.getStatusDateMin().toString());
+                oneStatus.put("max_date", criteria.getStatusDateMax().toString());
+                oneStatus.put("count", "");
+
+                int count;
+                boolean isBookShouldBeIncluded = false;
+
+                booksEntities.stream().forEach(book -> {
+                    oneStatus.put("count", String.valueOf(book.getStatusesLogs().size()));
+                });
+
+
+            } else {
+                Map<String, String> readStatus = new HashMap<>();
+                Map<String, String> readingStatus = new HashMap<>();
+                Map<String, String> dropStatus = new HashMap<>();
+            }
+        }
 
         logger.trace("BookService return: getAllBooks | Result: found items {}", books.size());
 
@@ -99,7 +124,7 @@ public class BookService {
 
 
 
-    public Book addBookMetaData(BookDtoForCreating bookData) {
+    public Book addBookMetaData(CreateBookDto bookData) {
         logger.trace("BookService method entrance: addBookMetaData");
 
         Optional<User> author = userRepository.findById(bookData.getAuthorId());
@@ -109,7 +134,7 @@ public class BookService {
 
         Book book = new Book();
 
-        book.setNoneJsonAuthor(author.get());
+        book.setAuthor(author.get());
         book.setName(bookData.getName());
         book.setIssuedDate(new Date());
         book.setGenres(bookData.getGenres());

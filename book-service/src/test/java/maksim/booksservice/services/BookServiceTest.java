@@ -3,9 +3,9 @@ package maksim.booksservice.services;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import maksim.booksservice.config.AppConfig;
-import maksim.booksservice.models.Book;
-import maksim.booksservice.models.BookDtoForCreating;
-import maksim.booksservice.models.User;
+import maksim.booksservice.models.entities.Book;
+import maksim.booksservice.models.dtos.CreateBookDto;
+import maksim.booksservice.models.entities.User;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.UserRepository;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
@@ -191,7 +191,7 @@ class BookServiceTest {
     void testAddBookMetaData_Success() {
         int authorId = 1;
 
-        BookDtoForCreating bookData = new BookDtoForCreating();
+        CreateBookDto bookData = new CreateBookDto();
         bookData.setAuthorId(authorId);
         bookData.setName("Test Name");
         bookData.setGenres(Arrays.asList("Programming", "Software Engineering"));
@@ -211,7 +211,7 @@ class BookServiceTest {
     void testAddBookMetaData_AuthorNotFound() {
         int authorId = 1;
 
-        BookDtoForCreating bookData = new BookDtoForCreating();
+        CreateBookDto bookData = new CreateBookDto();
         bookData.setAuthorId(authorId);
         bookData.setName("Test Name");
         bookData.setGenres(Arrays.asList("Programming", "Software Engineering"));

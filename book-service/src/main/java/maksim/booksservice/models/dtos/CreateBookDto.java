@@ -1,4 +1,4 @@
-package maksim.booksservice.models;
+package maksim.booksservice.models.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BookDtoForCreating {
+public class CreateBookDto {
     @NotBlank(message = "Name is required")
     @Size(min = 3, max = 50, message = "Name should be 3-50 chars length")
     private String name;
