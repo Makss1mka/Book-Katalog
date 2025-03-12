@@ -1,5 +1,6 @@
 package maksim.reviewsservice.controllers;
 
+import maksim.reviewsservice.models.dtos.ReviewDto;
 import maksim.reviewsservice.models.entities.Review;
 import maksim.reviewsservice.models.dtos.CreateLikeDto;
 import maksim.reviewsservice.models.dtos.CreateReviewDto;
@@ -51,11 +52,11 @@ class ReviewControllerTest {
 
     @Test
     void getReviewById() {
-        Review review = new Review();
+        ReviewDto review = new ReviewDto();
 
         when(reviewService.getById(anyInt(), any(JoinMode.class))).thenReturn(review);
 
-        ResponseEntity<Review> response = reviewController.getReviewById(1, "without");
+        ResponseEntity<ReviewDto> response = reviewController.getReviewById(1, "without");
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -66,14 +67,14 @@ class ReviewControllerTest {
 
     @Test
     void getReviewsByUserOrBookId() {
-        List<Review> reviews = List.of(new Review());
+        List<ReviewDto> reviews = List.of(new ReviewDto());
 
         when(reviewService.getAllByBookOrUserId(anyInt(), any(SelectionCriteria.class), any(JoinMode.class), any(Pageable.class)))
                 .thenReturn(reviews);
         when(pagination.getPageable(anyInt(), anyInt(), any(SortField.class), any(SortDirection.class)))
                 .thenReturn(pageable);
 
-        ResponseEntity<List<Review>> response = reviewController.getReviewsByUserOrBookId(
+        ResponseEntity<List<ReviewDto>> response = reviewController.getReviewsByUserOrBookId(
                 1, "bookId", "without", 0, 20, "rating", "desc");
 
         assertNotNull(response);
@@ -85,14 +86,14 @@ class ReviewControllerTest {
 
     @Test
     void addReview() {
-        Review review = new Review();
+        ReviewDto review = new ReviewDto();
         CreateReviewDto createReviewDto = new CreateReviewDto();
 
         when(stringValidators.textScreening(anyString())).thenReturn("Great book!");
         when(stringValidators.isSafeFromSqlInjection(any())).thenReturn(true);
         when(reviewService.addReview(any(CreateReviewDto.class))).thenReturn(review);
 
-        ResponseEntity<Review> response = reviewController.addReview(createReviewDto);
+        ResponseEntity<ReviewDto> response = reviewController.addReview(createReviewDto);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -142,14 +143,14 @@ class ReviewControllerTest {
 
     @Test
     void updateReview_ShouldReturnUpdatedReview() {
-        Review review = new Review();
+        ReviewDto review = new ReviewDto();
         UpdateReviewDto updateReviewDto = new UpdateReviewDto();
 
         when(stringValidators.textScreening(anyString())).thenReturn("Updated review text");
         when(stringValidators.isSafeFromSqlInjection(any())).thenReturn(true);
         when(reviewService.updateReview(anyInt(), any(UpdateReviewDto.class))).thenReturn(review);
 
-        ResponseEntity<Review> response = reviewController.updateReview(1, updateReviewDto);
+        ResponseEntity<ReviewDto> response = reviewController.updateReview(1, updateReviewDto);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());

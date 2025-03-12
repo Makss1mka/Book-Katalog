@@ -26,7 +26,7 @@ public class BookDto {
     private UserDto author = null;
     private List<Map<String, String>> statuses = null;
 
-    public BookDto(Book book, JoinMode joinMode, List<Map<String, String>> statuses) {
+    public BookDto(Book book, JoinMode joinModeForAuthor, List<Map<String, String>> statuses) {
         this.id = book.getId();
         this.name = book.getName();
         this.filePath = book.getFilePath();
@@ -36,7 +36,7 @@ public class BookDto {
         this.genres = book.getGenres();
         this.likes = book.getLikes();
 
-        if (joinMode == JoinMode.WITH) {
+        if (joinModeForAuthor == JoinMode.WITH) {
             this.author = new UserDto(book.getAuthor());
         }
 

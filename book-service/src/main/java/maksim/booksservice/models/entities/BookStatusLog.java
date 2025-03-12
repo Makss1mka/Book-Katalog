@@ -10,13 +10,12 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import maksim.booksservice.utils.enums.BookStatus;
 
 @Getter
 @Setter
 @ToString
 @Entity
-@Table(name = "books_statistics")
+@Table(name = "books_statuses_logs")
 public class BookStatusLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,5 +29,5 @@ public class BookStatusLog {
     private Date addedDate;
 
     @Column(name = "status")
-    private BookStatus status;
+    private String status;
 }

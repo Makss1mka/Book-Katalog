@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import maksim.booksservice.utils.enums.BookStatus;
 import maksim.booksservice.utils.enums.DateOperator;
 import maksim.booksservice.utils.enums.JoinMode;
 import maksim.booksservice.utils.enums.NumberOperator;
@@ -28,13 +27,11 @@ public class BookSearchCriteria {
     private Integer rating = null;
     private NumberOperator ratingOperator = null;
 
-    private Integer statusCount = null;
-    private NumberOperator statusOperator = null;
-    private BookStatus status = null;
-    private Date statusDateMin = null;
-    private Date statusDateMax = null;
+    private Date statusMinDate = null;
+    private Date statusMaxDate = null;
 
-    private JoinMode joinMode = JoinMode.WITHOUT;
+    private JoinMode joinModeForAuthor = JoinMode.WITHOUT;
+    private JoinMode joinModeForStatuses = JoinMode.WITHOUT;
 
     private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -48,32 +45,6 @@ public class BookSearchCriteria {
 
             this.issuedDateOperator = (params.containsKey("issueDateOperator"))
                     ? DateOperator.fromValue(params.get("issueDateOperator")) : DateOperator.NEWER;
-        }
-    }
-
-    public void includeStatus(Map<String, String> params) {
-        if (params.containsKey("statusCount")) {
-            this.statusCount = Integer.parseInt(params.get("statusCount"));
-
-            this.statusOperator = (params.containsKey("statusOperator"))
-                    ? NumberOperator.fromValue(params.get("statusOperator")) : NumberOperator.GREATER;
-
-            this.status = (params.containsKey("status"))
-                    ? BookStatus.fromValue(params.get("status")) : BookStatus.READ;
-
-            try {
-                this.statusDateMin = (params.containsKey("statusDateMin"))
-                    ? formatter.parse(params.get("statusDateMin")) : formatter.parse("1970-01-01");
-            } catch (ParseException e) {
-                throw new BadRequestException("Date format is invalid. Date should be in format 'yyyy-MM-dd'");
-            }
-
-            try {
-                this.statusDateMax = (params.containsKey("statusDateMax"))
-                    ? formatter.parse(params.get("statusDateMax")) : formatter.parse("2222-01-01");
-            } catch (ParseException e) {
-                throw new BadRequestException("Date format is invalid. Date should be in format 'yyyy-MM-dd'");
-            }
         }
     }
 
@@ -94,6 +65,26 @@ public class BookSearchCriteria {
                     ? NumberOperator.fromValue(params.get("ratingOperator")) : NumberOperator.GREATER;
         }
 
-        this.includeStatus(params);
+        if (params.containsKey("joinModeForAuthor")) {
+            this.joinModeForAuthor = JoinMode.fromValue(params.get("joinModeForAuthor"));
+        }
+
+        if (params.containsKey("joinModeForStatuses")) {
+            this.joinModeForStatuses = JoinMode.fromValue(params.get("joinModeForStatuses"));
+
+            if (this.joinModeForStatuses == JoinMode.WITH) {
+                try {
+                    this.statusMinDate = formatter.parse(
+                        params.getOrDefault("statusMinDate", "1990-01-01")
+                    );
+
+                    this.statusMaxDate = formatter.parse(
+                        params.getOrDefault("statusMaxDate", "2222-01-01")
+                    );
+                } catch (ParseException e) {
+                    throw new BadRequestException("Date format is invalid. Date should be in format 'yyyy-MM-dd'");
+                }
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ package maksim.reviewsservice.services;
 import jakarta.ws.rs.NotFoundException;
 import maksim.reviewsservice.models.dtos.CreateLikeDto;
 import maksim.reviewsservice.models.dtos.CreateReviewDto;
+import maksim.reviewsservice.models.dtos.ReviewDto;
 import maksim.reviewsservice.models.dtos.UpdateReviewDto;
 import maksim.reviewsservice.models.entities.Review;
 import maksim.reviewsservice.models.entities.User;
@@ -51,7 +52,7 @@ class ReviewServiceTest {
         when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
         when(reviewRepository.findByIdWithoutJoin(anyInt())).thenReturn(Optional.of(review));
 
-        Review result;
+        ReviewDto result;
 
         result = reviewService.getById(1, JoinMode.WITH);
         assertNotNull(result);
@@ -81,7 +82,7 @@ class ReviewServiceTest {
         when(reviewRepository.findByUserIdWithJoin(1, pageable)).thenReturn(reviews);
         when(reviewRepository.findByUserIdWithoutJoin(1, pageable)).thenReturn(reviews);
 
-        List<Review> result;
+        List<ReviewDto> result;
 
         result = reviewService.getAllByBookOrUserId(1, SelectionCriteria.BOOK, JoinMode.WITH, pageable);
         assertEquals(1, result.size());
@@ -109,7 +110,7 @@ class ReviewServiceTest {
 
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
 
-        Review result = reviewService.addReview(createReviewDto);
+        ReviewDto result = reviewService.addReview(createReviewDto);
 
         assertNotNull(result);
 
@@ -128,11 +129,11 @@ class ReviewServiceTest {
         reviewService.addLike(createLikeDto);
 
         assertEquals(1, review.getLikes());
-        assertEquals(1, review.getNoneJsonLikedUsers().size());
+        assertEquals(1, review.getLikedUsers().size());
 
         reviewService.addLike(createLikeDto);
         assertEquals(1, review.getLikes());
-        assertEquals(1, review.getNoneJsonLikedUsers().size());
+        assertEquals(1, review.getLikedUsers().size());
 
         verify(reviewRepository, times(2)).findById(any());
         verify(userRepository, times(2)).findById(any());
@@ -157,7 +158,7 @@ class ReviewServiceTest {
 
         Review review = new Review();
         review.setLikes(1);
-        review.getNoneJsonLikedUsers().add(user);
+        review.getLikedUsers().add(user);
 
         when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
@@ -179,7 +180,7 @@ class ReviewServiceTest {
 
         when(reviewRepository.findByIdWithJoin(anyInt())).thenReturn(Optional.of(review));
 
-        Review result;
+        ReviewDto result;
 
         result = reviewService.updateReview(1, updateReviewDto);
         assertEquals("Updated review text", result.getText());

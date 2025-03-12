@@ -3,6 +3,7 @@ package maksim.booksservice.services;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import maksim.booksservice.config.AppConfig;
+import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.entities.User;
@@ -64,8 +65,8 @@ class BookServiceTest {
         Map<String, String> params = new HashMap<>();
         BookSearchCriteria criteria = new BookSearchCriteria(params);
 
-        List<Book> result = bookService.getAllBooks(criteria, pageable);
-        assertEquals(page.stream().toList(), result);
+        List<BookDto> result = bookService.getAllBooks(criteria, pageable);
+        assertEquals(2, result.size());
 
         verify(bookRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }

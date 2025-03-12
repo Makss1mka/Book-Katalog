@@ -23,7 +23,7 @@ public class BookSpecification implements Specification<Book> {
     public Predicate toPredicate(Root<Book> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
         List<Predicate> predicates = new ArrayList<>();
 
-        if (criteria.getJoinMode() == JoinMode.WITH) {
+        if (criteria.getJoinModeForAuthor() == JoinMode.WITH) {
             Join<Book, User> joinAuthor = root.join("author", JoinType.INNER);
         }
 
@@ -64,23 +64,14 @@ public class BookSpecification implements Specification<Book> {
             );
         }
 
-        if (criteria.getStatusCount() != null) {
-            Join<Book, BookStatusLog> joinStatusLogs = root.join("statusesLogs", JoinType.INNER);
+        if (criteria.getJoinModeForStatuses() == JoinMode.WITH) {
+            root.fetch("statusesLogs", JoinType.LEFT);
 
-            Predicate datePredicate = builder.between(
-                joinStatusLogs.get("time"),
-                criteria.getStatusDateMin(),
-                criteria.getStatusDateMax()
-            );
-
-            if (criteria.getStatus() != BookStatus.ALL) {
-                Predicate statusPredicate = builder.equal(joinStatusLogs.get("status"), criteria.getStatus());
-
-                predicates.add(builder.and(statusPredicate, datePredicate));
-            } else {
-                predicates.add(datePredicate);
-            }
-
+            predicates.add(builder.between(
+                root.get("statusesLogs").get("addedDate"),
+                criteria.getStatusMinDate(),
+                criteria.getStatusMaxDate()
+            ));
         }
 
         return builder.and(predicates.toArray(new Predicate[0]));

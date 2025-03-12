@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BadRequestException;
 import java.util.List;
+
+import maksim.reviewsservice.models.dtos.ReviewDto;
 import maksim.reviewsservice.models.entities.Review;
 import maksim.reviewsservice.models.dtos.CreateLikeDto;
 import maksim.reviewsservice.models.dtos.CreateReviewDto;
@@ -53,7 +55,7 @@ public class ReviewController {
     }
 
     @GetMapping("/{reviewId}")
-    public ResponseEntity<Review> getReviewById(
+    public ResponseEntity<ReviewDto> getReviewById(
             @NotNull @Min(0) @PathVariable int reviewId,
             @RequestParam(name = "linkMode", required = false, defaultValue = "without") String strLinkingMode
     ) {
@@ -62,7 +64,7 @@ public class ReviewController {
         logger.trace("Controller method enter: getReviewById | Params: reviewId {} ; linking mode {}",
                 reviewId, linkingMode);
 
-        Review review = reviewService.getById(reviewId, linkingMode);
+        ReviewDto review = reviewService.getById(reviewId, linkingMode);
 
         logger.trace("Controller method return: getReviewById | Result: review was found successfully");
 
@@ -70,7 +72,7 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Review>> getReviewsByUserOrBookId(
+    public ResponseEntity<List<ReviewDto>> getReviewsByUserOrBookId(
             @RequestParam(name = "id") int id,
             @RequestParam(name = "criteria") String strSelectionCriteria,
             @RequestParam(name = "joinMode", required = false, defaultValue = "without") String strJoinMode,
@@ -92,21 +94,20 @@ public class ReviewController {
                \s""",
                 joinMode, selectionCriteria, id, pageable);
 
-        List<Review> reviews = reviewService.getAllByBookOrUserId(id, selectionCriteria, joinMode, pageable);
+        List<ReviewDto> reviews = reviewService.getAllByBookOrUserId(id, selectionCriteria, joinMode, pageable);
 
         logger.trace("Controller method return: getReviewById | Result: found {} items", reviews.size());
 
         return new ResponseEntity<>(reviews, HttpStatus.OK);
-
     }
 
 
-    @PostMapping("")
-    public ResponseEntity<Review> addReview(@Valid @RequestBody CreateReviewDto reviewData) {
+    @PostMapping
+    public ResponseEntity<ReviewDto> addReview(@Valid @RequestBody CreateReviewDto reviewData) {
         logger.trace("Controller method entry: addReview");
 
         reviewData.setText(
-                stringValidators.textScreening(reviewData.getText())
+            stringValidators.textScreening(reviewData.getText())
         );
 
         if (!stringValidators.isSafeFromSqlInjection(reviewData.getText())) {
@@ -115,7 +116,7 @@ public class ReviewController {
             throw new BadRequestException("Cannot add review. Review contains invalid review text.");
         }
 
-        Review createdReview = reviewService.addReview(reviewData);
+        ReviewDto createdReview = reviewService.addReview(reviewData);
 
         logger.trace("Controller method return: addReview | Review was added successfully (review id {})", createdReview.getId());
 
@@ -161,14 +162,14 @@ public class ReviewController {
 
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<Review> updateReview(
+    public ResponseEntity<ReviewDto> updateReview(
             @PathVariable @Min(0) int reviewId,
             @Valid @RequestBody UpdateReviewDto reviewData
     ) {
         logger.trace("Controller method entry: updateReview");
 
         reviewData.setText(
-                stringValidators.textScreening(reviewData.getText())
+            stringValidators.textScreening(reviewData.getText())
         );
 
         if (!stringValidators.isSafeFromSqlInjection(reviewData.getText())) {
@@ -177,7 +178,7 @@ public class ReviewController {
             throw new BadRequestException("Cannot update review. New review's text contains invalid chars.");
         }
 
-        Review review = reviewService.updateReview(reviewId, reviewData);
+        ReviewDto review = reviewService.updateReview(reviewId, reviewData);
 
         logger.trace("Controller method return: updateReview | Review was successfully updated");
 

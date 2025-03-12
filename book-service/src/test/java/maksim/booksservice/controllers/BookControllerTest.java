@@ -92,14 +92,14 @@ class BookControllerTest {
 
     @Test
     void testGet() {
-        List<Book> books = Arrays.asList(new Book(), new Book(), new Book());
+        List<BookDto> books = Arrays.asList(new BookDto(), new BookDto(), new BookDto());
 
         Map<String, String> params = new HashMap<>();
 
         when(bookSearchCriteriaValidators.isSafeFromSqlInjection(any(BookSearchCriteria.class))).thenReturn(true);
         when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(books);
 
-        ResponseEntity<List<Book>> result = bookController.getAllBooks(params);
+        ResponseEntity<List<BookDto>> result = bookController.getAllBooks(params);
         assertNotNull(result);
         assertEquals(result.getBody(), books);
 

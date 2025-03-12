@@ -1,4 +1,4 @@
-package maksim.userservice.models;
+package maksim.userservice.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,29 +26,17 @@ public class UserBookStatuses {
     @Column(name = "id")
     private Integer id;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")  // Связь с User
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
     private Book statusBook;
 
-    @Transient
-    private Book book = null;
-
-    @Column(name = "status_read")
-    private Boolean statusRead;
-
-    @Column(name = "status_reading")
-    private Boolean statusReading;
-
-    @Column(name = "status_drop")
-    private Boolean statusDrop;
+    @Column(name = "status")
+    private String status;
 
     @Column(name = "like")
     private Boolean like;
-
 }

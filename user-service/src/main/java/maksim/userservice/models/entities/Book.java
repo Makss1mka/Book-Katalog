@@ -1,4 +1,4 @@
-package maksim.userservice.models;
+package maksim.userservice.models.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

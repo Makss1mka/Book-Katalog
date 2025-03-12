@@ -69,7 +69,7 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks(@RequestParam Map<String, String> params) {
+    public ResponseEntity<List<BookDto>> getAllBooks(@RequestParam Map<String, String> params) {
         /*
         * QUERY PARAMS:
         *
@@ -77,7 +77,7 @@ public class BookController {
         * authorId - int
         * authorName - str
         *
-        * issuedDate - str
+        * issuedDate - "yyyy-MM-dd"
         * issuedDateOperator - newer \ older ; default "newer"
         *
         * rating - int
@@ -85,10 +85,11 @@ public class BookController {
         *
         * genres - string like "genre1,genre2,genre3"
         *
-        * status - read \ reading \ drop ; default "read"
-        * statusCount - int
-        * statusScope - overall \ last_year \ last_month \ last_week ; default "overall"
-        * statusOperator - greater \ less ; default "greater"
+        * joinModeForAuthor - with/without
+        *
+        * joinModeForStatuses - with/without
+        * statusMinDate - "yyyy-MM-dd"
+        * statusMaxDate - "yyyy-MM-dd"
         *
         * SORTING:
         *   sortField - default "rating"
@@ -107,7 +108,7 @@ public class BookController {
             throw new BadRequestException("Unsecured input params");
         }
 
-        List<Book> findBooks = bookService.getAllBooks(criteria, pageable);
+        List<BookDto> findBooks = bookService.getAllBooks(criteria, pageable);
 
         logger.trace("BookController method end | Return: selected items {}", findBooks.size());
 

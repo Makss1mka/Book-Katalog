@@ -6,8 +6,7 @@ import lombok.Getter;
 public enum BookStatus {
     DROP("drop"),
     READ("read"),
-    READING("reading"),
-    ALL("all");
+    READING("reading");
 
     private final String value;
 

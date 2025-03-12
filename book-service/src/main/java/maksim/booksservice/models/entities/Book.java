@@ -20,7 +20,7 @@ public class Book {
     private User author = null;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "book_id")
+    @JoinColumn(name = "book_id", referencedColumnName = "id")
     private List<BookStatusLog> statusesLogs = null;
 
     @Id

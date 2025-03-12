@@ -15,6 +15,7 @@ import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.models.dtos.CreateBookDto;
+import maksim.booksservice.models.entities.BookStatusLog;
 import maksim.booksservice.models.entities.User;
 import maksim.booksservice.models.kafkadtos.DtoForBookReviewChanging;
 import maksim.booksservice.repositories.BookRepository;
@@ -27,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,33 +74,51 @@ public class BookService {
         BookSpecification spec = new BookSpecification(criteria);
 
         List<Book> booksEntities = bookRepository.findAll(spec, pageable).toList();
-        List<BookDto> books = new ArrayList<>();
+        final List<BookDto> books = new ArrayList<>(booksEntities.size());
 
-        List<Map<String, String>> statuses = null;
-        if (criteria.getStatusCount() != null) {
-            statuses = new ArrayList<>(3);
+        if (criteria.getJoinModeForStatuses() == JoinMode.WITH) {
+            final List<Map<String, String>> statuses = Arrays.asList(
+                Map.of(
+                    "status_name", BookStatus.READ.toString(),
+                    "min_date", criteria.getStatusMinDate().toString(),
+                    "max_date", criteria.getStatusMaxDate().toString(),
+                    "count", ""
+                ),
+                Map.of(
+                    "status_name", BookStatus.READING.toString(),
+                    "min_date", criteria.getStatusMinDate().toString(),
+                    "max_date", criteria.getStatusMaxDate().toString(),
+                    "count", ""
+                ),
+                Map.of(
+                    "status_name", BookStatus.DROP.toString(),
+                    "min_date", criteria.getStatusMinDate().toString(),
+                    "max_date", criteria.getStatusMaxDate().toString(),
+                    "count", ""
+                )
+            );
 
-            if (criteria.getStatus() != BookStatus.ALL) {
-                Map<String, String> oneStatus = new HashMap<>(4);
+            booksEntities.forEach(book -> {
+                int readCounter = 0, readingCounter = 0, dropCounter = 0;
 
-                oneStatus.put("status_name", criteria.getStatus().getValue());
-                oneStatus.put("min_date", criteria.getStatusDateMin().toString());
-                oneStatus.put("max_date", criteria.getStatusDateMax().toString());
-                oneStatus.put("count", "");
+                for (BookStatusLog log : book.getStatusesLogs()) {
+                    switch (BookStatus.fromValue(log.getStatus())) {
+                        case READ -> readCounter++;
+                        case READING -> readingCounter++;
+                        case DROP -> dropCounter++;
+                    }
+                }
 
-                int count;
-                boolean isBookShouldBeIncluded = false;
+                statuses.get(0).put("count", String.valueOf(readCounter));
+                statuses.get(1).put("count", String.valueOf(readingCounter));
+                statuses.get(2).put("count", String.valueOf(dropCounter));
 
-                booksEntities.stream().forEach(book -> {
-                    oneStatus.put("count", String.valueOf(book.getStatusesLogs().size()));
-                });
-
-
-            } else {
-                Map<String, String> readStatus = new HashMap<>();
-                Map<String, String> readingStatus = new HashMap<>();
-                Map<String, String> dropStatus = new HashMap<>();
-            }
+                books.add(new BookDto(book, criteria.getJoinModeForAuthor(), new ArrayList<>(statuses)));
+            });
+        } else {
+            booksEntities.forEach(book -> {
+                books.add(new BookDto(book, criteria.getJoinModeForAuthor(), null));
+            });
         }
 
         logger.trace("BookService return: getAllBooks | Result: found items {}", books.size());

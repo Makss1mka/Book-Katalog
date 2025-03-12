@@ -1,10 +1,10 @@
-package maksim.reviewsservice.models.dtos;
+package maksim.userservice.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import maksim.reviewsservice.models.entities.User;
+import maksim.userservice.models.entities.User;
 
 @Getter
 @Setter

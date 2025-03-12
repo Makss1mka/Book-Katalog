@@ -18,9 +18,6 @@ class UserTest {
         user.setName("John Doe");
         user.setProfilePicPath("/images/johndoe.png");
         user.setEmail("johndoe@example.com");
-        user.setRole("USER");
-        user.setRegistrationDate(date);
-        user.setPassword("password123");
     }
 
     @Test
@@ -29,9 +26,6 @@ class UserTest {
         assertEquals("John Doe", user.getName());
         assertEquals("/images/johndoe.png", user.getProfilePicPath());
         assertEquals("johndoe@example.com", user.getEmail());
-        assertEquals("USER", user.getRole());
-        assertEquals(date, user.getRegistrationDate());
-        assertEquals("password123", user.getPassword());
     }
 
     @Test
@@ -47,15 +41,5 @@ class UserTest {
 
         user.setEmail("janedoe@example.com");
         assertEquals("janedoe@example.com", user.getEmail());
-
-        user.setRole("ADMIN");
-        assertEquals("ADMIN", user.getRole());
-
-        Date newDate = new Date();
-        user.setRegistrationDate(newDate);
-        assertEquals(newDate, user.getRegistrationDate());
-
-        user.setPassword("newpassword123");
-        assertEquals("newpassword123", user.getPassword());
     }
 }

@@ -1,4 +1,4 @@
-package maksim.userservice.models;
+package maksim.userservice.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
@@ -11,7 +11,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,10 +26,7 @@ import lombok.ToString;
 public class User {
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<UserBookStatuses> userBookStatuses = new ArrayList<>();
-
-    @Transient
-    private List<UserBookStatuses> statuses = null;
+    private List<UserBookStatuses> bookStatuses = new ArrayList<>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
