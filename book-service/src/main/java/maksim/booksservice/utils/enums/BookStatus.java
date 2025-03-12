@@ -4,9 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum BookStatus {
-    DROP("Drop"),
-    READ("Read"),
-    READING("Reading");
+    DROP("drop"),
+    READ("read"),
+    READING("reading"),
+    ALL("all");
 
     private final String value;
 

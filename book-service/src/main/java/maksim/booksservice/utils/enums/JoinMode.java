@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum JoinMode {
-    WITHOUT_JOIN("without"),
-    WITH_JOIN("with");
+    WITHOUT("without"),
+    WITH("with");
 
     private final String value;
 
