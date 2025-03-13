@@ -5,6 +5,7 @@ import maksim.booksservice.utils.CacheObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
@@ -104,17 +105,20 @@ public class CachingService {
 
         CacheObject<List<BookDto>> temporalCacheObject;
 
-        for (int i = 0; i < storageSize; i++) {
-            temporalCacheObject = storage.get(history.get(i));
+        int ind = 0;
+        while (ind < storageSize) {
+            temporalCacheObject = storage.get(history.get(ind));
 
             if (new Date(temporalCacheObject.getCreationDate().getTime() + temporalCacheObject.getExpirationTime()).before(new Date())) {
-                storage.remove(history.get(i));
-                history.remove(i);
+                storage.remove(history.get(ind));
+                history.remove(ind);
 
                 storageSize--;
-                i--;
+                ind--;
                 cleanedCaches++;
             }
+
+            ind++;
         }
 
         logger.trace("CachingService method: checkAndDeleteInvalidCaches | END CLEANING | cleaned {} caches", cleanedCaches);
