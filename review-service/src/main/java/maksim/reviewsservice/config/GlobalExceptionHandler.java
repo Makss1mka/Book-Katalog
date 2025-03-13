@@ -1,8 +1,9 @@
 package maksim.reviewsservice.config;
 
 import jakarta.validation.ConstraintViolationException;
-import jakarta.ws.rs.BadRequestException;
-import javassist.NotFoundException;
+import maksim.reviewsservice.exceptions.BadRequestException;
+import maksim.reviewsservice.exceptions.NotFoundException;
+import maksim.reviewsservice.exceptions.ConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -44,11 +45,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<String> handleConflictExceptions(ConflictException ex) {
+        logger.error(ex.getMessage());
+
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> exceptionHandler(Exception ex, WebRequest request) {
         logger.error(ex.getMessage());
 
-        return ResponseEntity.internalServerError().body(ex.getMessage());
+        return ResponseEntity.internalServerError().body("Something goes wrong, Sorry my bad :(");
     }
 
 }

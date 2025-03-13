@@ -3,12 +3,10 @@ package maksim.userservice.controllers;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BadRequestException;
 import java.util.List;
+
+import maksim.userservice.models.dtos.*;
 import maksim.userservice.models.entities.Book;
 import maksim.userservice.models.entities.User;
-import maksim.userservice.models.dtos.CreateBookStatusDto;
-import maksim.userservice.models.dtos.CreateUserDto;
-import maksim.userservice.models.dtos.UpdateBookStatusDto;
-import maksim.userservice.models.dtos.UpdateUserDto;
 import maksim.userservice.services.UserService;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
@@ -53,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/books")
-    public ResponseEntity<List<Book>> getAllBooksByUserStatus(
+    public ResponseEntity<List<BookDto>> getAllBooksByUserStatus(
         @PathVariable(name = "userId") int userId,
         @RequestParam(name = "status") String strStatus,
         @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
@@ -66,7 +64,7 @@ public class UserController {
 
         Pageable pageable = PageRequest.of(pageNum, pageSize);
 
-        List<Book> books = userService.getAllBooksByUserStatus(userId, bookStatus, pageable);
+        List<BookDto> books = userService.getAllBooksByUserStatus(userId, bookStatus, pageable);
 
         logger.trace("BookController method return: getAllBooksByUserStatus | Found {} items", books.size());
 
@@ -74,7 +72,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(
+    public ResponseEntity<UserDto> getUserById(
         @PathVariable(name = "userId") int userId,
         @RequestParam(name = "joinMode", required = false, defaultValue = "without") String strJoinMode
     ) {
@@ -83,7 +81,7 @@ public class UserController {
         logger.trace("BookController method entrance: getAllBooksByUserStatus | Params: userId {} ; join mode {}",
                 userId, joinMode);
 
-        User user = userService.getUserById(userId, joinMode);
+        UserDto user = userService.getUserById(userId, joinMode);
 
         logger.trace("BookController method return: getAllBooksByUserStatus | User was found successfully");
 
@@ -93,14 +91,14 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody CreateUserDto createUserDto) {
+    public ResponseEntity<UserDto> createUser(@RequestBody CreateUserDto createUserDto) {
         logger.trace("BookController method entrance: createUser");
 
         if (!createUserDtoValidators.isValid(createUserDto)) {
             throw new BadRequestException("Body contains invalid symbols");
         }
 
-        User user = userService.createUser(createUserDto);
+        UserDto user = userService.createUser(createUserDto);
 
         logger.trace("BookController method return: createUser | User was successfully created");
 
@@ -108,13 +106,13 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/book-status")
-    public ResponseEntity<User> createStatus(
+    public ResponseEntity<UserDto> createStatus(
         @PathVariable(name = "userId") int userId,
         @RequestBody CreateBookStatusDto statusDto
     ) {
         logger.trace("BookController method entrance: createStatus");
 
-        User user = userService.createStatus(userId, statusDto);
+        UserDto user = userService.createStatus(userId, statusDto);
 
         logger.trace("BookController method return: createStatus | User was successfully created");
 
@@ -124,7 +122,7 @@ public class UserController {
 
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(
+    public ResponseEntity<UserDto> updateUser(
         @PathVariable(name = "userId") int userId,
         @RequestBody UpdateUserDto updateUserDto
     ) {
@@ -134,7 +132,7 @@ public class UserController {
             throw new BadRequestException("Body contains invalid symbols");
         }
 
-        User user = userService.updateUser(userId, updateUserDto);
+        UserDto user = userService.updateUser(userId, updateUserDto);
 
         logger.trace("BookController method return: updateUser | User was successfully updated");
 
@@ -142,13 +140,13 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/book-status")
-    public ResponseEntity<User> updateStatus(
+    public ResponseEntity<UserDto> updateStatus(
         @PathVariable(name = "userId") int userId,
         @RequestBody UpdateBookStatusDto statusDto
     ) {
         logger.trace("BookController method entrance: updateStatus");
 
-        User user = userService.updateStatus(userId, statusDto);
+        UserDto user = userService.updateStatus(userId, statusDto);
 
         logger.trace("BookController method return: updateStatus | Status was successfully updated");
 
@@ -169,13 +167,13 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/book-status/{bookId}")
-    public ResponseEntity<User> deleteStatus(
+    public ResponseEntity<UserDto> deleteStatus(
         @PathVariable(name = "userId") int userId,
         @PathVariable(name = "bookId") int bookId
     ) {
-        logger.trace("BookController method entrance: deleteUser");
+        logger.trace("BookController method entrance: deleteStatus");
 
-        User user = userService.deleteStatusEntity(userId, bookId);
+        UserDto user = userService.deleteStatusEntity(userId, bookId);
 
         logger.trace("BookController method return: deleteUser | Status was successfully deleted");
 

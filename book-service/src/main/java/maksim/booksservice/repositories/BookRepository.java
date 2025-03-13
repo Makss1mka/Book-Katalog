@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface BookRepository extends JpaRepository<Book, Integer>, JpaSpecificationExecutor<Book> {
-    @Query("SELECT b FROM Book b JOIN FETCH b.author WHERE b.id = :id")
-    Optional<Book> findByIdWithAuthor(@Param("id") int id);
+    @Query("SELECT b FROM Book b JOIN FETCH b.author LEFT JOIN FETCH b.statusesLogs s WHERE b.id = :id")
+    Optional<Book> findByIdWithJoin(@Param("id") int id);
 
     @Query("SELECT b FROM Book b WHERE b.id = :id")
-    Optional<Book> findByIdWithoutAuthor(@Param("id") int id);
+    Optional<Book> findByIdWithoutJoin(@Param("id") int id);
 }

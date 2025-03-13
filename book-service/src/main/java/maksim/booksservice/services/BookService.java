@@ -1,7 +1,7 @@
 package maksim.booksservice.services;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
+import maksim.booksservice.exceptions.BadRequestException;
+import maksim.booksservice.exceptions.NotFoundException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,12 +12,14 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import maksim.booksservice.config.AppConfig;
+import maksim.booksservice.exceptions.ConflictException;
 import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.models.dtos.UpdateBookDto;
 import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.entities.BookStatusLog;
 import maksim.booksservice.models.entities.User;
-import maksim.booksservice.models.kafkadtos.DtoForBookReviewChanging;
+import maksim.booksservice.models.kafkadtos.ChangeBookOneRateDto;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.UserRepository;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
@@ -27,8 +29,8 @@ import maksim.booksservice.utils.enums.JoinMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,17 +57,43 @@ public class BookService {
         logger.trace("BookService method entrance: getById | Params: id {} ; join mode {}", id, joinMode);
 
         Optional<Book> book = switch (joinMode) {
-            case WITH -> bookRepository.findByIdWithAuthor(id);
-            case WITHOUT -> bookRepository.findByIdWithoutAuthor(id);
+            case WITH -> bookRepository.findByIdWithJoin(id);
+            case WITHOUT -> bookRepository.findByIdWithoutJoin(id);
         };
 
         if (book.isEmpty()) {
+            logger.trace("BookService method exception: getById");
+
             throw new NotFoundException("Cannot find book");
+        }
+
+        List<Map<String, String>> statuses = null;
+
+        if (joinMode == JoinMode.WITH) {
+            statuses = Arrays.asList(
+                new HashMap<>(Map.of("status_name", BookStatus.READ.toString(), "count", "0")),
+                new HashMap<>(Map.of("status_name", BookStatus.READING.toString(), "count", "0")),
+                new HashMap<>(Map.of("status_name", BookStatus.DROP.toString(), "count", "0"))
+            );
+
+            int readCounter = 0, readingCounter = 0, dropCounter = 0;
+
+            for (BookStatusLog log : book.get().getStatusesLogs()) {
+                switch (BookStatus.fromValue(log.getStatus())) {
+                    case READ -> readCounter++;
+                    case READING -> readingCounter++;
+                    case DROP -> dropCounter++;
+                }
+            }
+
+            statuses.get(0).put("count", String.valueOf(readCounter));
+            statuses.get(1).put("count", String.valueOf(readingCounter));
+            statuses.get(2).put("count", String.valueOf(dropCounter));
         }
 
         logger.trace("BookService return: getAllBooks | Result is found");
 
-        return new BookDto(book.get(), joinMode, null);
+        return new BookDto(book.get(), joinMode, statuses);
     }
 
     public List<BookDto> getAllBooks(BookSearchCriteria criteria, Pageable pageable) {
@@ -78,24 +106,24 @@ public class BookService {
 
         if (criteria.getJoinModeForStatuses() == JoinMode.WITH) {
             final List<Map<String, String>> statuses = Arrays.asList(
-                Map.of(
+                new HashMap<>(Map.of(
                     "status_name", BookStatus.READ.toString(),
                     "min_date", criteria.getStatusMinDate().toString(),
                     "max_date", criteria.getStatusMaxDate().toString(),
                     "count", ""
-                ),
-                Map.of(
+                )),
+                new HashMap<>(Map.of(
                     "status_name", BookStatus.READING.toString(),
                     "min_date", criteria.getStatusMinDate().toString(),
                     "max_date", criteria.getStatusMaxDate().toString(),
                     "count", ""
-                ),
-                Map.of(
+                )),
+                new HashMap<>(Map.of(
                     "status_name", BookStatus.DROP.toString(),
                     "min_date", criteria.getStatusMinDate().toString(),
                     "max_date", criteria.getStatusMaxDate().toString(),
                     "count", ""
-                )
+                ))
             );
 
             booksEntities.forEach(book -> {
@@ -144,7 +172,7 @@ public class BookService {
 
 
 
-    public Book addBookMetaData(CreateBookDto bookData) {
+    public BookDto addBookMetaData(CreateBookDto bookData) {
         logger.trace("BookService method entrance: addBookMetaData");
 
         Optional<User> author = userRepository.findById(bookData.getAuthorId());
@@ -159,15 +187,19 @@ public class BookService {
         book.setIssuedDate(new Date());
         book.setGenres(bookData.getGenres());
 
-        bookRepository.save(book);
+        try {
+            bookRepository.save(book);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException("Your review contains conflicted data");
+        }
 
         logger.trace("BookService method end: addBookMetaData | Book metadata was created successfully");
 
-        return book;
+        return new BookDto(book, null, null);
     }
 
     public void addBookFile(MultipartFile file, int bookId) {
-        logger.trace("Try to add file for book");
+        logger.trace("BookService method entrance: addBookFile");
 
         Path targetPath = new File(appConfig.getBookFilesDirectory()).toPath().normalize();
         File testFile = new File(appConfig.getBookFilesDirectory() + file.getOriginalFilename());
@@ -210,7 +242,11 @@ public class BookService {
 
                 book.get().setFilePath(bookId + "." + fileExtension);
 
-                bookRepository.save(book.get());
+                try {
+                    bookRepository.save(book.get());
+                } catch (DataIntegrityViolationException ex) {
+                    throw new ConflictException("Your review contains conflicted data");
+                }
             }
         } catch (IOException e) {
             if (targetFile != null && targetFile.exists()) {
@@ -224,12 +260,14 @@ public class BookService {
             throw new BadRequestException("Cannot open file");
         }
 
-        logger.trace("Book file was added successfully");
+        logger.trace("BookService method return: addBookFile | File was added successfully");
     }
 
 
 
     public void deleteBook(int bookId) {
+        logger.trace("BookService method entrance: deleteBook");
+
         Optional<Book> book = bookRepository.findById(bookId);
 
         if (book.isEmpty()) {
@@ -246,11 +284,50 @@ public class BookService {
         }
 
         bookRepository.delete(book.get());
+
+        logger.trace("BookService method return: deleteBook");
+    }
+
+
+    public BookDto updateBook(int bookId, UpdateBookDto bookDto) {
+        logger.trace("BookService method entrance: updateBook");
+
+        Optional<Book> book = bookRepository.findById(bookId);
+
+        if (book.isEmpty()) {
+            throw new NotFoundException("Cannot access book with such id");
+        }
+
+        boolean isSmthChanged = false;
+
+        if (bookDto.getName() != null) {
+            book.get().setName(bookDto.getName());
+
+            isSmthChanged = true;
+        }
+
+        if (bookDto.getGenres() != null) {
+            book.get().setGenres(bookDto.getGenres());
+
+            isSmthChanged = true;
+        }
+
+        if (isSmthChanged) {
+            try {
+                bookRepository.save(book.get());
+            } catch (DataIntegrityViolationException ex) {
+                throw new ConflictException("Your review contains conflicted data");
+            }
+        }
+
+        logger.trace("BookService method return: updateBook");
+
+        return new BookDto(book.get(), null, null);
     }
 
 
 
-    public void changeOneRate(DtoForBookReviewChanging reviewData) {
+    public void changeOneRate(ChangeBookOneRateDto reviewData) {
         logger.trace("BookService method entrance: changeOneRate | Params: {}", reviewData);
 
         if (reviewData == null || reviewData.getBookId() == null
@@ -315,7 +392,11 @@ public class BookService {
             }
         }
 
-        bookRepository.save(book);
+        try {
+            bookRepository.save(book);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException("Your review contains conflicted data");
+        }
 
         logger.trace("BookService method return: changeOneRate");
     }

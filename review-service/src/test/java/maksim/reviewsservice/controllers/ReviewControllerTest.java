@@ -1,7 +1,6 @@
 package maksim.reviewsservice.controllers;
 
 import maksim.reviewsservice.models.dtos.ReviewDto;
-import maksim.reviewsservice.models.entities.Review;
 import maksim.reviewsservice.models.dtos.CreateLikeDto;
 import maksim.reviewsservice.models.dtos.CreateReviewDto;
 import maksim.reviewsservice.models.dtos.UpdateReviewDto;

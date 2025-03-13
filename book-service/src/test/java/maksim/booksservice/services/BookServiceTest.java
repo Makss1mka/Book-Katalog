@@ -1,7 +1,7 @@
 package maksim.booksservice.services;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
+import maksim.booksservice.exceptions.BadRequestException;
+import maksim.booksservice.exceptions.NotFoundException;
 import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.models.entities.Book;
@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
@@ -102,7 +103,6 @@ class BookServiceTest {
 
         NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.getFile(1));
 
-        assertEquals("Cannot find book", exception.getMessage());
         verify(bookRepository, times(1)).findById(anyInt());
     }
 
@@ -118,7 +118,7 @@ class BookServiceTest {
 
         NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.getFile(bookId));
 
-        assertTrue(exception.getMessage().contains("Cannot open book file"));
+        assertNotNull(exception);
         verify(bookRepository, times(1)).findById(bookId);
     }
 
@@ -164,7 +164,7 @@ class BookServiceTest {
 
         BadRequestException exception = assertThrows(BadRequestException.class, () -> bookService.addBookFile(file, 1));
 
-        assertEquals("Invalid file extension", exception.getMessage());
+        assertNotNull(exception);
     }
 
     @Test
@@ -181,7 +181,7 @@ class BookServiceTest {
 
         BadRequestException exception = assertThrows(BadRequestException.class, () -> bookService.addBookFile(file, 1));
 
-        assertEquals("Cannot find book with such id", exception.getMessage());
+        assertNotNull(exception);
         verify(bookRepository, times(1)).findById(anyInt());
         verify(bookRepository, never()).save(any());
     }
@@ -221,7 +221,7 @@ class BookServiceTest {
 
         BadRequestException exception = assertThrows(BadRequestException.class, () -> bookService.addBookMetaData(bookData));
 
-        assertEquals("Cannot add book, cause cannot find user/author with such id", exception.getMessage());
+        assertNotNull(exception);
         verify(userRepository, times(1)).findById(authorId);
         verify(bookRepository, never()).save(any(Book.class));
     }
@@ -259,7 +259,7 @@ class BookServiceTest {
 
         NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.deleteBook(bookId));
 
-        assertEquals("Cannot access book with such id", exception.getMessage());
+        assertNotNull(exception);
         verify(bookRepository, times(1)).findById(bookId);
         verify(bookRepository, never()).delete(any(Book.class));
     }

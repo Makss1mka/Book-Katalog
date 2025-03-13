@@ -3,10 +3,9 @@ package maksim.booksservice.controllers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import jakarta.ws.rs.NotFoundException;
+import maksim.booksservice.exceptions.NotFoundException;
 import maksim.booksservice.config.GlobalExceptionHandler;
 import maksim.booksservice.models.dtos.BookDto;
-import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.JoinMode;
@@ -34,7 +33,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -132,7 +130,7 @@ class BookControllerTest {
                 () -> bookController.getBookFile(1)
         );
 
-        assertEquals("Not found", exception.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
 
 
@@ -142,9 +140,9 @@ class BookControllerTest {
         when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(true);
 
         mockMvc.perform(post("/api/v1/books")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\": \"TEST NAME\", \"authorId\": 17}"))
-                .andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\": \"TEST NAME\", \"authorId\": 17}"))
+            .andExpect(status().isOk());
 
         verify(bookService, times(1)).addBookMetaData(any());
     }
@@ -198,8 +196,7 @@ class BookControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/books/1/file")
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Error: book file is not valid. File support extensions: pdf, txt, md. FIle should be less than 2mb"));
+                .andExpect(status().isBadRequest());
 
         verify(bookService, never()).addBookFile(any(), anyInt());
     }

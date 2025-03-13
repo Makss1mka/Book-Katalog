@@ -1,11 +1,10 @@
 package maksim.reviewsservice.services;
 
-import jakarta.ws.rs.NotFoundException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import maksim.reviewsservice.exceptions.ConflictException;
+import maksim.reviewsservice.exceptions.NotFoundException;
 import maksim.reviewsservice.models.dtos.ReviewDto;
 import maksim.reviewsservice.models.entities.Review;
 import maksim.reviewsservice.models.entities.User;
@@ -19,6 +18,7 @@ import maksim.reviewsservice.utils.enums.SelectionCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -95,7 +95,11 @@ public class ReviewService {
         newReview.setText(reviewData.getText());
         newReview.setRating(reviewData.getRating());
 
-        reviewRepository.save(newReview);
+        try {
+            reviewRepository.save(newReview);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException("Your review contains conflicted data");
+        }
 
         logger.trace("Method return: addReview | Result: review add successfully");
 
@@ -125,7 +129,13 @@ public class ReviewService {
                     review.get().getLikes() + 1
                 );
 
-            reviewRepository.save(review.get());
+            try {
+                reviewRepository.save(review.get());
+            } catch (DataIntegrityViolationException ex) {
+                throw new ConflictException("Your review contains conflicted data");
+            }
+        } else {
+            throw new ConflictException("Cannot add like");
         }
 
         logger.trace("Method return: addLike | Result: like to review add successfully");
@@ -163,8 +173,8 @@ public class ReviewService {
             );
 
         review.get()
-                .getLikedUsers()
-                .remove(user.get());
+            .getLikedUsers()
+            .remove(user.get());
 
         reviewRepository.save(review.get());
 
@@ -201,7 +211,11 @@ public class ReviewService {
         }
 
         if (reviewData.getRating() != null || (reviewData.getText() != null && !reviewData.getText().isEmpty())) {
-            reviewRepository.save(review.get());
+            try {
+                reviewRepository.save(review.get());
+            } catch (DataIntegrityViolationException ex) {
+                throw new ConflictException("Your review contains conflicted data");
+            }
         }
 
         logger.trace("Method return: updateReview | Result: method was successfully updated ; touched fields {}",

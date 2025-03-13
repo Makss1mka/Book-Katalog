@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class DtoForBookReviewChanging {
+public class ChangeBookOneRateDto {
 
     // -1 - remove rate / 0 - change rate / 1 - add rate
     private Integer action;

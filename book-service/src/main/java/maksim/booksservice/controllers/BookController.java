@@ -1,7 +1,7 @@
 package maksim.booksservice.controllers;
 
 import jakarta.validation.Valid;
-import jakarta.ws.rs.BadRequestException;
+import maksim.booksservice.exceptions.BadRequestException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.models.dtos.UpdateBookDto;
 import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.services.BookService;
@@ -30,16 +31,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 @RestController
 @RequestMapping(value = "/api/v1/books")
@@ -157,8 +150,10 @@ public class BookController {
                 .body(new FileSystemResource(file));
     }
 
+
+
     @PostMapping
-    public ResponseEntity<Book> addBookMetaData(@Valid @RequestBody CreateBookDto bookData) {
+    public ResponseEntity<BookDto> addBookMetaData(@Valid @RequestBody CreateBookDto bookData) {
         logger.trace("BookController method entrance: addBookMetaData");
 
         bookDtoForCreatingValidators.screenStringValue(bookData);
@@ -169,7 +164,7 @@ public class BookController {
             );
         }
 
-        Book book = bookService.addBookMetaData(bookData);
+        BookDto book = bookService.addBookMetaData(bookData);
 
         logger.trace("BookController method end: addBookMetaData | Book metadata was successfully added");
 
@@ -193,6 +188,8 @@ public class BookController {
         return ResponseEntity.ok("Book file was successfully added");
     }
 
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable int id) {
         logger.trace("BookController method entrance: deleteBook | Params: book id {}", id);
@@ -204,6 +201,21 @@ public class BookController {
         return ResponseEntity.ok("Book was successfully deleted");
     }
 
+
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookDto> updateBook(
+            @PathVariable(name = "id") int bookId,
+            @Valid @RequestBody UpdateBookDto bookData
+    ) {
+        logger.trace("BookController method entrance: updateBook");
+
+        BookDto book = bookService.updateBook(bookId, bookData);
+
+        logger.trace("BookController method end: updateBook | Book metadata was successfully updated");
+
+        return ResponseEntity.ok(book);
+    }
 
 
 }

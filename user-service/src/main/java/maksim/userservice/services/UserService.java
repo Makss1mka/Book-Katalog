@@ -3,19 +3,18 @@ package maksim.userservice.services;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import maksim.userservice.config.AppConfig;
 import maksim.userservice.exceptions.ConflictException;
 import maksim.userservice.exceptions.NoContentException;
+import maksim.userservice.models.dtos.*;
 import maksim.userservice.models.entities.Book;
 import maksim.userservice.models.entities.User;
 import maksim.userservice.models.entities.UserBookStatuses;
-import maksim.userservice.models.dtos.CreateBookStatusDto;
-import maksim.userservice.models.dtos.CreateUserDto;
-import maksim.userservice.models.dtos.UpdateBookStatusDto;
-import maksim.userservice.models.dtos.UpdateUserDto;
 import maksim.userservice.repositories.UserRepository;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
@@ -51,54 +50,54 @@ public class UserService {
         this.appConfig = appConfig;
     }
 
-    public User getUserById(int userId, JoinMode mode) {
-        logger.trace("UserService method entrance: getUserById | Params: user id {} ; join mode {}", userId, mode);
+    private User getUserEntityById(int userId, JoinMode mode) {
+        logger.trace("UserService method entrance: getUserEntityById | Params: user id {} ; join mode {}", userId, mode);
 
-        Optional<User> optionalUser = switch (mode) {
+        Optional<User> user = switch (mode) {
             case WITH_STATUSES_AND_BOOKS -> userRepository.findByIdWithJoinStatusesAndBooks(userId);
             case WITH_STATUSES -> userRepository.findByIdWithJoinStatuses(userId);
             case WITHOUT -> userRepository.findById(userId);
         };
 
-        if (optionalUser.isEmpty()) {
+        if (user.isEmpty()) {
             throw new NotFoundException("Cannot find user such id");
         }
 
-        User user = optionalUser.get();
+        logger.trace("UserService method end: getUserEntityById | User was found");
 
-        if (mode == JoinMode.WITH_STATUSES || mode == JoinMode.WITH_STATUSES_AND_BOOKS) {
-            user.setStatuses(
-                user.getUserBookStatuses()
-            );
-        }
+        return user.get();
+    }
 
-        if (mode == JoinMode.WITH_STATUSES_AND_BOOKS) {
-            for (UserBookStatuses status : user.getStatuses()) {
-                status.setBook(
-                    status.getStatusBook()
-                );
-            }
-        }
+    public UserDto getUserById(int userId, JoinMode mode) {
+        logger.trace("UserService method entrance: getUserById | Params: user id {} ; join mode {}", userId, mode);
+
+        User user = getUserEntityById(userId, mode);
 
         logger.trace("UserService method end: getUserById | User was found");
 
-        return user;
+        return new UserDto(user, mode);
     }
 
-    public List<Book> getAllBooksByUserStatus(int userId, BookStatus status, Pageable pageable) {
+    public List<BookDto> getAllBooksByUserStatus(int userId, BookStatus status, Pageable pageable) {
         logger.trace("UserService method entrance: getAllReadingBooks | Params: user id {}", userId);
 
         List<Book> books = userRepository.findAllBooksByUserStatus(userId, status.getValue(), pageable);
 
         logger.trace("UserService method end: getAllReadingBooks | Is found {} books", books.size());
 
-        return books;
+        List<BookDto> booksDtos = new ArrayList<>(books.size());
+
+        books.forEach(book -> {
+            booksDtos.add(new BookDto(book));
+        });
+
+        return booksDtos;
     }
 
 
 
     @Transactional
-    public User createUser(CreateUserDto userDto) {
+    public UserDto createUser(CreateUserDto userDto) {
         logger.trace("UserService method entrance: createUser");
 
         Optional<User> comparableUser = userRepository.findByEmail(userDto.getEmail());
@@ -122,18 +121,18 @@ public class UserService {
 
         logger.trace("UserService method end: createUser | User was found");
 
-        return newUser;
+        return new UserDto(newUser, null);
     }
 
     @Transactional
-    public User createStatus(int userId, CreateBookStatusDto statusDto) {
+    public UserDto createStatus(int userId, CreateBookStatusDto statusDto) {
         logger.trace("UserService method entrance: addStatus | Params: user id {} ; book id {} ; status {}",
                 userId, statusDto.getBookId(), statusDto.getStatus());
 
-        User user = getUserById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
+        User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
         // Status existence check
-        for (UserBookStatuses st : user.getUserBookStatuses()) {
+        for (UserBookStatuses st : user.getBookStatuses()) {
             if (st.getBook().getId() == statusDto.getBookId()) {
                 throw new ConflictException("Status for such user and book already exist");
             }
@@ -141,7 +140,7 @@ public class UserService {
 
         // Book existence check
         ResponseEntity<Book> bookRequest = restTemplate.getForEntity(
-                appConfig.getBookServiceUrl() + "/books/" + statusDto.getBookId(),
+                appConfig.getBookServiceUrl() + "/api/v1/books/" + statusDto.getBookId(),
                 Book.class);
         if (bookRequest.getStatusCode() != HttpStatus.OK) {
             throw new BadRequestException("Cannot get book with such id");
@@ -150,37 +149,31 @@ public class UserService {
         // Create status
         UserBookStatuses newStatus = new UserBookStatuses();
         newStatus.setBook(bookRequest.getBody());
-        switch (statusDto.getStatus()) {
-            case READ -> newStatus.setStatusRead(true);
-            case READING -> newStatus.setStatusReading(true);
-            case DROP -> newStatus.setStatusDrop(true);
-            case LIKED -> newStatus.setLike(true);
-            default -> throw new BadRequestException("Any here is not supported");
-        }
+        newStatus.setStatus(statusDto.getStatus().toString());
 
-        // Create and save status
-        user.getUserBookStatuses().add(newStatus);
+        // Add and save status
+        user.getBookStatuses().add(newStatus);
         userRepository.save(user);
 
         logger.trace("UserService method end: addStatus | Status was added successfully");
 
-        return user;
+        return new UserDto(user, JoinMode.WITH_STATUSES_AND_BOOKS);
     }
 
 
 
     @Transactional
-    public User updateStatus(int userId, UpdateBookStatusDto userDto) {
+    public UserDto updateStatus(int userId, UpdateBookStatusDto statusDto) {
         logger.trace("UserService method entrance: changeStatus | Params: user id {} ; book id {} ; new status {}",
-                userId, userDto.getBookId(), userDto.getStatus());
+                userId, statusDto.getBookId(), statusDto.getStatus());
 
-        User user = getUserById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
+        User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
         UserBookStatuses statusEntity = null;
 
         // Status existence check
-        for (UserBookStatuses st : user.getUserBookStatuses()) {
-            if (st.getBook().getId() == userDto.getBookId()) {
+        for (UserBookStatuses st : user.getBookStatuses()) {
+            if (st.getBook().getId() == statusDto.getBookId()) {
                 statusEntity = st;
             }
         }
@@ -192,47 +185,30 @@ public class UserService {
         boolean isSmthChanged = false;
 
         // Status changing
-        switch (userDto.getStatus()) {
-            case READ -> {
-                if (statusEntity.getStatusRead() == userDto.getStatusValue()) {
-                    statusEntity.setStatusReading(false);
-                    statusEntity.setStatusDrop(false);
-                    statusEntity.setStatusRead(userDto.getStatusValue());
-
-                    isSmthChanged = true;
-                }
-            }
-            case READING -> {
-                if (statusEntity.getStatusReading() != userDto.getStatusValue()) {
-                    statusEntity.setStatusReading(userDto.getStatusValue());
-                    statusEntity.setStatusDrop(false);
-                    statusEntity.setStatusRead(false);
-
-                    isSmthChanged = true;
-                }
-            }
-            case DROP -> {
-                if (statusEntity.getStatusDrop() != userDto.getStatusValue()) {
-                    statusEntity.setStatusReading(false);
-                    statusEntity.setStatusRead(false);
-                    statusEntity.setStatusDrop(userDto.getStatusValue());
-
-                    isSmthChanged = true;
-                }
+        switch (statusDto.getStatus()) {
+            case ANY -> {
+                throw new BadRequestException("Any here is not supported");
             }
             case LIKED -> {
-                if (statusEntity.getLike() != userDto.getStatusValue()) {
-                    statusEntity.setLike(userDto.getStatusValue());
+                statusEntity.setLike(statusDto.getStatusValue());
+            }
+            default -> {
+                if (Objects.equals(statusDto.getStatus().toString(), statusEntity.getStatus()) && !statusDto.getStatusValue()) {
+                    statusEntity.setStatus(null);
+
+                    isSmthChanged = true;
+                }
+
+                if (statusDto.getStatusValue()) {
+                    statusEntity.setStatus(statusDto.getStatus().toString());
 
                     isSmthChanged = true;
                 }
             }
-            default -> throw new BadRequestException("Any here is not supported");
         }
 
-        if (!statusEntity.getStatusReading() && !statusEntity.getStatusRead()
-            && !statusEntity.getStatusDrop() && !statusEntity.getLike()) {
-            deleteStatusEntity(userId, userDto.getBookId());
+        if (statusEntity.getStatus() == null && !statusEntity.getLike()) {
+            deleteStatusEntity(userId, statusDto.getBookId());
         } else {
             if (isSmthChanged) {
                 userRepository.save(user);
@@ -243,14 +219,14 @@ public class UserService {
 
         logger.trace("UserService method end: changeStatus | Status was changed successfully");
 
-        return user;
+        return new UserDto(user, JoinMode.WITH_STATUSES_AND_BOOKS);
     }
 
     @Transactional
-    public User updateUser(int userId, UpdateUserDto userDto) {
+    public UserDto updateUser(int userId, UpdateUserDto userDto) {
         logger.trace("UserService method entrance: changeUser");
 
-        User user = getUserById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
+        User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
         // Change values
         boolean isSmthChanged = false;
@@ -297,18 +273,18 @@ public class UserService {
 
         logger.trace("UserService method end: changeUser | Status was changed successfully");
 
-        return user;
+        return new UserDto(user, JoinMode.WITH_STATUSES_AND_BOOKS);
     }
 
 
 
     @Transactional
-    public User deleteStatusEntity(int userId, int bookId) {
+    public UserDto deleteStatusEntity(int userId, int bookId) {
         logger.trace("UserService method entrance: deleteStatus | Params: user id {} ; book id {}", userId, bookId);
 
-        User user = getUserById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
+        User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
-        List<UserBookStatuses> statuses = user.getUserBookStatuses();
+        List<UserBookStatuses> statuses = user.getBookStatuses();
         boolean isFound = false;
 
         // Status existence check
@@ -329,14 +305,14 @@ public class UserService {
 
         logger.trace("UserService method end: deleteStatus | Status was changed successfully");
 
-        return user;
+        return new UserDto(user, JoinMode.WITH_STATUSES_AND_BOOKS);
     }
 
     @Transactional
     public void deleteUser(int userId) {
         logger.trace("UserService method entrance: deleteUser | Params: user id {}", userId);
 
-        User user = getUserById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
+        User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
         userRepository.delete(user);
 

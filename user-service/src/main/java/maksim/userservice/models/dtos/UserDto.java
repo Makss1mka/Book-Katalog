@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import maksim.userservice.models.entities.User;
+import maksim.userservice.utils.enums.JoinMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,12 +19,21 @@ public class UserDto {
     private String name = null;
     private String profilePicPath = null;
     private String email = null;
+    private List<UserBookStatusesDto> bookStatuses = null;
 
-    public UserDto(User user) {
+    public UserDto(User user, JoinMode mode) {
         this.id = user.getId();
         this.name = user.getName();
         this.profilePicPath = user.getProfilePicPath();
         this.email = user.getEmail();
+
+        if (mode == JoinMode.WITH_STATUSES) {
+            this.bookStatuses = new ArrayList<>(user.getBookStatuses().size());
+
+            user.getBookStatuses().forEach(bookStatuses -> {
+                this.bookStatuses.add(new UserBookStatusesDto(bookStatuses, mode));
+            });
+        }
     }
 
     public UserDto() {}
