@@ -168,9 +168,9 @@ public class BookService {
                 books.add(new BookDto(book, criteria.getJoinModeForAuthor(), new ArrayList<>(statuses)));
             });
         } else {
-            booksEntities.forEach(book -> {
-                books.add(new BookDto(book, criteria.getJoinModeForAuthor(), null));
-            });
+            booksEntities.forEach(book ->
+                books.add(new BookDto(book, criteria.getJoinModeForAuthor(), null))
+            );
         }
 
         logger.trace("BookService return: getAllBooks | Result: found items {}", books.size());
