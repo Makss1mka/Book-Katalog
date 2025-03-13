@@ -21,7 +21,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
@@ -29,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -45,6 +43,9 @@ class BookServiceTest {
 
     @Mock
     private AppConfig appConfig;
+
+    @Mock
+    private CachingService cachingService;
 
     @InjectMocks
     private BookService bookService;
@@ -239,6 +240,7 @@ class BookServiceTest {
         book.setId(bookId);
         book.setFilePath(tempFile.getFileName().toString());
 
+        doNothing().when(cachingService).deleteBook(anyInt());
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(appConfig.getBookFilesDirectory()).thenReturn(tempFile.getParent() + "/");
 

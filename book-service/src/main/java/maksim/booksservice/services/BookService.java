@@ -41,16 +41,19 @@ public class BookService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final AppConfig appConfig;
+    private final CachingService cachingService;
 
     @Autowired
     public BookService(
             BookRepository bookRepository,
             UserRepository userRepository,
-            AppConfig appConfig
+            AppConfig appConfig,
+            CachingService cachingService
     ) {
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
         this.appConfig = appConfig;
+        this.cachingService = cachingService;
     }
 
     public BookDto getById(int id, JoinMode joinMode) {
@@ -283,6 +286,8 @@ public class BookService {
             }
         }
 
+        cachingService.deleteBook(book.get().getId());
+
         bookRepository.delete(book.get());
 
         logger.trace("BookService method return: deleteBook");
@@ -315,6 +320,8 @@ public class BookService {
         if (isSmthChanged) {
             try {
                 bookRepository.save(book.get());
+
+                cachingService.updateBook(bookId, new BookDto(book.get(), null, null));
             } catch (DataIntegrityViolationException ex) {
                 throw new ConflictException("Your review contains conflicted data");
             }

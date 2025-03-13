@@ -1,5 +1,6 @@
 package maksim.booksservice.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import maksim.booksservice.exceptions.BadRequestException;
 import java.io.File;
@@ -11,16 +12,13 @@ import java.util.Map;
 
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.models.dtos.UpdateBookDto;
-import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.services.BookService;
+import maksim.booksservice.services.CachingService;
 import maksim.booksservice.utils.Pagination;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.JoinMode;
-import maksim.booksservice.utils.validators.BookDtoForCreatingValidators;
-import maksim.booksservice.utils.validators.BookSearchCriteriaValidators;
-import maksim.booksservice.utils.validators.FileValidators;
-import maksim.booksservice.utils.validators.StringValidators;
+import maksim.booksservice.utils.validators.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,26 +41,32 @@ public class BookController {
     private final BookService bookService;
     private final FileValidators fileValidators;
     private final StringValidators stringValidators;
-    private final BookDtoForCreatingValidators bookDtoForCreatingValidators;
+    private final CreateBookDtoValidators createBookDtoValidators;
+    private final UpdateBookDtoValidators updateBookDtoValidators;
     private final BookSearchCriteriaValidators bookSearchCriteriaValidators;
+    private final CachingService cachingService;
 
     @Autowired
     public BookController(
             BookService bookService,
             FileValidators fileValidator,
             StringValidators stringValidators,
-            BookDtoForCreatingValidators bookDtoForCreatingValidators,
-            BookSearchCriteriaValidators bookSearchCriteriaValidators
+            CreateBookDtoValidators createBookDtoValidators,
+            UpdateBookDtoValidators updateBookDtoValidators,
+            BookSearchCriteriaValidators bookSearchCriteriaValidators,
+            CachingService cachingService
     ) {
         this.bookService = bookService;
         this.fileValidators = fileValidator;
         this.stringValidators = stringValidators;
-        this.bookDtoForCreatingValidators = bookDtoForCreatingValidators;
+        this.createBookDtoValidators = createBookDtoValidators;
+        this.updateBookDtoValidators = updateBookDtoValidators;
         this.bookSearchCriteriaValidators = bookSearchCriteriaValidators;
+        this.cachingService = cachingService;
     }
 
     @GetMapping
-    public ResponseEntity<List<BookDto>> getAllBooks(@RequestParam Map<String, String> params) {
+    public ResponseEntity<List<BookDto>> getAllBooks(@RequestParam Map<String, String> params, HttpServletRequest request) {
         /*
         * QUERY PARAMS:
         *
@@ -93,6 +97,16 @@ public class BookController {
 
         logger.trace("BookController method entrance: getAllBooks");
 
+        String url = request.getMethod() + request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+        if (queryString != null) {
+            url += "?" + queryString;
+        }
+
+        if (cachingService.contains(url)) {
+            return new ResponseEntity<>(cachingService.getFromCache(url), HttpStatus.OK);
+        }
+
         Pageable pageable = Pagination.getPageable(params);
         BookSearchCriteria criteria = new BookSearchCriteria(params);
 
@@ -104,6 +118,8 @@ public class BookController {
         List<BookDto> findBooks = bookService.getAllBooks(criteria, pageable);
 
         logger.trace("BookController method end | Return: selected items {}", findBooks.size());
+
+        cachingService.addToCache(url, findBooks, 60000);
 
         return new ResponseEntity<>(findBooks, HttpStatus.OK);
     }
@@ -156,9 +172,8 @@ public class BookController {
     public ResponseEntity<BookDto> addBookMetaData(@Valid @RequestBody CreateBookDto bookData) {
         logger.trace("BookController method entrance: addBookMetaData");
 
-        bookDtoForCreatingValidators.screenStringValue(bookData);
-
-        if (!bookDtoForCreatingValidators.isSafeFromSqlInjection(bookData)) {
+        createBookDtoValidators.screenStringValue(bookData);
+        if (!createBookDtoValidators.isSafeFromSqlInjection(bookData)) {
             throw new BadRequestException(
                 String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
             );
@@ -209,6 +224,13 @@ public class BookController {
             @Valid @RequestBody UpdateBookDto bookData
     ) {
         logger.trace("BookController method entrance: updateBook");
+
+        updateBookDtoValidators.screenStringValue(bookData);
+        if (!updateBookDtoValidators.isSafeFromSqlInjection(bookData)) {
+            throw new BadRequestException(
+                String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
+            );
+        }
 
         BookDto book = bookService.updateBook(bookId, bookData);
 

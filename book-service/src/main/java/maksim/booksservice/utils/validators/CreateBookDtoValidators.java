@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BookDtoForCreatingValidators {
+public class CreateBookDtoValidators {
     private final StringValidators stringValidators;
 
     @Autowired
-    public BookDtoForCreatingValidators(StringValidators stringValidators) {
+    public CreateBookDtoValidators(StringValidators stringValidators) {
         this.stringValidators = stringValidators;
     }
 

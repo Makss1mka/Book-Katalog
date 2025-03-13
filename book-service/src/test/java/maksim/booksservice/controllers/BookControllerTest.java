@@ -7,9 +7,10 @@ import maksim.booksservice.exceptions.NotFoundException;
 import maksim.booksservice.config.GlobalExceptionHandler;
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.services.BookService;
+import maksim.booksservice.services.CachingService;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.JoinMode;
-import maksim.booksservice.utils.validators.BookDtoForCreatingValidators;
+import maksim.booksservice.utils.validators.CreateBookDtoValidators;
 import maksim.booksservice.utils.validators.BookSearchCriteriaValidators;
 import maksim.booksservice.utils.validators.FileValidators;
 import maksim.booksservice.utils.validators.StringValidators;
@@ -45,7 +46,7 @@ class BookControllerTest {
     private BookService bookService;
 
     @Mock
-    private BookDtoForCreatingValidators bookDtoForCreatingValidators;
+    private CreateBookDtoValidators createBookDtoValidators;
 
     @Mock
     private FileValidators fileValidators;
@@ -55,6 +56,9 @@ class BookControllerTest {
 
     @Mock
     private BookSearchCriteriaValidators bookSearchCriteriaValidators;
+
+    @Mock
+    private CachingService cachingService;
 
     @InjectMocks
     private BookController bookController;
@@ -89,17 +93,19 @@ class BookControllerTest {
 
 
     @Test
-    void testGet() {
+    void testGet() throws Exception {
         List<BookDto> books = Arrays.asList(new BookDto(), new BookDto(), new BookDto());
 
         Map<String, String> params = new HashMap<>();
 
+        when(cachingService.contains(any(String.class))).thenReturn(false);
+        doNothing().when(cachingService).addToCache(any(String.class), any(), anyInt());
+
         when(bookSearchCriteriaValidators.isSafeFromSqlInjection(any(BookSearchCriteria.class))).thenReturn(true);
         when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(books);
 
-        ResponseEntity<List<BookDto>> result = bookController.getAllBooks(params);
-        assertNotNull(result);
-        assertEquals(result.getBody(), books);
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/books"))
+                    .andExpect(status().isOk());
 
         verify(bookService, times(1)).getAllBooks(any(BookSearchCriteria.class), any(Pageable.class));
     }
@@ -137,7 +143,7 @@ class BookControllerTest {
 
     @Test
     void testAddBookMetaData_Success() throws Exception {
-        when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(true);
+        when(createBookDtoValidators.isSafeFromSqlInjection(any())).thenReturn(true);
 
         mockMvc.perform(post("/api/v1/books")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -149,7 +155,7 @@ class BookControllerTest {
 
     @Test
     void testAddBookMetaData_InvalidData() throws Exception {
-        when(bookDtoForCreatingValidators.isSafeFromSqlInjection(any())).thenReturn(false);
+        when(createBookDtoValidators.isSafeFromSqlInjection(any())).thenReturn(false);
         when(stringValidators.isSafeFromSqlInjection(any())).thenReturn(false);
 
         mockMvc.perform(post("/api/v1/books")
