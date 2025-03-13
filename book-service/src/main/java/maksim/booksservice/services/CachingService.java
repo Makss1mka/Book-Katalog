@@ -12,7 +12,7 @@ import java.util.*;
 public class CachingService {
     private static final Logger logger = LoggerFactory.getLogger(CachingService.class);
 
-    private final int STORAGE_MAX_SIZE = 10;
+    private static final int storageMaxSize = 10;
 
     private final Map<String, CacheObject<List<BookDto>>> storage = new HashMap<>();
 
@@ -31,8 +31,6 @@ public class CachingService {
     }
 
     public boolean contains(String url) {
-        //logger.trace("CachingService method: checkAndGetFromCache");
-
         if (!storage.containsKey(url)) return false;
 
         if (new Date(storage.get(url).getCreationDate().getTime() + storage.get(url).getExpirationTime()).before(new Date())) {
@@ -45,7 +43,7 @@ public class CachingService {
     }
 
     public void addToCache(String url, List<BookDto> dtos, long expirationTime) {
-        if (storageSize >= STORAGE_MAX_SIZE) {
+        if (storageSize >= storageMaxSize) {
             String deletedUrl = history.removeFirst();
             storage.remove(deletedUrl);
         } else {

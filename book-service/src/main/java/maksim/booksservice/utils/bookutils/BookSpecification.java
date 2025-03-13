@@ -24,7 +24,7 @@ public class BookSpecification implements Specification<Book> {
         List<Predicate> predicates = new ArrayList<>();
 
         if (criteria.getJoinModeForAuthor() == JoinMode.WITH) {
-            Join<Book, User> joinAuthor = root.join("author", JoinType.INNER);
+            root.join("author", JoinType.INNER);
         }
 
         if (criteria.getName() != null) {

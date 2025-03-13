@@ -96,8 +96,6 @@ class BookControllerTest {
     void testGet() throws Exception {
         List<BookDto> books = Arrays.asList(new BookDto(), new BookDto(), new BookDto());
 
-        Map<String, String> params = new HashMap<>();
-
         when(cachingService.contains(any(String.class))).thenReturn(false);
         doNothing().when(cachingService).addToCache(any(String.class), any(), anyInt());
 

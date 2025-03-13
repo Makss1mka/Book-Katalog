@@ -71,9 +71,7 @@ public class ReviewService {
 
         List<ReviewDto> reviews = new ArrayList<>(reviewsEntities.size());
 
-        reviewsEntities.forEach(review -> {
-            reviews.add(new ReviewDto(review, mode));
-        });
+        reviewsEntities.forEach(review -> reviews.add(new ReviewDto(review, mode)));
 
         logger.trace("Method return: getAllByBookOrUserId | found {} items", reviews.size());
 

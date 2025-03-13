@@ -102,7 +102,7 @@ class BookServiceTest {
     void testGetFile_BookNotFound() {
         when(bookRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.getFile(1));
+        assertThrows(NotFoundException.class, () -> bookService.getFile(1));
 
         verify(bookRepository, times(1)).findById(anyInt());
     }

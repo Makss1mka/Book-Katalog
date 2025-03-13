@@ -131,10 +131,6 @@ class ReviewServiceTest {
         assertEquals(1, review.getLikes());
         assertEquals(1, review.getLikedUsers().size());
 
-//        reviewService.addLike(createLikeDto);
-//        assertEquals(1, review.getLikes());
-//        assertEquals(1, review.getLikedUsers().size());
-
         verify(reviewRepository, times(1)).findById(any());
         verify(userRepository, times(1)).findById(any());
         verify(reviewRepository, times(1)).save(review);

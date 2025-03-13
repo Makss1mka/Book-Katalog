@@ -56,6 +56,15 @@ public class BookService {
         this.cachingService = cachingService;
     }
 
+    private void saveOrThrow(Book book) {
+        try {
+            bookRepository.save(book);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException("Your review contains conflicted data");
+        }
+    }
+
+
     public BookDto getById(int id, JoinMode joinMode) {
         logger.trace("BookService method entrance: getById | Params: id {} ; join mode {}", id, joinMode);
 
@@ -73,13 +82,18 @@ public class BookService {
         List<Map<String, String>> statuses = null;
 
         if (joinMode == JoinMode.WITH) {
+            final String statusName =  "status_name";
+            final String count = "count";
+
             statuses = Arrays.asList(
-                new HashMap<>(Map.of("status_name", BookStatus.READ.toString(), "count", "0")),
-                new HashMap<>(Map.of("status_name", BookStatus.READING.toString(), "count", "0")),
-                new HashMap<>(Map.of("status_name", BookStatus.DROP.toString(), "count", "0"))
+                new HashMap<>(Map.of(statusName, BookStatus.READ.toString(), count, "0")),
+                new HashMap<>(Map.of(statusName, BookStatus.READING.toString(), count, "0")),
+                new HashMap<>(Map.of(statusName, BookStatus.DROP.toString(), count, "0"))
             );
 
-            int readCounter = 0, readingCounter = 0, dropCounter = 0;
+            int readCounter = 0;
+            int readingCounter = 0;
+            int dropCounter = 0;
 
             for (BookStatusLog log : book.get().getStatusesLogs()) {
                 switch (BookStatus.fromValue(log.getStatus())) {
@@ -89,9 +103,9 @@ public class BookService {
                 }
             }
 
-            statuses.get(0).put("count", String.valueOf(readCounter));
-            statuses.get(1).put("count", String.valueOf(readingCounter));
-            statuses.get(2).put("count", String.valueOf(dropCounter));
+            statuses.get(0).put(count, String.valueOf(readCounter));
+            statuses.get(1).put(count, String.valueOf(readingCounter));
+            statuses.get(2).put(count, String.valueOf(dropCounter));
         }
 
         logger.trace("BookService return: getAllBooks | Result is found");
@@ -108,29 +122,36 @@ public class BookService {
         final List<BookDto> books = new ArrayList<>(booksEntities.size());
 
         if (criteria.getJoinModeForStatuses() == JoinMode.WITH) {
+            final String statusName =  "status_name";
+            final String minDate = "min_date";
+            final String maxDate = "max_date";
+            final String count = "count";
+
             final List<Map<String, String>> statuses = Arrays.asList(
                 new HashMap<>(Map.of(
-                    "status_name", BookStatus.READ.toString(),
-                    "min_date", criteria.getStatusMinDate().toString(),
-                    "max_date", criteria.getStatusMaxDate().toString(),
-                    "count", ""
+                    statusName, BookStatus.READ.toString(),
+                    minDate, criteria.getStatusMinDate().toString(),
+                    maxDate, criteria.getStatusMaxDate().toString(),
+                    count, ""
                 )),
                 new HashMap<>(Map.of(
-                    "status_name", BookStatus.READING.toString(),
-                    "min_date", criteria.getStatusMinDate().toString(),
-                    "max_date", criteria.getStatusMaxDate().toString(),
-                    "count", ""
+                    statusName, BookStatus.READING.toString(),
+                    minDate, criteria.getStatusMinDate().toString(),
+                    maxDate, criteria.getStatusMaxDate().toString(),
+                    count, ""
                 )),
                 new HashMap<>(Map.of(
-                    "status_name", BookStatus.DROP.toString(),
-                    "min_date", criteria.getStatusMinDate().toString(),
-                    "max_date", criteria.getStatusMaxDate().toString(),
-                    "count", ""
+                    statusName, BookStatus.DROP.toString(),
+                    minDate, criteria.getStatusMinDate().toString(),
+                    maxDate, criteria.getStatusMaxDate().toString(),
+                    count, ""
                 ))
             );
 
             booksEntities.forEach(book -> {
-                int readCounter = 0, readingCounter = 0, dropCounter = 0;
+                int readCounter = 0;
+                int readingCounter = 0;
+                int dropCounter = 0;
 
                 for (BookStatusLog log : book.getStatusesLogs()) {
                     switch (BookStatus.fromValue(log.getStatus())) {
@@ -140,9 +161,9 @@ public class BookService {
                     }
                 }
 
-                statuses.get(0).put("count", String.valueOf(readCounter));
-                statuses.get(1).put("count", String.valueOf(readingCounter));
-                statuses.get(2).put("count", String.valueOf(dropCounter));
+                statuses.get(0).put(count, String.valueOf(readCounter));
+                statuses.get(1).put(count, String.valueOf(readingCounter));
+                statuses.get(2).put(count, String.valueOf(dropCounter));
 
                 books.add(new BookDto(book, criteria.getJoinModeForAuthor(), new ArrayList<>(statuses)));
             });
@@ -190,11 +211,7 @@ public class BookService {
         book.setIssuedDate(new Date());
         book.setGenres(bookData.getGenres());
 
-        try {
-            bookRepository.save(book);
-        } catch (DataIntegrityViolationException ex) {
-            throw new ConflictException("Your review contains conflicted data");
-        }
+        saveOrThrow(book);
 
         logger.trace("BookService method end: addBookMetaData | Book metadata was created successfully");
 
@@ -245,11 +262,7 @@ public class BookService {
 
                 book.get().setFilePath(bookId + "." + fileExtension);
 
-                try {
-                    bookRepository.save(book.get());
-                } catch (DataIntegrityViolationException ex) {
-                    throw new ConflictException("Your review contains conflicted data");
-                }
+                saveOrThrow(book.get());
             }
         } catch (IOException e) {
             if (targetFile != null && targetFile.exists()) {
@@ -318,13 +331,8 @@ public class BookService {
         }
 
         if (isSmthChanged) {
-            try {
-                bookRepository.save(book.get());
-
-                cachingService.updateBook(bookId, new BookDto(book.get(), null, null));
-            } catch (DataIntegrityViolationException ex) {
-                throw new ConflictException("Your review contains conflicted data");
-            }
+            saveOrThrow(book.get());
+            cachingService.updateBook(bookId, new BookDto(book.get(), null, null));
         }
 
         logger.trace("BookService method return: updateBook");
