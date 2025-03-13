@@ -38,6 +38,15 @@ public class ReviewService {
         this.userRepository = userRepository;
     }
 
+    private void saveOrThrow(Review review) {
+        try {
+            reviewRepository.save(review);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException("Your review contains conflicted data");
+        }
+    }
+
+
     public ReviewDto getById(int reviewId, JoinMode mode) {
         logger.trace("Method enter: findByUd | Params: review id {} ; mode {}", reviewId, mode);
 
@@ -93,11 +102,7 @@ public class ReviewService {
         newReview.setText(reviewData.getText());
         newReview.setRating(reviewData.getRating());
 
-        try {
-            reviewRepository.save(newReview);
-        } catch (DataIntegrityViolationException ex) {
-            throw new ConflictException("Your review contains conflicted data");
-        }
+        saveOrThrow(newReview);
 
         logger.trace("Method return: addReview | Result: review add successfully");
 
@@ -127,11 +132,7 @@ public class ReviewService {
                     review.get().getLikes() + 1
                 );
 
-            try {
-                reviewRepository.save(review.get());
-            } catch (DataIntegrityViolationException ex) {
-                throw new ConflictException("Your review contains conflicted data");
-            }
+            saveOrThrow(review.get());
         } else {
             throw new ConflictException("Cannot add like");
         }
@@ -209,11 +210,7 @@ public class ReviewService {
         }
 
         if (reviewData.getRating() != null || (reviewData.getText() != null && !reviewData.getText().isEmpty())) {
-            try {
-                reviewRepository.save(review.get());
-            } catch (DataIntegrityViolationException ex) {
-                throw new ConflictException("Your review contains conflicted data");
-            }
+            saveOrThrow(review.get());
         }
 
         logger.trace("Method return: updateReview | Result: method was successfully updated ; touched fields {}",

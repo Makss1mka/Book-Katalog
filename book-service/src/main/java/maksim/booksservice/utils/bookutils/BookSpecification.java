@@ -23,8 +23,10 @@ public class BookSpecification implements Specification<Book> {
     public Predicate toPredicate(Root<Book> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
         List<Predicate> predicates = new ArrayList<>();
 
+        String author = "author";
+
         if (criteria.getJoinModeForAuthor() == JoinMode.WITH) {
-            root.join("author", JoinType.INNER);
+            root.join(author, JoinType.INNER);
         }
 
         if (criteria.getName() != null) {
@@ -32,11 +34,11 @@ public class BookSpecification implements Specification<Book> {
         }
 
         if (criteria.getAuthorId() != null) {
-            predicates.add(builder.equal(root.get("author").get("id"), criteria.getAuthorId()));
+            predicates.add(builder.equal(root.get(author).get("id"), criteria.getAuthorId()));
         }
 
         if (criteria.getAuthorName() != null) {
-            predicates.add(builder.like(root.get("author").get("name"), "%" + criteria.getAuthorName() + "%"));
+            predicates.add(builder.like(root.get(author).get("name"), "%" + criteria.getAuthorName() + "%"));
         }
 
         if (criteria.getGenres() != null && !criteria.getGenres().isEmpty()) {

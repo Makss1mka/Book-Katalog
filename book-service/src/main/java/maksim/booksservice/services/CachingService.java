@@ -5,7 +5,6 @@ import maksim.booksservice.utils.CacheObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
@@ -13,7 +12,7 @@ import java.util.*;
 public class CachingService {
     private static final Logger logger = LoggerFactory.getLogger(CachingService.class);
 
-    private static final int storageMaxSize = 10;
+    private static final int STORAGE_MAX_SIZE = 10;
 
     private final Map<String, CacheObject<List<BookDto>>> storage = new HashMap<>();
 
@@ -44,7 +43,7 @@ public class CachingService {
     }
 
     public void addToCache(String url, List<BookDto> dtos, long expirationTime) {
-        if (storageSize >= storageMaxSize) {
+        if (storageSize >= STORAGE_MAX_SIZE) {
             String deletedUrl = history.removeFirst();
             storage.remove(deletedUrl);
         } else {
