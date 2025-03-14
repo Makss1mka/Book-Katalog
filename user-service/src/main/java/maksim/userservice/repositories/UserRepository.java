@@ -23,8 +23,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             + "JOIN u.bookStatuses s "
             + "JOIN s.book b "
             + "WHERE (s.status = :status) "
-            + "OR (s.like = true AND (:status = 'liked')) "
-            + "OR :status = 'any' "
+            + "OR (s.like = true AND (:status = 'LIKED')) "
+            + "OR :status = 'ANY' "
             + "AND u.id = :userId")
     List<Book> findAllBooksByUserStatus(@Param("userId") int userId, @Param("status") String status, Pageable pageable);
 

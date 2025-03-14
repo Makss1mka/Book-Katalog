@@ -1,8 +1,8 @@
 package maksim.userservice.services;
 
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
+import maksim.userservice.exceptions.BadRequestException;
+import maksim.userservice.exceptions.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +54,7 @@ public class UserService {
         logger.trace("UserService method entrance: getUserEntityById | Params: user id {} ; join mode {}", userId, mode);
 
         Optional<User> user = switch (mode) {
-            case WITH_STATUSES_AND_BOOKS -> userRepository.findByIdWithJoinStatusesAndBooks(userId);
-            case WITH_STATUSES -> userRepository.findByIdWithJoinStatuses(userId);
+            case WITH_STATUSES_AND_BOOKS, WITH_STATUSES -> userRepository.findByIdWithJoinStatusesAndBooks(userId);
             case WITHOUT -> userRepository.findById(userId);
         };
 
@@ -81,7 +80,7 @@ public class UserService {
     public List<BookDto> getAllBooksByUserStatus(int userId, BookStatus status, Pageable pageable) {
         logger.trace("UserService method entrance: getAllReadingBooks | Params: user id {}", userId);
 
-        List<Book> books = userRepository.findAllBooksByUserStatus(userId, status.getValue(), pageable);
+        List<Book> books = userRepository.findAllBooksByUserStatus(userId, status.toString(), pageable);
 
         logger.trace("UserService method end: getAllReadingBooks | Is found {} books", books.size());
 

@@ -1,8 +1,8 @@
 package maksim.userservice.config;
 
 import jakarta.validation.ConstraintViolationException;
-import jakarta.ws.rs.BadRequestException;
-import javassist.NotFoundException;
+import maksim.userservice.exceptions.BadRequestException;
+import maksim.userservice.exceptions.NotFoundException;
 import maksim.userservice.exceptions.ConflictException;
 import maksim.userservice.exceptions.NoContentException;
 import org.slf4j.Logger;

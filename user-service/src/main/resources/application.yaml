@@ -3,9 +3,9 @@ spring:
     name: user-service
     users-profiles-directory: "app/statics/"
   services:
-    book-service-url: "http://localhost:8084"
+    book-service-url: "http://book-service:8084"
   datasource:
-    url: "jdbc:postgresql://localhost:5432/postgres"          # host.docker.internal
+    url: "jdbc:postgresql://192.168.196.213:5432/postgres"
     username: "postgres"
     password: ${PASSWORD}
   jpa:
@@ -22,4 +22,4 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: "http://localhost:8081/eureka"
+      defaultZone: "http://eureka-server:8081/eureka"

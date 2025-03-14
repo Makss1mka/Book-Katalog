@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.NoArgsConstructor;
 import maksim.userservice.models.entities.User;
 import maksim.userservice.utils.enums.JoinMode;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@NoArgsConstructor
 public class UserDto {
     private Integer id = null;
     private String name = null;
@@ -27,7 +28,7 @@ public class UserDto {
         this.profilePicPath = user.getProfilePicPath();
         this.email = user.getEmail();
 
-        if (mode == JoinMode.WITH_STATUSES) {
+        if (mode == JoinMode.WITH_STATUSES || mode == JoinMode.WITH_STATUSES_AND_BOOKS) {
             this.bookStatuses = new ArrayList<>(user.getBookStatuses().size());
 
             user.getBookStatuses().forEach(bookStatuses -> {
@@ -36,5 +37,4 @@ public class UserDto {
         }
     }
 
-    public UserDto() {}
 }

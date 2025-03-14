@@ -3,7 +3,7 @@ spring:
     name: auth-service
     secret: secret
   datasource:
-    url: "jdbc:postgresql://host.docker.internal:5432/postgres"
+    url: "jdbc:postgresql://192.168.196.213:5432/postgres"
     username: "postgres"
     password: ${password}
   jpa:

@@ -16,13 +16,13 @@ spring:
     name: book-service
     book-files-directory: "app/statics/"
   datasource:
-    url: "jdbc:postgresql://host.docker.internal:5432/postgres"
+    url: "jdbc:postgresql://192.168.196.213:5432/postgres"       # host.docker.internal
     username: "postgres"
     password: ${PASSWORD}
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -30,12 +30,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
-
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 
 server:

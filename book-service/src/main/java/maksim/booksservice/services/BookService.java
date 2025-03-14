@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.exceptions.ConflictException;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -119,6 +121,7 @@ public class BookService {
         BookSpecification spec = new BookSpecification(criteria);
 
         List<Book> booksEntities = bookRepository.findAll(spec, pageable).toList();
+
         final List<BookDto> books = new ArrayList<>(booksEntities.size());
 
         if (criteria.getJoinModeForStatuses() == JoinMode.WITH) {

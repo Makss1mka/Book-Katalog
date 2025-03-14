@@ -27,6 +27,10 @@ public class CachingService {
     }
 
     public List<BookDto> getFromCache(String url) {
+        storage.get(url).setCreationDate(new Date());
+
+        logger.trace("Get values from cache");
+
         return storage.get(url).getValue();
     }
 
@@ -96,7 +100,7 @@ public class CachingService {
         logger.info("--------------------------------------------------------");
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 40000)
     public void checkAndDeleteInvalidCaches() {
         logger.trace("CachingService method: checkAndDeleteInvalidCaches | STARTING CLEANING");
 

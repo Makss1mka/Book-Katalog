@@ -1,12 +1,9 @@
 package maksim.userservice.controllers;
 
 import jakarta.validation.Valid;
-import jakarta.ws.rs.BadRequestException;
+import maksim.userservice.exceptions.BadRequestException;
 import java.util.List;
-
 import maksim.userservice.models.dtos.*;
-import maksim.userservice.models.entities.Book;
-import maksim.userservice.models.entities.User;
 import maksim.userservice.services.UserService;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
@@ -53,7 +50,7 @@ public class UserController {
     @GetMapping("/{userId}/books")
     public ResponseEntity<List<BookDto>> getAllBooksByUserStatus(
         @PathVariable(name = "userId") int userId,
-        @RequestParam(name = "status") String strStatus,
+        @RequestParam(name = "status", required = false, defaultValue = "any") String strStatus,
         @RequestParam(name = "pageNum", required = false, defaultValue = "0") int pageNum,
         @RequestParam(name = "pageSize", required = false, defaultValue = "20") int pageSize
     ) {
