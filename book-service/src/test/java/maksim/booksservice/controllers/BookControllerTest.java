@@ -10,10 +10,7 @@ import maksim.booksservice.services.BookService;
 import maksim.booksservice.services.CachingService;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.JoinMode;
-import maksim.booksservice.utils.validators.CreateBookDtoValidators;
-import maksim.booksservice.utils.validators.BookSearchCriteriaValidators;
-import maksim.booksservice.utils.validators.FileValidators;
-import maksim.booksservice.utils.validators.StringValidators;
+import maksim.booksservice.utils.validators.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -46,19 +43,22 @@ class BookControllerTest {
     private BookService bookService;
 
     @Mock
-    private CreateBookDtoValidators createBookDtoValidators;
+    private CreateBookDtoValidator createBookDtoValidator;
 
     @Mock
-    private FileValidators fileValidators;
+    private FileValidator fileValidator;
 
     @Mock
-    private StringValidators stringValidators;
+    private StringValidator stringValidator;
 
     @Mock
-    private BookSearchCriteriaValidators bookSearchCriteriaValidators;
+    private BookSearchCriteriaValidator bookSearchCriteriaValidator;
 
     @Mock
     private CachingService cachingService;
+
+    @Mock
+    private QueryParamsValidator queryParamsValidator;
 
     @InjectMocks
     private BookController bookController;
@@ -98,8 +98,9 @@ class BookControllerTest {
 
         when(cachingService.contains(any(String.class))).thenReturn(false);
         doNothing().when(cachingService).addToCache(any(String.class), any(), anyInt());
+        doNothing().when(queryParamsValidator).queryAsMapValidating(any(Map.class));
 
-        when(bookSearchCriteriaValidators.isSafeFromSqlInjection(any(BookSearchCriteria.class))).thenReturn(true);
+        when(bookSearchCriteriaValidator.isSafeFromSqlInjection(any(BookSearchCriteria.class))).thenReturn(true);
         when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(books);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/books"))
@@ -141,7 +142,7 @@ class BookControllerTest {
 
     @Test
     void testAddBookMetaData_Success() throws Exception {
-        when(createBookDtoValidators.isSafeFromSqlInjection(any())).thenReturn(true);
+        when(createBookDtoValidator.isSafeFromSqlInjection(any())).thenReturn(true);
 
         mockMvc.perform(post("/api/v1/books")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -153,8 +154,8 @@ class BookControllerTest {
 
     @Test
     void testAddBookMetaData_InvalidData() throws Exception {
-        when(createBookDtoValidators.isSafeFromSqlInjection(any())).thenReturn(false);
-        when(stringValidators.isSafeFromSqlInjection(any())).thenReturn(false);
+        when(createBookDtoValidator.isSafeFromSqlInjection(any())).thenReturn(false);
+        when(stringValidator.isSafeFromSqlInjection(any())).thenReturn(false);
 
         mockMvc.perform(post("/api/v1/books")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -168,7 +169,7 @@ class BookControllerTest {
 
     @Test
     void testAddBookFile_Success() throws Exception {
-        when(fileValidators.isValid(any())).thenReturn(true);
+        when(fileValidator.isValid(any())).thenReturn(true);
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -188,7 +189,7 @@ class BookControllerTest {
 
     @Test
     void testAddBookFile_InvalidFile() throws Exception {
-        when(fileValidators.isValid(any())).thenReturn(false);
+        when(fileValidator.isValid(any())).thenReturn(false);
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",

@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 @Component
-public class FileValidators {
+public class FileValidator {
     private final AppConfig appConfig;
     private static final String[] DANGEROUS_PATTERNS = {"../", "./", "'", "\"", ";", "--", "/*", "*/", "xp_", "exec"};
 
     @Autowired
-    FileValidators(AppConfig appConfig) {
+    FileValidator(AppConfig appConfig) {
         this.appConfig = appConfig;
     }
 

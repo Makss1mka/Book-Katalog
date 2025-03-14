@@ -1,34 +1,33 @@
 package maksim.booksservice.utils.validators;
 
-import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.dtos.UpdateBookDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UpdateBookDtoValidators {
-    private final StringValidators stringValidators;
+public class UpdateBookDtoValidator {
+    private final StringValidator stringValidator;
 
     @Autowired
-    public UpdateBookDtoValidators(StringValidators stringValidators) {
-        this.stringValidators = stringValidators;
+    public UpdateBookDtoValidator(StringValidator stringValidator) {
+        this.stringValidator = stringValidator;
     }
 
     public UpdateBookDto screenStringValue(UpdateBookDto bookData) {
-        bookData.setName(stringValidators.textScreening(bookData.getName()));
+        bookData.setName(stringValidator.textScreening(bookData.getName()));
 
-        bookData.getGenres().replaceAll(stringValidators::textScreening);
+        bookData.getGenres().replaceAll(stringValidator::textScreening);
 
         return bookData;
     }
 
     public boolean isSafeFromSqlInjection(UpdateBookDto bookData) {
-        if (!stringValidators.isSafeFromSqlInjection(bookData.getName())) {
+        if (!stringValidator.isSafeFromSqlInjection(bookData.getName())) {
             return false;
         }
 
         for (String genre : bookData.getGenres()) {
-            if (!stringValidators.isSafeFromSqlInjection(genre)) {
+            if (!stringValidator.isSafeFromSqlInjection(genre)) {
                 return false;
             }
         }

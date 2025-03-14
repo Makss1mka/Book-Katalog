@@ -7,24 +7,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BookSearchCriteriaValidators {
-    private final StringValidators stringValidators;
+public class BookSearchCriteriaValidator {
+    private final StringValidator stringValidator;
 
     @Autowired
-    public BookSearchCriteriaValidators(StringValidators stringValidators) {
-        this.stringValidators = stringValidators;
+    public BookSearchCriteriaValidator(StringValidator stringValidator) {
+        this.stringValidator = stringValidator;
     }
 
     public BookSearchCriteria screenStringValues(BookSearchCriteria criteria) {
         if (criteria.getName() != null) {
             criteria.setName(
-                stringValidators.textScreening(criteria.getName())
+                stringValidator.textScreening(criteria.getName())
             );
         }
 
         if (criteria.getAuthorName() != null) {
             criteria.setAuthorName(
-                stringValidators.textScreening(criteria.getAuthorName())
+                stringValidator.textScreening(criteria.getAuthorName())
             );
         }
 
@@ -32,7 +32,7 @@ public class BookSearchCriteriaValidators {
             List<String> screenedGenres = new ArrayList<>(criteria.getGenres().size());
 
             for (int i = 0; i < criteria.getGenres().size(); i++) {
-                screenedGenres.add(stringValidators.textScreening(criteria.getGenres().get(i)));
+                screenedGenres.add(stringValidator.textScreening(criteria.getGenres().get(i)));
             }
 
             criteria.setGenres(screenedGenres);
@@ -42,17 +42,17 @@ public class BookSearchCriteriaValidators {
     }
 
     public boolean isSafeFromSqlInjection(BookSearchCriteria criteria) {
-        if (criteria.getName() != null && !stringValidators.isSafeFromSqlInjection(criteria.getName())) {
+        if (criteria.getName() != null && !stringValidator.isSafeFromSqlInjection(criteria.getName())) {
             return false;
         }
 
-        if (criteria.getAuthorName() != null && !stringValidators.isSafeFromSqlInjection(criteria.getAuthorName())) {
+        if (criteria.getAuthorName() != null && !stringValidator.isSafeFromSqlInjection(criteria.getAuthorName())) {
             return  false;
         }
 
         if (criteria.getGenres() != null) {
             for (String genre : criteria.getGenres()) {
-                if (!stringValidators.isSafeFromSqlInjection(genre)) {
+                if (!stringValidator.isSafeFromSqlInjection(genre)) {
                     return false;
                 }
             }

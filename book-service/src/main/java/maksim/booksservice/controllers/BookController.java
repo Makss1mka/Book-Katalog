@@ -39,30 +39,33 @@ public class BookController {
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     private final BookService bookService;
-    private final FileValidators fileValidators;
-    private final StringValidators stringValidators;
-    private final CreateBookDtoValidators createBookDtoValidators;
-    private final UpdateBookDtoValidators updateBookDtoValidators;
-    private final BookSearchCriteriaValidators bookSearchCriteriaValidators;
+    private final FileValidator fileValidator;
+    private final StringValidator stringValidator;
+    private final CreateBookDtoValidator createBookDtoValidator;
+    private final UpdateBookDtoValidator updateBookDtoValidator;
+    private final BookSearchCriteriaValidator bookSearchCriteriaValidator;
     private final CachingService cachingService;
+    private final QueryParamsValidator queryParamsValidator;
 
     @Autowired
     public BookController(
             BookService bookService,
-            FileValidators fileValidator,
-            StringValidators stringValidators,
-            CreateBookDtoValidators createBookDtoValidators,
-            UpdateBookDtoValidators updateBookDtoValidators,
-            BookSearchCriteriaValidators bookSearchCriteriaValidators,
-            CachingService cachingService
+            FileValidator fileValidator,
+            StringValidator stringValidator,
+            CreateBookDtoValidator createBookDtoValidator,
+            UpdateBookDtoValidator updateBookDtoValidator,
+            BookSearchCriteriaValidator bookSearchCriteriaValidator,
+            CachingService cachingService,
+            QueryParamsValidator queryParamsValidator
     ) {
         this.bookService = bookService;
-        this.fileValidators = fileValidator;
-        this.stringValidators = stringValidators;
-        this.createBookDtoValidators = createBookDtoValidators;
-        this.updateBookDtoValidators = updateBookDtoValidators;
-        this.bookSearchCriteriaValidators = bookSearchCriteriaValidators;
+        this.fileValidator = fileValidator;
+        this.stringValidator = stringValidator;
+        this.createBookDtoValidator = createBookDtoValidator;
+        this.updateBookDtoValidator = updateBookDtoValidator;
+        this.bookSearchCriteriaValidator = bookSearchCriteriaValidator;
         this.cachingService = cachingService;
+        this.queryParamsValidator = queryParamsValidator;
     }
 
     @GetMapping
@@ -97,6 +100,8 @@ public class BookController {
 
         logger.trace("BookController method entrance: getAllBooks");
 
+        queryParamsValidator.queryAsMapValidating(params);
+
         String url = request.getMethod() + request.getRequestURL().toString();
         String queryString = request.getQueryString();
         if (queryString != null) {
@@ -110,8 +115,8 @@ public class BookController {
         Pageable pageable = Pagination.getPageable(params);
         BookSearchCriteria criteria = new BookSearchCriteria(params);
 
-        bookSearchCriteriaValidators.screenStringValues(criteria);
-        if (!bookSearchCriteriaValidators.isSafeFromSqlInjection(criteria)) {
+        bookSearchCriteriaValidator.screenStringValues(criteria);
+        if (!bookSearchCriteriaValidator.isSafeFromSqlInjection(criteria)) {
             throw new BadRequestException("Unsecured input params");
         }
 
@@ -172,10 +177,10 @@ public class BookController {
     public ResponseEntity<BookDto> addBookMetaData(@Valid @RequestBody CreateBookDto bookData) {
         logger.trace("BookController method entrance: addBookMetaData");
 
-        createBookDtoValidators.screenStringValue(bookData);
-        if (!createBookDtoValidators.isSafeFromSqlInjection(bookData)) {
+        createBookDtoValidator.screenStringValue(bookData);
+        if (!createBookDtoValidator.isSafeFromSqlInjection(bookData)) {
             throw new BadRequestException(
-                String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
+                String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidator.getDangerousPatterns())
             );
         }
 
@@ -190,7 +195,7 @@ public class BookController {
     public ResponseEntity<String> addBookFile(@PathVariable int id, @RequestBody MultipartFile file) {
         logger.trace("BookController method entrance: addBookFile | Params: id {}", id);
 
-        boolean isValid = fileValidators.isValid(file);
+        boolean isValid = fileValidator.isValid(file);
 
         if (!isValid) {
             throw new BadRequestException("Error: book file is not valid. File support extensions: pdf, txt, md. FIle should be less than 2mb");
@@ -225,10 +230,10 @@ public class BookController {
     ) {
         logger.trace("BookController method entrance: updateBook");
 
-        updateBookDtoValidators.screenStringValue(bookData);
-        if (!updateBookDtoValidators.isSafeFromSqlInjection(bookData)) {
+        updateBookDtoValidator.screenStringValue(bookData);
+        if (!updateBookDtoValidator.isSafeFromSqlInjection(bookData)) {
             throw new BadRequestException(
-                String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidators.getDangerousPatterns())
+                String.format("Error: book data contains not valid chars. Invalid chars: %s", stringValidator.getDangerousPatterns())
             );
         }
 

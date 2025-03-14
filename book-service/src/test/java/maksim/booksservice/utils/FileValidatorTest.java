@@ -2,7 +2,7 @@ package maksim.booksservice.utils;
 
 import jakarta.ws.rs.BadRequestException;
 import maksim.booksservice.config.AppConfig;
-import maksim.booksservice.utils.validators.FileValidators;
+import maksim.booksservice.utils.validators.FileValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,12 +14,12 @@ import org.springframework.web.multipart.MultipartFile;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-class FileValidatorsTest {
+class FileValidatorTest {
     @Mock
     private AppConfig appConfig;
 
     @InjectMocks
-    private FileValidators fileValidators;
+    private FileValidator fileValidator;
 
     @BeforeEach
     void setUp() {
@@ -29,13 +29,13 @@ class FileValidatorsTest {
     @Test
     void isNameAllowed_ValidName_ReturnsTrue() {
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", "content".getBytes());
-        assertTrue(fileValidators.isNameAllowed(file));
+        assertTrue(fileValidator.isNameAllowed(file));
     }
 
     @Test
     void isNameAllowed_InvalidName_ReturnsFalse() {
         MultipartFile file = new MockMultipartFile("test../.txt", "test../.txt", "text/plain", "content".getBytes());
-        assertFalse(fileValidators.isNameAllowed(file));
+        assertFalse(fileValidator.isNameAllowed(file));
     }
 
 
@@ -43,14 +43,14 @@ class FileValidatorsTest {
     void isPathAllowed_ValidPath_ReturnsTrue() {
         when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path/");
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", "content".getBytes());
-        assertTrue(fileValidators.isPathAllowed(file));
+        assertTrue(fileValidator.isPathAllowed(file));
     }
 
     @Test
     void isPathAllowed_InvalidPath_ReturnsFalse() {
         when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path");
         MultipartFile file = new MockMultipartFile("test.txt", "../../test.txt", "text/plain", "content".getBytes());
-        assertFalse(fileValidators.isPathAllowed(file));
+        assertFalse(fileValidator.isPathAllowed(file));
     }
 
 
@@ -58,13 +58,13 @@ class FileValidatorsTest {
     @Test
     void isNotEmpty_NonEmptyFile_ReturnsTrue() {
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", "content".getBytes());
-        assertTrue(fileValidators.isNotEmpty(file));
+        assertTrue(fileValidator.isNotEmpty(file));
     }
 
     @Test
     void isNotEmpty_EmptyFile_ReturnsFalse() {
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", new byte[0]);
-        assertFalse(fileValidators.isNotEmpty(file));
+        assertFalse(fileValidator.isNotEmpty(file));
     }
 
 
@@ -72,18 +72,18 @@ class FileValidatorsTest {
     @Test
     void isFileTypeAllowed_ValidType_ReturnsTrue() {
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", "content".getBytes());
-        assertTrue(fileValidators.isFileTypeAllowed(file));
+        assertTrue(fileValidator.isFileTypeAllowed(file));
     }
 
     @Test
     void isFileTypeAllowed_InvalidType_ReturnsFalse() {
         MultipartFile file = new MockMultipartFile("test.exe", "test.exe", "application/octet-stream", "content".getBytes());
-        assertFalse(fileValidators.isFileTypeAllowed(file));
+        assertFalse(fileValidator.isFileTypeAllowed(file));
     }
 
     @Test
     void isFileTypeAllowed_NullFile_ReturnsFalse() {
-        assertFalse(fileValidators.isFileTypeAllowed(null));
+        assertFalse(fileValidator.isFileTypeAllowed(null));
     }
 
 
@@ -91,19 +91,19 @@ class FileValidatorsTest {
     @Test
     void isFileExtensionAllowed_ValidExtension_ReturnsTrue() {
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", "content".getBytes());
-        assertTrue(fileValidators.isFileExtensionAllowed(file));
+        assertTrue(fileValidator.isFileExtensionAllowed(file));
     }
 
     @Test
     void isFileExtensionAllowed_InvalidExtension_ReturnsFalse() {
         MultipartFile file = new MockMultipartFile("test.exe", "test.exe", "application/octet-stream", "content".getBytes());
-        assertFalse(fileValidators.isFileExtensionAllowed(file));
+        assertFalse(fileValidator.isFileExtensionAllowed(file));
     }
 
     @Test
     void isFileExtensionAllowed_NoExtension_ThrowsException() {
         MultipartFile file = new MockMultipartFile("test", "test", "text/plain", "content".getBytes());
-        assertThrows(BadRequestException.class, () -> fileValidators.isFileExtensionAllowed(file));
+        assertThrows(BadRequestException.class, () -> fileValidator.isFileExtensionAllowed(file));
     }
 
 
@@ -111,18 +111,18 @@ class FileValidatorsTest {
     @Test
     void isFileSizeValid_ValidSize_ReturnsTrue() {
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", new byte[5 * 1024 * 1024]); // 5 MB
-        assertTrue(fileValidators.isFileSizeValid(file));
+        assertTrue(fileValidator.isFileSizeValid(file));
     }
 
     @Test
     void isFileSizeValid_InvalidSize_ReturnsFalse() {
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", new byte[15 * 1024 * 1024]); // 15 MB
-        assertFalse(fileValidators.isFileSizeValid(file));
+        assertFalse(fileValidator.isFileSizeValid(file));
     }
 
     @Test
     void isFileSizeValid_NullFile_ReturnsFalse() {
-        assertFalse(fileValidators.isFileSizeValid(null));
+        assertFalse(fileValidator.isFileSizeValid(null));
     }
 
 
@@ -131,13 +131,13 @@ class FileValidatorsTest {
     void isValid_ValidFile_ReturnsTrue() {
         when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path/");
         MultipartFile file = new MockMultipartFile("test.txt", "test.txt", "text/plain", "content".getBytes());
-        assertTrue(fileValidators.isValid(file));
+        assertTrue(fileValidator.isValid(file));
     }
 
     @Test
     void isValid_InvalidFile_ReturnsFalse() {
         when(appConfig.getBookFilesDirectory()).thenReturn("/allowed/path");
         MultipartFile file = new MockMultipartFile("test.exe", "test.exe", "application/octet-stream", new byte[15 * 1024 * 1024]);
-        assertFalse(fileValidators.isValid(file));
+        assertFalse(fileValidator.isValid(file));
     }
 }

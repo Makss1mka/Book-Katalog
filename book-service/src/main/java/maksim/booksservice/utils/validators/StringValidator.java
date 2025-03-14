@@ -4,7 +4,7 @@ import org.owasp.encoder.Encode;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StringValidators {
+public class StringValidator {
     private static final String[] DANGEROUS_PATTERNS = {"'", "\"", ";", "--", "/*", "*/", "xp_", "exec"};
 
     public String textScreening(String str) {

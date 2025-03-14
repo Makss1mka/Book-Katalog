@@ -5,29 +5,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateBookDtoValidators {
-    private final StringValidators stringValidators;
+public class CreateBookDtoValidator {
+    private final StringValidator stringValidator;
 
     @Autowired
-    public CreateBookDtoValidators(StringValidators stringValidators) {
-        this.stringValidators = stringValidators;
+    public CreateBookDtoValidator(StringValidator stringValidator) {
+        this.stringValidator = stringValidator;
     }
 
     public CreateBookDto screenStringValue(CreateBookDto bookData) {
-        bookData.setName(stringValidators.textScreening(bookData.getName()));
+        bookData.setName(stringValidator.textScreening(bookData.getName()));
 
-        bookData.getGenres().replaceAll(stringValidators::textScreening);
+        bookData.getGenres().replaceAll(stringValidator::textScreening);
 
         return bookData;
     }
 
     public boolean isSafeFromSqlInjection(CreateBookDto bookData) {
-        if (!stringValidators.isSafeFromSqlInjection(bookData.getName())) {
+        if (!stringValidator.isSafeFromSqlInjection(bookData.getName())) {
             return false;
         }
 
         for (String genre : bookData.getGenres()) {
-            if (!stringValidators.isSafeFromSqlInjection(genre)) {
+            if (!stringValidator.isSafeFromSqlInjection(genre)) {
                 return false;
             }
         }

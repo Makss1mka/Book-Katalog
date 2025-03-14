@@ -10,7 +10,7 @@ import maksim.booksservice.models.entities.User;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.UserRepository;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
-import maksim.booksservice.utils.validators.FileValidators;
+import maksim.booksservice.utils.validators.FileValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -39,7 +39,7 @@ class BookServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private FileValidators fileValidators;
+    private FileValidator fileValidator;
 
     @Mock
     private AppConfig appConfig;
@@ -140,7 +140,7 @@ class BookServiceTest {
 
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(appConfig.getBookFilesDirectory()).thenReturn("target/test-files/");
-        when(fileValidators.isPathAllowed(any())).thenReturn(true);
+        when(fileValidator.isPathAllowed(any())).thenReturn(true);
 
         bookService.addBookFile(file, bookId);
 

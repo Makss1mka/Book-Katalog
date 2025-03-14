@@ -13,9 +13,6 @@ import lombok.ToString;
 @Entity
 @Table(name = "users")
 public class User {
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private Set<Review> reviews = new HashSet<>();
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
