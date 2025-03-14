@@ -45,7 +45,6 @@ public class BookController {
     private final UpdateBookDtoValidator updateBookDtoValidator;
     private final BookSearchCriteriaValidator bookSearchCriteriaValidator;
     private final CachingService cachingService;
-    private final QueryParamsValidator queryParamsValidator;
 
     @Autowired
     public BookController(
@@ -55,8 +54,7 @@ public class BookController {
             CreateBookDtoValidator createBookDtoValidator,
             UpdateBookDtoValidator updateBookDtoValidator,
             BookSearchCriteriaValidator bookSearchCriteriaValidator,
-            CachingService cachingService,
-            QueryParamsValidator queryParamsValidator
+            CachingService cachingService
     ) {
         this.bookService = bookService;
         this.fileValidator = fileValidator;
@@ -65,7 +63,6 @@ public class BookController {
         this.updateBookDtoValidator = updateBookDtoValidator;
         this.bookSearchCriteriaValidator = bookSearchCriteriaValidator;
         this.cachingService = cachingService;
-        this.queryParamsValidator = queryParamsValidator;
     }
 
     @GetMapping
@@ -99,8 +96,6 @@ public class BookController {
         * */
 
         logger.trace("BookController method entrance: getAllBooks");
-
-        queryParamsValidator.queryAsMapValidating(params);
 
         String url = request.getMethod() + request.getRequestURL().toString();
         String queryString = request.getQueryString();
