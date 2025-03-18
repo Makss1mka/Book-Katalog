@@ -16,13 +16,13 @@ spring:
     name: book-service
     book-files-directory: "app/statics/"
   datasource:
-    url: "jdbc:postgresql://192.168.196.213:5432/postgres"       # host.docker.internal
+    url: "jdbc:postgresql://host.docker.internal:5432/postgres"       # host.docker.internal 192.168.163.213
     username: "postgres"
-    password: ${PASSWORD}
+    password: "postgres" # ${PASSWORD}
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
