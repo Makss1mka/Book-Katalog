@@ -86,13 +86,6 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>org.owasp.encoder</groupId>
-			<artifactId>encoder</artifactId>
-			<version>1.2.3</version>
-		</dependency>
-
-
 		<!-- SECURITY DEPS -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -233,6 +226,17 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+				<configuration>
+					<forkCount>1</forkCount>
+					<reuseForks>true</reuseForks>
+					<argLine>-Xmx1024m</argLine>
+				</configuration>
 			</plugin>
 
 			<plugin>
