@@ -11,6 +11,7 @@ FROM openjdk:23-slim
 VOLUME /tmp
 
 COPY ./statics /app/statics
+COPY ./logs /app/logs
 
 ARG DEPENDENCY=/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
