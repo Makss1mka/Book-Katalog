@@ -27,7 +27,7 @@ public class UserBookStatusesDto {
         if (mode == JoinMode.WITH_STATUSES) {
             this.bookId = statuses.getBook().getId();
         } else if (mode == JoinMode.WITH_STATUSES_AND_BOOKS) {
-            this.book = new BookDto(statuses.getBook());
+            this.book = new BookDto(statuses.getBook(), BookStatus.fromValue(status.getValue()));
         }
     }
 

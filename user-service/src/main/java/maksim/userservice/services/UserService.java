@@ -80,17 +80,19 @@ public class UserService {
     public List<BookDto> getAllBooksByUserStatus(int userId, BookStatus status, Pageable pageable) {
         logger.trace("UserService method entrance: getAllReadingBooks | Params: user id {}", userId);
 
-        List<Book> books = userRepository.findAllBooksByUserStatus(userId, status.toString(), pageable);
+        List<UserBookStatuses> statuses = userRepository.findAllBooksByUserStatus(userId, status.toString(), pageable);
+
+        List<BookDto> books = new ArrayList<>(statuses.size());
+
+        for (UserBookStatuses st : statuses) {
+            books.add(new BookDto(
+                st.getBook(), BookStatus.fromValue(st.getStatus())
+            ));
+        }
 
         logger.trace("UserService method end: getAllReadingBooks | Is found {} books", books.size());
 
-        List<BookDto> booksDtos = new ArrayList<>(books.size());
-
-        books.forEach(book -> {
-            booksDtos.add(new BookDto(book));
-        });
-
-        return booksDtos;
+        return books;
     }
 
 
