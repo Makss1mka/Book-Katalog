@@ -130,39 +130,44 @@ public class BookService {
             final String maxDate = "max_date";
             final String count = "count";
 
-            final List<Map<String, String>> statuses = Arrays.asList(
-                new HashMap<>(Map.of(
-                    statusName, BookStatus.READ.toString(),
-                    minDate, criteria.getStatusMinDate().toString(),
-                    maxDate, criteria.getStatusMaxDate().toString(),
-                    count, ""
-                )),
-                new HashMap<>(Map.of(
-                    statusName, BookStatus.READING.toString(),
-                    minDate, criteria.getStatusMinDate().toString(),
-                    maxDate, criteria.getStatusMaxDate().toString(),
-                    count, ""
-                )),
-                new HashMap<>(Map.of(
-                    statusName, BookStatus.DROP.toString(),
-                    minDate, criteria.getStatusMinDate().toString(),
-                    maxDate, criteria.getStatusMaxDate().toString(),
-                    count, ""
-                ))
-            );
-
             booksEntities.forEach(book -> {
                 int readCounter = 0;
                 int readingCounter = 0;
                 int dropCounter = 0;
 
                 for (BookStatusLog log : book.getStatusesLogs()) {
-                    switch (BookStatus.fromValue(log.getStatus())) {
-                        case READ -> readCounter++;
-                        case READING -> readingCounter++;
-                        case DROP -> dropCounter++;
+                    if (
+                        criteria.getStatusMinDate().before(log.getAddedDate())
+                        && criteria.getStatusMaxDate().after(log.getAddedDate())
+                    ) {
+                        switch (BookStatus.fromValue(log.getStatus())) {
+                            case READ -> readCounter++;
+                            case READING -> readingCounter++;
+                            case DROP -> dropCounter++;
+                        }
                     }
                 }
+
+                List<Map<String, String>> statuses = Arrays.asList(
+                    new HashMap<>(Map.of(
+                        statusName, BookStatus.READ.toString(),
+                        minDate, criteria.getStatusMinDate().toString(),
+                        maxDate, criteria.getStatusMaxDate().toString(),
+                        count, String.valueOf(readCounter)
+                    )),
+                    new HashMap<>(Map.of(
+                        statusName, BookStatus.READING.toString(),
+                        minDate, criteria.getStatusMinDate().toString(),
+                        maxDate, criteria.getStatusMaxDate().toString(),
+                        count, String.valueOf(readingCounter)
+                    )),
+                    new HashMap<>(Map.of(
+                        statusName, BookStatus.DROP.toString(),
+                        minDate, criteria.getStatusMinDate().toString(),
+                        maxDate, criteria.getStatusMaxDate().toString(),
+                        count, String.valueOf(dropCounter)
+                    ))
+                );
 
                 statuses.get(0).put(count, String.valueOf(readCounter));
                 statuses.get(1).put(count, String.valueOf(readingCounter));

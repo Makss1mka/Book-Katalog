@@ -29,7 +29,7 @@ public class CachingService {
     public List<BookDto> getFromCache(String url) {
         storage.get(url).setCreationDate(new Date());
 
-        logger.trace("Get values from cache");
+        logger.trace("Caching service method: getFromCache | Get values from cache");
 
         return storage.get(url).getValue();
     }
@@ -47,6 +47,8 @@ public class CachingService {
     }
 
     public void addToCache(String url, List<BookDto> dtos, long expirationTime) {
+        logger.trace("Caching service method: addToCache | Add value to cache");
+
         if (storageSize >= STORAGE_MAX_SIZE) {
             String deletedUrl = history.removeFirst();
             storage.remove(deletedUrl);
