@@ -91,7 +91,7 @@ public class CachingService {
         }
     }
 
-    @Scheduled(fixedRate = 20000)
+    @Scheduled(fixedRate = 40000)
     public void printStorage() {
         logger.info("---------CURRENT CACHE STORAGE STATE--------------------");
 
@@ -102,7 +102,7 @@ public class CachingService {
         logger.info("--------------------------------------------------------");
     }
 
-    @Scheduled(fixedRate = 40000)
+    @Scheduled(fixedRate = 60000)
     public void checkAndDeleteInvalidCaches() {
         logger.trace("CachingService method: checkAndDeleteInvalidCaches | STARTING CLEANING");
 
