@@ -1,6 +1,14 @@
 package maksim.booksservice.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.ws.rs.BadRequestException;
+import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.services.LogsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +39,48 @@ public class LogsController {
     }
 
     @GetMapping
+    @Operation(
+        summary = "Get all logs by some period",
+        description = "Get all logs by some inputted dates period"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Get logs",
+            content = @Content(
+                mediaType = "text/plain",
+                schema = @Schema(example = "Some log")
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad request (validation failed)",
+            content = @Content(
+                mediaType = "plain/text",
+                schema = @Schema(example = "Invalid date format")
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Server error",
+            content = @Content(
+                mediaType = "plain/text",
+                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+            )
+        )
+    })
     public ResponseEntity<InputStreamResource> getLogs(
-            @RequestParam(name = "minDate") String strMinDate,
-            @RequestParam(name = "maxDate") String strMaxDate
+        @Parameter(
+            description = "(type: String in format 'yyyy-MM-dd') - min date edge from which logs will be found",
+            required = false
+        )
+        @RequestParam(name = "minDate") String strMinDate,
+
+        @Parameter(
+            description = "(type: String in format 'yyyy-MM-dd') - max date edge till which logs will be found",
+            required = false
+        )
+        @RequestParam(name = "maxDate") String strMaxDate
     ) {
         logger.trace("LogsController method entrance: getLogs");
 
