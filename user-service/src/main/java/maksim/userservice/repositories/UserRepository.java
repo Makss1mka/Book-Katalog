@@ -23,9 +23,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT s FROM User u "
             + "JOIN u.bookStatuses s "
             + "JOIN FETCH s.book b "
-            + "WHERE (s.status = :status) "
+            + "WHERE ((s.status = :status) "
             + "OR (s.like = true AND (:status = 'LIKED')) "
-            + "OR :status = 'ANY' "
+            + "OR :status = 'ANY') "
             + "AND u.id = :userId")
     List<UserBookStatuses> findAllBooksByUserStatus(@Param("userId") int userId, @Param("status") String status, Pageable pageable);
 
