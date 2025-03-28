@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter;
 @RestController
 @RequestMapping(value = "/api/v1/logs")
 public class LogsController {
-    private final static Logger logger = LoggerFactory.getLogger(LogsController.class);
+    private static final Logger logger = LoggerFactory.getLogger(LogsController.class);
 
     private final LogsService logsService;
 

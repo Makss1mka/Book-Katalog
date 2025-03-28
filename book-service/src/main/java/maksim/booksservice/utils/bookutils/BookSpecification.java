@@ -68,12 +68,6 @@ public class BookSpecification implements Specification<Book> {
 
         if (criteria.getJoinModeForStatuses() == JoinMode.WITH) {
             root.fetch("statusesLogs", JoinType.LEFT);
-
-//            predicates.add(builder.between(
-//                root.get("statusesLogs").get("addedDate"),
-//                criteria.getStatusMinDate(),
-//                criteria.getStatusMaxDate()
-//            ));
         }
 
         return builder.and(predicates.toArray(new Predicate[0]));

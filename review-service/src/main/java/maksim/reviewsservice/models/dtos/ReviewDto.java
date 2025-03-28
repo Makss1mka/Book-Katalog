@@ -54,7 +54,7 @@ public class ReviewDto {
         this.userId = review.getUserId();
 
         if (joinMode == JoinMode.WITH) {
-            likedUsers = new HashSet<UserDto>(review.getLikedUsers().size());
+            likedUsers = new HashSet<>(review.getLikedUsers().size());
 
             for (User user : review.getLikedUsers()) {
                 likedUsers.add(
