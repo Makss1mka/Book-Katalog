@@ -1,6 +1,8 @@
 package maksim.reviewsservice.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -8,19 +10,39 @@ import maksim.reviewsservice.models.entities.Review;
 import maksim.reviewsservice.models.entities.User;
 import maksim.reviewsservice.utils.enums.JoinMode;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Returning review object")
 public class ReviewDto {
-    private Set<User> likedUsers = null;
+    @ArraySchema(
+        schema = @Schema(
+            description = "Liked users",
+            implementation = UserDto.class
+        )
+    )
+    private Set<UserDto> likedUsers = null;
+
+    @Schema(description = "Review id", example = "16")
     private Integer id = null;
+
+    @Schema(description = "Review text", example = "Some review text")
     private String text = null;
+
+    @Schema(description = "Rating", example = "4.0")
     private Integer rating = null;
+
+    @Schema(description = "Likes", example = "1000")
     private Integer likes = null;
+
+    @Schema(description = "Book id", example = "16")
     private Integer bookId = null;
+
+    @Schema(description = "User id", example = "16")
     private Integer userId = null;
 
     public ReviewDto(Review review, JoinMode joinMode) {
@@ -32,7 +54,13 @@ public class ReviewDto {
         this.userId = review.getUserId();
 
         if (joinMode == JoinMode.WITH) {
-            this.likedUsers = review.getLikedUsers();
+            likedUsers = new HashSet<UserDto>(review.getLikedUsers().size());
+
+            for (User user : review.getLikedUsers()) {
+                likedUsers.add(
+                    new UserDto(user)
+                );
+            }
         }
     }
 
