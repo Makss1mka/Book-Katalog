@@ -1,6 +1,7 @@
 package maksim.booksservice.models.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -22,6 +23,7 @@ public class CreateBookDto {
     private List<String> genres = new ArrayList<>();
 
     @NotNull(message = "Author id is required")
+    @Min(value = 0, message = "Author id should be greater than 0")
     @Schema(description = "Author id", example = "16")
     private Integer authorId;
 }

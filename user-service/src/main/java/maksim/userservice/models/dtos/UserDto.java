@@ -1,6 +1,8 @@
 package maksim.userservice.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,11 +17,26 @@ import java.util.List;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
+@Schema(description = "Returning user object")
 public class UserDto {
+    @Schema(description = "User id", example = "16")
     private Integer id = null;
+
+    @Schema(description = "Username", example = "Maks")
     private String name = null;
+
+    @Schema(description = "Profile picture path", example = "/some/path")
     private String profilePicPath = null;
+
+    @Schema(description = "Email", example = "email@email.email")
     private String email = null;
+
+    @ArraySchema(
+        schema = @Schema(
+            description = "User book statuses",
+            implementation = UserBookStatusesDto.class
+        )
+    )
     private List<UserBookStatusesDto> bookStatuses = null;
 
     public UserDto(User user, JoinMode mode) {
