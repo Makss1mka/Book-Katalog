@@ -1,8 +1,10 @@
 package maksim.booksservice.services;
 
-import maksim.booksservice.exceptions.FileException;
-import org.springframework.stereotype.Component;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,16 +12,18 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.stream.Stream;
+import maksim.booksservice.exceptions.FileException;
+import org.springframework.stereotype.Component;
 
 @Component
 public class LogsService {
-    private final String logsDir = "app/logs/";
+    private static final String LOGS_DIR = "app/logs/";
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public ByteArrayOutputStream getLogs(LocalDateTime minDate, LocalDateTime maxDate) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
-            try (Stream<Path> filesStream = Files.walk(Paths.get(logsDir))) {
+            try (Stream<Path> filesStream = Files.walk(Paths.get(LOGS_DIR))) {
                 filesStream
                     .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith(".log"))
