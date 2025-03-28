@@ -2,14 +2,14 @@ package maksim.booksservice.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.utils.enums.JoinMode;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter

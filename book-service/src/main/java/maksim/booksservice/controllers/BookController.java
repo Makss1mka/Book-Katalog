@@ -12,23 +12,26 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import maksim.booksservice.exceptions.BadRequestException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-
+import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.models.dtos.BookDto;
-import maksim.booksservice.models.dtos.UpdateBookDto;
 import maksim.booksservice.models.dtos.CreateBookDto;
+import maksim.booksservice.models.dtos.UpdateBookDto;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.services.CachingService;
 import maksim.booksservice.utils.Pagination;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.JoinMode;
-import maksim.booksservice.utils.validators.*;
+import maksim.booksservice.utils.validators.BookSearchCriteriaValidator;
+import maksim.booksservice.utils.validators.CreateBookDtoValidator;
+import maksim.booksservice.utils.validators.FileValidator;
+import maksim.booksservice.utils.validators.StringValidator;
+import maksim.booksservice.utils.validators.UpdateBookDtoValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +42,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -84,31 +95,31 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Book updated",
-            content = @Content(
-                mediaType = "application/json",
-                array = @ArraySchema(
-                    schema = @Schema(implementation = BookDto.class)
+                responseCode = "200",
+                description = "Book updated",
+                content = @Content(
+                    mediaType = "application/json",
+                    array = @ArraySchema(
+                        schema = @Schema(implementation = BookDto.class)
+                    )
+                )
+            ),
+        @ApiResponse(
+                responseCode = "400",
+                description = "Book bad request (validation failed)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Some fields contains invalid chars")
+                )
+            ),
+        @ApiResponse(
+                responseCode = "500",
+                description = "Server error",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
                 )
             )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Book bad request (validation failed)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Some fields contains invalid chars")
-            )
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Server error",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
-            )
-        )
     })
     public ResponseEntity<List<BookDto>> getAllBooks(
         @Parameter(
@@ -202,29 +213,29 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Get book by id",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = BookDto.class)
-            )
-        ),
+                responseCode = "200",
+                description = "Get book by id",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = BookDto.class)
+                )
+            ),
         @ApiResponse(
-            responseCode = "400",
-            description = "Book bad request (validation failed)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book id is invalid")
-            )
-        ),
+                responseCode = "400",
+                description = "Book bad request (validation failed)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Book id is invalid")
+                )
+            ),
         @ApiResponse(
-            responseCode = "500",
-            description = "Server error",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                responseCode = "500",
+                description = "Server error",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                )
             )
-        )
     })
     public ResponseEntity<BookDto> getBookById(
         @Parameter(description = "book id", required = true, example = "16")
@@ -262,37 +273,37 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Get book file",
-            content = @Content(
-                mediaType = "text/plain",
-                schema = @Schema(example = "Some .txt book")
-            )
-        ),
+                responseCode = "200",
+                description = "Get book file",
+                content = @Content(
+                    mediaType = "text/plain",
+                    schema = @Schema(example = "Some .txt book")
+                )
+            ),
         @ApiResponse(
-            responseCode = "400",
-            description = "Book bad request (validation failed)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book id is invalid")
-            )
-        ),
+                responseCode = "400",
+                description = "Book bad request (validation failed)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Book id is invalid")
+                )
+            ),
         @ApiResponse(
-            responseCode = "404",
-            description = "Book not found",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book not found")
-            )
-        ),
+                responseCode = "404",
+                description = "Book not found",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Book not found")
+                )
+            ),
         @ApiResponse(
-            responseCode = "500",
-            description = "Server error",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                responseCode = "500",
+                description = "Server error",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                )
             )
-        )
     })
     public ResponseEntity<Resource> getBookFile(
         @Parameter(description = "book id", required = true, example = "16")
@@ -332,45 +343,45 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "201",
-            description = "Book metaData adding",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = BookDto.class)
-            )
-        ),
+                responseCode = "201",
+                description = "Book metaData adding",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = BookDto.class)
+                )
+            ),
         @ApiResponse(
-            responseCode = "400",
-            description = "Book bad request (validation failed)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Some fields contains invalid chars")
-            )
-        ),
+                responseCode = "400",
+                description = "Book bad request (validation failed)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Some fields contains invalid chars")
+                )
+            ),
         @ApiResponse(
-            responseCode = "404",
-            description = "Book not found",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book not found")
-            )
-        ),
+                responseCode = "404",
+                description = "Book not found",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Book not found")
+                )
+            ),
         @ApiResponse(
-            responseCode = "407",
-            description = "Book data contains conflicted data (when it is ruins db uniques)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book data contains conflicted data")
-            )
-        ),
+                responseCode = "407",
+                description = "Book data contains conflicted data (when it is ruins db uniques)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Book data contains conflicted data")
+                )
+            ),
         @ApiResponse(
-            responseCode = "500",
-            description = "Server error",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                responseCode = "500",
+                description = "Server error",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                )
             )
-        )
     })
     public ResponseEntity<BookDto> addBookMetaData(
         @Parameter(description = "Data for book creating", required = true)
@@ -402,37 +413,37 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "201",
-            description = "Book file adding",
-            content = @Content(
-                mediaType = "text/plain",
-                schema = @Schema(example = "File was added")
-            )
-        ),
+                responseCode = "201",
+                description = "Book file adding",
+                content = @Content(
+                    mediaType = "text/plain",
+                    schema = @Schema(example = "File was added")
+                )
+            ),
         @ApiResponse(
-            responseCode = "400",
-            description = "Book bad request (validation failed)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Invalid file type/format")
-            )
-        ),
+                responseCode = "400",
+                description = "Book bad request (validation failed)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Invalid file type/format")
+                )
+            ),
         @ApiResponse(
-            responseCode = "404",
-            description = "Book not found",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book not found")
-            )
-        ),
+                responseCode = "404",
+                description = "Book not found",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Book not found")
+                )
+            ),
         @ApiResponse(
-            responseCode = "500",
-            description = "Server error",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                responseCode = "500",
+                description = "Server error",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                )
             )
-        )
     })
     public ResponseEntity<String> addBookFile(
         @Parameter(description = "book id", required = true, example = "16")
@@ -471,37 +482,37 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Book deletion",
-            content = @Content(
-                mediaType = "text/plain",
-                schema = @Schema(example = "Book was deleted")
-            )
-        ),
+                responseCode = "200",
+                description = "Book deletion",
+                content = @Content(
+                    mediaType = "text/plain",
+                    schema = @Schema(example = "Book was deleted")
+                )
+            ),
         @ApiResponse(
-            responseCode = "400",
-            description = "Book bad request (validation failed)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Invalid id value")
-            )
-        ),
+                responseCode = "400",
+                description = "Book bad request (validation failed)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Invalid id value")
+                )
+            ),
         @ApiResponse(
-            responseCode = "404",
-            description = "Book not found",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book not found")
-            )
-        ),
+                responseCode = "404",
+                description = "Book not found",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Book not found")
+                )
+            ),
         @ApiResponse(
-            responseCode = "500",
-            description = "Server error",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                responseCode = "500",
+                description = "Server error",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                )
             )
-        )
     })
     public ResponseEntity<String> deleteBook(
         @Parameter(description = "book id", required = true, example = "16")
@@ -527,37 +538,37 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Book updated",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = BookDto.class)
-            )
-        ),
+                responseCode = "200",
+                description = "Book updated",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = BookDto.class)
+                )
+            ),
         @ApiResponse(
-            responseCode = "400",
-            description = "Book bad request (validation failed)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "SomeFields contains invalid chars")
-            )
-        ),
+                responseCode = "400",
+                description = "Book bad request (validation failed)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "SomeFields contains invalid chars")
+                )
+            ),
         @ApiResponse(
-            responseCode = "404",
-            description = "Book not found",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book not found")
-            )
-        ),
+                responseCode = "404",
+                description = "Book not found",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Book not found")
+                )
+            ),
         @ApiResponse(
-            responseCode = "500",
-            description = "Server error",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                responseCode = "500",
+                description = "Server error",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                )
             )
-        )
     })
     public ResponseEntity<BookDto> updateBook(
         @Parameter(description = "book id", required = true)

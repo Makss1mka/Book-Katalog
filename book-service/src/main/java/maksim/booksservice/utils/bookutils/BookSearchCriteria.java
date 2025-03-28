@@ -1,6 +1,5 @@
 package maksim.booksservice.utils.bookutils;
 
-import maksim.booksservice.exceptions.BadRequestException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -9,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.utils.enums.DateOperator;
 import maksim.booksservice.utils.enums.JoinMode;
 import maksim.booksservice.utils.enums.NumberOperator;
+
 
 @Getter
 @Setter

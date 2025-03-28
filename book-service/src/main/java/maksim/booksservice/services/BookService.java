@@ -1,7 +1,5 @@
 package maksim.booksservice.services;
 
-import maksim.booksservice.exceptions.BadRequestException;
-import maksim.booksservice.exceptions.NotFoundException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,15 +7,21 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import maksim.booksservice.config.AppConfig;
+import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.exceptions.ConflictException;
+import maksim.booksservice.exceptions.NotFoundException;
 import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.dtos.UpdateBookDto;
 import maksim.booksservice.models.entities.Book;
-import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.entities.BookStatusLog;
 import maksim.booksservice.models.entities.User;
 import maksim.booksservice.models.kafkadtos.ChangeBookOneRateDto;
@@ -32,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

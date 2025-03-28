@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.services.LogsService;
 import org.slf4j.Logger;
@@ -19,10 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.io.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping(value = "/api/v1/logs")
@@ -43,29 +44,29 @@ public class LogsController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Get logs",
-            content = @Content(
-                mediaType = "text/plain",
-                schema = @Schema(example = "Some log")
-            )
-        ),
+                responseCode = "200",
+                description = "Get logs",
+                content = @Content(
+                    mediaType = "text/plain",
+                    schema = @Schema(example = "Some log")
+                )
+            ),
         @ApiResponse(
-            responseCode = "400",
-            description = "Bad request (validation failed)",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Invalid date format")
-            )
-        ),
+                responseCode = "400",
+                description = "Bad request (validation failed)",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Invalid date format")
+                )
+            ),
         @ApiResponse(
-            responseCode = "500",
-            description = "Server error",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                responseCode = "500",
+                description = "Server error",
+                content = @Content(
+                    mediaType = "plain/text",
+                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
+                )
             )
-        )
     })
     public ResponseEntity<InputStreamResource> getLogs(
         @Parameter(
@@ -113,11 +114,11 @@ public class LogsController {
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
-        InputStreamResource resource = new InputStreamResource(inputStream);
-
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=filtered_logs.log");
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+
+        InputStreamResource resource = new InputStreamResource(inputStream);
 
         logger.trace("LogsController method end: getLogs | File has successfully created");
 

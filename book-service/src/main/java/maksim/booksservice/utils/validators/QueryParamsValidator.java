@@ -1,8 +1,7 @@
 package maksim.booksservice.utils.validators;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 @Component
 public class QueryParamsValidator {

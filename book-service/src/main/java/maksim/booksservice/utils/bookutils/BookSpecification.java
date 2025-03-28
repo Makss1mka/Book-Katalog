@@ -1,13 +1,13 @@
 package maksim.booksservice.utils.bookutils;
 
-import jakarta.persistence.criteria.*;
-
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import maksim.booksservice.models.entities.Book;
-import maksim.booksservice.models.entities.BookStatusLog;
-import maksim.booksservice.models.entities.User;
-import maksim.booksservice.utils.enums.BookStatus;
 import maksim.booksservice.utils.enums.JoinMode;
 import org.springframework.data.jpa.domain.Specification;
 

@@ -1,12 +1,16 @@
 package maksim.booksservice.services;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.utils.CacheObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import java.util.*;
 
 @Service
 public class CachingService {
@@ -35,7 +39,9 @@ public class CachingService {
     }
 
     public boolean contains(String url) {
-        if (!storage.containsKey(url)) return false;
+        if (!storage.containsKey(url)) {
+            return false;
+        }
 
         if (new Date(storage.get(url).getCreationDate().getTime() + storage.get(url).getExpirationTime()).before(new Date())) {
             invalidateCache(url);
