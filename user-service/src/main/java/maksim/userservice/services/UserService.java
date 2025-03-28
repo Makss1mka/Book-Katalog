@@ -151,6 +151,7 @@ public class UserService {
         UserBookStatuses newStatus = new UserBookStatuses();
         newStatus.setBook(bookRequest.getBody());
         newStatus.setStatus(statusDto.getStatus().toString());
+        newStatus.setUser(user);
 
         // Add and save status
         user.getBookStatuses().add(newStatus);
