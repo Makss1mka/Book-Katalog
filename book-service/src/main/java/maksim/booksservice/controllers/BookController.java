@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import maksim.booksservice.exceptions.BadRequestException;
 import java.io.File;
 import java.io.IOException;
@@ -99,14 +102,6 @@ public class BookController {
             )
         ),
         @ApiResponse(
-            responseCode = "404",
-            description = "Book not found",
-            content = @Content(
-                mediaType = "plain/text",
-                schema = @Schema(example = "Book not found")
-            )
-        ),
-        @ApiResponse(
             responseCode = "500",
             description = "Server error",
             content = @Content(
@@ -118,7 +113,6 @@ public class BookController {
     public ResponseEntity<List<BookDto>> getAllBooks(
         @Parameter(
             description = """
-                Get all books by filters
                 Input filtering params:
                    - name (type: String) - book name
                    - author id (type: int) - author id
@@ -233,14 +227,18 @@ public class BookController {
         )
     })
     public ResponseEntity<BookDto> getBookById(
-        @Parameter(description = "book id", required = true)
-        @PathVariable int id,
+        @Parameter(description = "book id", required = true, example = "16")
+        @NotNull(message = "Book id shouldn't be null") @Min(value = 0, message = "book id should be greater than 0")
+        @PathVariable
+        int id,
 
         @Parameter(
             description = "(type: String , values: with/without) Indicates whether the book should be linked to the author object",
-            required = false
+            required = false,
+            example = "without"
         )
         @RequestParam(name = "joinMode", required = false, defaultValue = "without")
+        @Size(min = 2, max = 10, message = "Too much chars for join mode")
         String strJoinMode
     ) {
         logger.trace("BookController method entrance: getBookById | Params: id {}", id);
@@ -297,8 +295,10 @@ public class BookController {
         )
     })
     public ResponseEntity<Resource> getBookFile(
-        @Parameter(description = "book id", required = true)
-        @PathVariable int id
+        @Parameter(description = "book id", required = true, example = "16")
+        @NotNull(message = "Book id shouldn't be null") @Min(value = 0, message = "Book id should be greater than 0")
+        @PathVariable
+        int id
     ) {
         logger.trace("BookController method entrance: getFile | Params: book id {}", id);
 
@@ -332,7 +332,7 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "201",
             description = "Book metaData adding",
             content = @Content(
                 mediaType = "application/json",
@@ -373,11 +373,9 @@ public class BookController {
         )
     })
     public ResponseEntity<BookDto> addBookMetaData(
-        @Parameter(
-            description = "Data for book creating",
-            required = true
-        )
-        @Valid @RequestBody CreateBookDto bookData
+        @Parameter(description = "Data for book creating", required = true)
+        @Valid @RequestBody
+        CreateBookDto bookData
     ) {
         logger.trace("BookController method entrance: addBookMetaData");
 
@@ -404,7 +402,7 @@ public class BookController {
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "201",
             description = "Book file adding",
             content = @Content(
                 mediaType = "text/plain",
@@ -437,14 +435,17 @@ public class BookController {
         )
     })
     public ResponseEntity<String> addBookFile(
-        @Parameter(description = "book id", required = true)
-        @PathVariable int id,
+        @Parameter(description = "book id", required = true, example = "16")
+        @NotNull(message = "Book id shouldn't be null") @Min(value = 0, message = "Book id should be greater than 0")
+        @PathVariable
+        int id,
 
         @Parameter(
             description = "Book file, should be in next formats: .txt , .pdf , .md",
             required = true
         )
-        @RequestBody MultipartFile file
+        @RequestBody
+        MultipartFile file
     ) {
         logger.trace("BookController method entrance: addBookFile | Params: id {}", id);
 
@@ -503,17 +504,19 @@ public class BookController {
         )
     })
     public ResponseEntity<String> deleteBook(
-        @Parameter(description = "book id", required = true)
-        @PathVariable int id
+        @Parameter(description = "book id", required = true, example = "16")
+        @NotNull(message = "Book id shouldn't be null") @Min(value = 0, message = "Book id should be greater than 0")
+        @PathVariable
+        int id
     ) {
-    logger.trace("BookController method entrance: deleteBook | Params: book id {}", id);
+        logger.trace("BookController method entrance: deleteBook | Params: book id {}", id);
 
-    bookService.deleteBook(id);
+        bookService.deleteBook(id);
 
-    logger.trace("BookController method end: deleteBook | Book has successfully deleted");
+        logger.trace("BookController method end: deleteBook | Book has successfully deleted");
 
-    return ResponseEntity.ok("Book was successfully deleted");
-}
+        return ResponseEntity.ok("Book was successfully deleted");
+    }
 
 
 
@@ -557,14 +560,14 @@ public class BookController {
         )
     })
     public ResponseEntity<BookDto> updateBook(
-            @Parameter(description = "book id", required = true)
-            @PathVariable(name = "id") int bookId,
+        @Parameter(description = "book id", required = true)
+        @NotNull(message = "Book id shouldn't be null") @Min(value = 0, message = "Book id should be greater than 0")
+        @PathVariable(name = "id")
+        int bookId,
 
-            @Parameter(
-                description = "New book data",
-                required = true
-            )
-            @Valid @RequestBody UpdateBookDto bookData
+        @Parameter(description = "New book data", required = true)
+        @Valid @RequestBody
+        UpdateBookDto bookData
     ) {
         logger.trace("BookController method entrance: updateBook");
 
