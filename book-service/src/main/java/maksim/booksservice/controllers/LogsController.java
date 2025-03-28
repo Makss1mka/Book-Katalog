@@ -2,13 +2,11 @@ package maksim.booksservice.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.ws.rs.BadRequestException;
-import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.services.LogsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping(value = "/api/v1/logs")
@@ -74,25 +72,41 @@ public class LogsController {
             description = "(type: String in format 'yyyy-MM-dd') - min date edge from which logs will be found",
             required = false
         )
-        @RequestParam(name = "minDate") String strMinDate,
+        @RequestParam(name = "minDate")
+        String strMinDate,
 
         @Parameter(
             description = "(type: String in format 'yyyy-MM-dd') - max date edge till which logs will be found",
             required = false
         )
-        @RequestParam(name = "maxDate") String strMaxDate
+        @RequestParam(name = "maxDate")
+        String strMaxDate
     ) {
         logger.trace("LogsController method entrance: getLogs");
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date minDate;
-        Date maxDate;
+        DateTimeFormatter fullDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter shortDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime minDate;
+        LocalDateTime maxDate;
 
         try {
-            minDate = formatter.parse(strMinDate);
-            maxDate = formatter.parse(strMaxDate);
-        } catch (ParseException e) {
-            throw new BadRequestException("Date format is invalid. Date should be in format 'yyyy-MM-dd HH:mm:ss'");
+            minDate  = LocalDateTime.parse(strMinDate, fullDateFormatter);
+        } catch (Exception ex1) {
+            try {
+                minDate = LocalDate.parse(strMinDate, shortDateFormatter).atStartOfDay();
+            } catch (Exception ex2) {
+                throw new BadRequestException("Date format for min date is invalid. Accepted formats: 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'");
+            }
+        }
+
+        try {
+            maxDate = LocalDateTime.parse(strMaxDate, fullDateFormatter);
+        } catch (Exception ex1) {
+            try {
+                maxDate = LocalDate.parse(strMaxDate, shortDateFormatter).atStartOfDay();
+            } catch (Exception ex2) {
+                throw new BadRequestException("Date format for max date is invalid. Accepted formats: 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'");
+            }
         }
 
         ByteArrayOutputStream outputStream = logsService.getLogs(minDate, maxDate);
