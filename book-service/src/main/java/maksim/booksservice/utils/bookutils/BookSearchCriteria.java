@@ -1,6 +1,6 @@
 package maksim.booksservice.utils.bookutils;
 
-import jakarta.ws.rs.BadRequestException;
+import maksim.booksservice.exceptions.BadRequestException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
