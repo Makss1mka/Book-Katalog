@@ -55,9 +55,9 @@ public class ReviewController {
 
     @Autowired
     ReviewController(
-            ReviewService reviewService,
-            Pagination pagination,
-            StringValidators stringValidators
+        ReviewService reviewService,
+        Pagination pagination,
+        StringValidators stringValidators
     ) {
         this.reviewService = reviewService;
         this.pagination = pagination;

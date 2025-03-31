@@ -19,7 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
-class ReviewControllerTest {
+class Dadada {
+
     @Mock
     private ReviewService reviewService;
 
