@@ -17,7 +17,6 @@ import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
@@ -213,9 +212,9 @@ class UserServiceTest {
     void testCreateStatus_BookIsInStatus() {
         when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
 
-        Executable executable = () -> userService.createStatus(1, new CreateBookStatusDto(1, "READ"));
-
-        assertThrows(ConflictException.class, executable);
+        assertThrows(ConflictException.class, () ->
+            userService.createStatus(1, new CreateBookStatusDto(1, "READ"))
+        );
     }
 
     @Test
@@ -224,9 +223,9 @@ class UserServiceTest {
         when(restTemplate.getForEntity(anyString(), any())).thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
         when(appConfig.getBookServiceUrl()).thenReturn("url");
 
-        Executable executable = () -> userService.createStatus(1, new CreateBookStatusDto(2, "READ"));
-
-        assertThrows(ConflictException.class, executable);
+        assertThrows(NotFoundException.class, () ->
+            userService.createStatus(1, new CreateBookStatusDto(2, "READ"))
+        );
     }
 
 
@@ -274,9 +273,9 @@ class UserServiceTest {
 
         UpdateBookStatusDto updateDto = new UpdateBookStatusDto(1, "READING", false);
 
-        Executable executable = () -> userService.updateStatus(1, updateDto);
-
-        assertThrows(ConflictException.class, executable);
+        assertThrows(NoContentException.class, () ->
+            userService.updateStatus(1, updateDto)
+        );
     }
 
     @Test
@@ -285,9 +284,9 @@ class UserServiceTest {
 
         UpdateBookStatusDto updateDto = new UpdateBookStatusDto(1, "ANY", false);
 
-        Executable executable = () -> userService.updateStatus(1, updateDto);
-
-        assertThrows(ConflictException.class, executable);
+        assertThrows(BadRequestException.class, () ->
+            userService.updateStatus(1, updateDto)
+        );
     }
 
 
@@ -345,9 +344,9 @@ class UserServiceTest {
         updateDto.setOldPassword("wrongPassword");
         updateDto.setNewPassword("newPassword");
 
-        assertThrows(BadRequestException.class, () -> {
-            userService.updateUser(1, updateDto);
-        });
+        assertThrows(BadRequestException.class, () ->
+            userService.updateUser(1, updateDto)
+        );
     }
 
     @Test
@@ -359,18 +358,18 @@ class UserServiceTest {
         updateDto.setOldPassword("newPassword");
         updateDto.setNewPassword("newPassword");
 
-        assertThrows(BadRequestException.class, () -> {
-            userService.updateUser(1, updateDto);
-        });
+        assertThrows(BadRequestException.class, () ->
+            userService.updateUser(1, updateDto)
+        );
     }
 
     @Test
     void testUpdateUser_NoContent() {
         when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
 
-        assertThrows(NoContentException.class, () -> {
-            userService.updateUser(1, new UpdateUserDto());
-        });
+        assertThrows(NoContentException.class, () ->
+            userService.updateUser(1, new UpdateUserDto())
+        );
     }
 
 
