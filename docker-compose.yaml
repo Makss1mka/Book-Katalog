@@ -34,6 +34,8 @@ services:
       - 8086:8086
     networks:
       - backend
+    volumes:
+      - ./logs:/logs
 
   book-service:
     container_name: book-service
@@ -45,11 +47,8 @@ services:
       - 8084:8084
     networks:
       - backend
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 5
+    volumes:
+      - ./logs:/logs
 
   review-service:
     container_name: review-service
@@ -61,6 +60,8 @@ services:
       - 8087:8087
     networks:
       - backend
+    volumes:
+      - ./logs:/logs
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.0
