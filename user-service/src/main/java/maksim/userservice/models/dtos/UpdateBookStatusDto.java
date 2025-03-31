@@ -1,9 +1,8 @@
 package maksim.userservice.models.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import maksim.userservice.utils.enums.BookStatus;
@@ -12,8 +11,8 @@ import maksim.userservice.utils.enums.BookStatus;
 @Setter
 @Schema(description = "Data updating book status")
 public class UpdateBookStatusDto {
-    @NotBlank(message = "Username shouldn't be as empty string")
-    @Size(min = 3, max = 50, message = "Username length should be from 3 to 50 chars")
+    @NotNull(message = "Username shouldn't be as empty string")
+    @Min(value = 0, message = "Id should be greater than 0")
     @Schema(description = "Book id", example = "16")
     private Integer bookId;
 
@@ -25,7 +24,7 @@ public class UpdateBookStatusDto {
     @Schema(description = "Status value", example = "true")
     private Boolean statusValue = null;
 
-    UpdateBookStatusDto(Integer bookId, String status, Boolean statusValue) {
+    public UpdateBookStatusDto(Integer bookId, String status, Boolean statusValue) {
         this.bookId = bookId;
         this.status = BookStatus.fromValue(status);
         this.statusValue = statusValue;
