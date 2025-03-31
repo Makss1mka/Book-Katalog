@@ -32,25 +32,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleValidationExceptions(ConstraintViolationException ex) {
-        logger.trace("Validation error {}", ex.getMessage());
+    @ExceptionHandler({
+        ConstraintViolationException.class,
+        BadRequestException.class,
+        IllegalArgumentException.class
+    })
+    public ResponseEntity<String> handleBadRequest(Exception ex) {
+        logger.trace(ex.getMessage());
 
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFound(NotFoundException ex) {
+    @ExceptionHandler({
+        NotFoundException.class,
+        HttpRequestMethodNotSupportedException.class,
+        NoHandlerFoundException.class
+    })
+    public ResponseEntity<String> handleNotFound(Exception ex) {
         logger.trace(ex.getMessage());
 
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequest(BadRequestException ex) {
-        logger.trace(ex.getMessage());
-
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConflictException.class)
@@ -58,27 +59,6 @@ public class GlobalExceptionHandler {
         logger.trace(ex.getMessage());
 
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
-        logger.trace(ex.getMessage());
-
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
-        logger.trace(ex.getMessage());
-
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<String> handleNoHandlerFoundException(NoHandlerFoundException ex) {
-        logger.trace(ex.getMessage());
-
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)

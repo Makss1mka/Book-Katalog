@@ -12,7 +12,6 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.HashMap;
@@ -28,31 +27,32 @@ public class GlobalExceptionHandler {
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(field ->
-            errors.put(field.getField(), field.getDefaultMessage())
+                errors.put(field.getField(), field.getDefaultMessage())
         );
 
         return ResponseEntity.badRequest().body(errors);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleValidationExceptions(ConstraintViolationException ex) {
-        logger.trace("Validation error {}", ex.getMessage());
+    @ExceptionHandler({
+        ConstraintViolationException.class,
+        BadRequestException.class,
+        IllegalArgumentException.class
+    })
+    public ResponseEntity<String> handleBadRequest(Exception ex) {
+        logger.trace(ex.getMessage());
 
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFound(NotFoundException ex, WebRequest request) {
+    @ExceptionHandler({
+        NotFoundException.class,
+        HttpRequestMethodNotSupportedException.class,
+        NoHandlerFoundException.class
+    })
+    public ResponseEntity<String> handleNotFound(Exception ex) {
         logger.trace(ex.getMessage());
 
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequest(BadRequestException ex, WebRequest request) {
-        logger.trace(ex.getMessage());
-
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConflictException.class)
@@ -62,29 +62,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
-        logger.trace(ex.getMessage());
-
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
-        logger.trace(ex.getMessage());
-
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<String> handleNoHandlerFoundException(NoHandlerFoundException ex) {
-        logger.trace(ex.getMessage());
-
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> exceptionHandler(Exception ex, WebRequest request) {
+    public ResponseEntity<String> exceptionHandler(Exception ex) {
         logger.trace(ex.getMessage());
 
         return ResponseEntity.internalServerError().body("Something goes wrong, Sorry my bad :(");
