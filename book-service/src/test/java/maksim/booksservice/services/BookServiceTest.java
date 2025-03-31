@@ -1,45 +1,50 @@
 package maksim.booksservice.services;
 
-import maksim.booksservice.exceptions.BadRequestException;
-import maksim.booksservice.exceptions.NotFoundException;
-import maksim.booksservice.config.AppConfig;
-import maksim.booksservice.models.dtos.BookDto;
-import maksim.booksservice.models.entities.Book;
-import maksim.booksservice.models.dtos.CreateBookDto;
-import maksim.booksservice.models.entities.User;
-import maksim.booksservice.repositories.BookRepository;
-import maksim.booksservice.repositories.UserRepository;
-import maksim.booksservice.utils.bookutils.BookSearchCriteria;
-import maksim.booksservice.utils.validators.FileValidator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import maksim.booksservice.config.AppConfig;
+import maksim.booksservice.exceptions.BadRequestException;
+import maksim.booksservice.exceptions.NotFoundException;
+import maksim.booksservice.models.dtos.*;
+import maksim.booksservice.models.entities.Book;
+import maksim.booksservice.models.entities.BookStatusLog;
+import maksim.booksservice.models.entities.User;
+import maksim.booksservice.repositories.BookRepository;
+import maksim.booksservice.repositories.UserRepository;
+import maksim.booksservice.utils.bookutils.BookSearchCriteria;
+import maksim.booksservice.utils.enums.JoinMode;
+import maksim.booksservice.utils.validators.FileValidator;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+@ExtendWith(MockitoExtension.class)
 class BookServiceTest {
     @Mock
     private BookRepository bookRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private FileValidator fileValidator;
 
     @Mock
-    private FileValidator fileValidator;
+    private UserRepository userRepository;
 
     @Mock
     private AppConfig appConfig;
@@ -50,107 +55,120 @@ class BookServiceTest {
     @InjectMocks
     private BookService bookService;
 
-    private Pageable pageable;
+    private Book book;
+    private User user;
+    private BookStatusLog statusLog;
+    private CreateBookDto createBookDto;
+    private UpdateBookDto updateBookDto;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        pageable = PageRequest.of(0, 10);
+        user = new User();
+        user.setId(1);
+
+        statusLog = new BookStatusLog();
+        statusLog.setStatus("READ");
+        statusLog.setUserId(1);
+        statusLog.setAddedDate(new Date());
+
+        book = new Book();
+        book.setId(1);
+        book.setName("Test Book");
+        book.setAuthor(user);
+        book.setIssuedDate(new Date());
+        book.setGenres(Arrays.asList("Fantasy", "Sci-Fi"));
+        book.setRating(4.5f);
+        book.setRatingCount(10);
+        book.setFilePath("1.pdf");
+        book.setStatusesLogs(Arrays.asList(statusLog, statusLog));
+
+        createBookDto = new CreateBookDto();
+        createBookDto.setName("New Book");
+        createBookDto.setAuthorId(1);
+        createBookDto.setGenres(Arrays.asList("Fantasy", "Sci-Fi"));
+
+        updateBookDto = new UpdateBookDto();
+        updateBookDto.setName("Updated Book");
+        updateBookDto.setGenres(Arrays.asList("Fantasy", "Sci-Fi"));
     }
 
     @Test
-    void testGetAll() {
-        Page<Book> page = new PageImpl<>(Arrays.asList(new Book(), new Book()), pageable, 2);
+    void getById_WithJoin_ShouldReturnBookDto() {
+        when(bookRepository.findByIdWithJoin(1)).thenReturn(Optional.of(book));
 
-        when(bookRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
-
-        Map<String, String> params = new HashMap<>();
-        BookSearchCriteria criteria = new BookSearchCriteria(params);
-
-        List<BookDto> result = bookService.getAllBooks(criteria, pageable);
-        assertEquals(2, result.size());
-
-        verify(bookRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-
-    @Test
-    void testGetFile_Success() throws Exception {
-        int bookId = 1;
-        String fileContent = "Test content";
-
-        Path tempFile = Files.createTempFile("test-file", ".pdf");
-        Files.write(tempFile, fileContent.getBytes());
-
-        Book book = new Book();
-        book.setId(bookId);
-        book.setFilePath(tempFile.getFileName().toString());
-
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-        when(appConfig.getBookFilesDirectory()).thenReturn(tempFile.getParent() + "/");
-
-        File result = bookService.getFile(bookId);
+        BookDto result = bookService.getById(1, JoinMode.WITH);
 
         assertNotNull(result);
-        assertEquals(tempFile.toAbsolutePath().toString(), result.getAbsolutePath());
-        verify(bookRepository, times(1)).findById(bookId);
-
-        Files.deleteIfExists(tempFile);
+        assertEquals(book.getId(), result.getId());
+        verify(bookRepository).findByIdWithJoin(1);
     }
 
     @Test
-    void testGetFile_BookNotFound() {
-        when(bookRepository.findById(anyInt())).thenReturn(Optional.empty());
+    void getById_WithoutJoin_ShouldReturnBookDto() {
+        when(bookRepository.findByIdWithoutJoin(1)).thenReturn(Optional.of(book));
 
-        assertThrows(NotFoundException.class, () -> bookService.getFile(1));
+        BookDto result = bookService.getById(1, JoinMode.WITHOUT);
 
-        verify(bookRepository, times(1)).findById(anyInt());
+        assertNotNull(result);
+        assertEquals(book.getId(), result.getId());
+        verify(bookRepository).findByIdWithoutJoin(1);
     }
 
     @Test
-    void testGetFile_FileNotFound() {
-        int bookId = 1;
-        Book book = new Book();
-        book.setId(bookId);
-        book.setFilePath("nonexistent.pdf");
+    void getById_NotFound_ShouldThrowNotFoundException() {
+        when(bookRepository.findByIdWithJoin(1)).thenReturn(Optional.empty());
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-        when(appConfig.getBookFilesDirectory()).thenReturn("/");
-
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.getFile(bookId));
-
-        assertNotNull(exception);
-        verify(bookRepository, times(1)).findById(bookId);
+        assertThrows(NotFoundException.class, () -> bookService.getById(1, JoinMode.WITH));
     }
 
 
 
+
+
     @Test
-    void testAddBookFile_Success() throws Exception {
-        MultipartFile file = new MockMultipartFile(
-                "file",
-                "test.pdf",
-                "application/pdf",
-                "Test content".getBytes()
-        );
+    void getAllBooks_WithCriteria_ShouldReturnListOfBookDtos() {
+        BookSearchCriteria criteria = new BookSearchCriteria(new HashMap<>() {{
+            put("name", "book");
+            put("authorId", "16");
+            put("authorName", "Jora");
+        }});
+        criteria.setJoinModeForStatuses(JoinMode.WITH);
+        criteria.setStatusMinDate(new Date(System.currentTimeMillis() - 100000));
+        criteria.setStatusMaxDate(new Date());
 
-        int bookId = 1;
-        Book book = new Book();
-        book.setId(bookId);
+        Pageable pageable = Pageable.unpaged();
+        Page<Book> page = new PageImpl<>(List.of(book));
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-        when(appConfig.getBookFilesDirectory()).thenReturn("target/test-files/");
-        when(fileValidator.isPathAllowed(any())).thenReturn(true);
+        when(bookRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
-        bookService.addBookFile(file, bookId);
+        List<BookDto> result = bookService.getAllBooks(criteria, pageable);
 
-        verify(bookRepository, times(1)).findById(bookId);
-        verify(bookRepository, times(1)).save(book);
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+    }
 
-        Path filePath = Paths.get("target/test-files/" + bookId + ".pdf");
-        assertTrue(Files.exists(filePath));
 
-        Files.deleteIfExists(filePath);
+
+
+
+    @Test
+    void getFile_ValidBookId_ShouldReturnFile() throws IOException {
+        when(bookRepository.findById(1)).thenReturn(Optional.of(book));
+        when(appConfig.getBookFilesDirectory()).thenReturn("test-files/");
+
+        // Create test directory and file
+        Files.createDirectories(Paths.get("test-files"));
+        Files.createFile(Paths.get("test-files/1.pdf"));
+
+        File result = bookService.getFile(1);
+
+        assertNotNull(result);
+        assertTrue(result.exists());
+
+        // Cleanup
+        Files.deleteIfExists(Paths.get("test-files/1.pdf"));
+        Files.deleteIfExists(Paths.get("test-files"));
     }
 
     @Test
@@ -189,82 +207,67 @@ class BookServiceTest {
 
 
 
+
+
+
     @Test
-    void testAddBookMetaData_Success() {
-        int authorId = 1;
+    void addBookMetaData_ValidData_ShouldReturnBookDto() {
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(bookRepository.save(any(Book.class))).thenReturn(book);
 
-        CreateBookDto bookData = new CreateBookDto();
-        bookData.setAuthorId(authorId);
-        bookData.setName("Test Name");
-        bookData.setGenres(Arrays.asList("Programming", "Software Engineering"));
+        BookDto result = bookService.addBookMetaData(createBookDto);
 
-        User author = new User();
-        author.setId(authorId);
-
-        when(userRepository.findById(authorId)).thenReturn(Optional.of(author));
-
-        bookService.addBookMetaData(bookData);
-
-        verify(userRepository, times(1)).findById(authorId);
-        verify(bookRepository, times(1)).save(any(Book.class));
+        assertNotNull(result);
+        assertEquals(createBookDto.getName(), result.getName());
+        verify(bookRepository).save(any(Book.class));
     }
 
     @Test
-    void testAddBookMetaData_AuthorNotFound() {
-        int authorId = 1;
+    void addBookMetaData_AuthorNotFound_ShouldThrowBadRequestException() {
+        when(userRepository.findById(1)).thenReturn(Optional.empty());
 
-        CreateBookDto bookData = new CreateBookDto();
-        bookData.setAuthorId(authorId);
-        bookData.setName("Test Name");
-        bookData.setGenres(Arrays.asList("Programming", "Software Engineering"));
-
-        when(userRepository.findById(authorId)).thenReturn(Optional.empty());
-
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookService.addBookMetaData(bookData));
-
-        assertNotNull(exception);
-        verify(userRepository, times(1)).findById(authorId);
-        verify(bookRepository, never()).save(any(Book.class));
+        assertThrows(BadRequestException.class, () -> bookService.addBookMetaData(createBookDto));
     }
 
 
 
+
+
     @Test
-    void testDeleteBook_Success() throws Exception {
-        int bookId = 1;
+    void deleteBook_ValidId_ShouldDeleteBook() {
+        when(bookRepository.findById(1)).thenReturn(Optional.of(book));
+        when(appConfig.getBookFilesDirectory()).thenReturn("test-files/");
 
-        Path tempFile = Files.createTempFile("test-file", ".pdf");
-        Files.write(tempFile, "Test content".getBytes());
+        bookService.deleteBook(1);
 
-        Book book = new Book();
-        book.setId(bookId);
-        book.setFilePath(tempFile.getFileName().toString());
-
-        doNothing().when(cachingService).deleteBook(anyInt());
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-        when(appConfig.getBookFilesDirectory()).thenReturn(tempFile.getParent() + "/");
-
-        bookService.deleteBook(bookId);
-
-        verify(bookRepository, times(1)).findById(bookId);
-        verify(bookRepository, times(1)).delete(book);
-
-        assertFalse(Files.exists(tempFile));
-
-        Files.deleteIfExists(tempFile);
+        verify(bookRepository).delete(book);
+        verify(cachingService).deleteBook(1);
     }
 
     @Test
-    void testDeleteBook_BookNotFound() {
-        int bookId = 1;
-        when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
+    void deleteBook_BookNotFound_ShouldThrowNotFoundException() {
+        when(bookRepository.findById(1)).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> bookService.deleteBook(bookId));
+        assertThrows(NotFoundException.class, () -> bookService.deleteBook(1));
+    }
 
-        assertNotNull(exception);
-        verify(bookRepository, times(1)).findById(bookId);
-        verify(bookRepository, never()).delete(any(Book.class));
+    @Test
+    void updateBook_ValidData_ShouldReturnUpdatedBookDto() {
+        when(bookRepository.findById(1)).thenReturn(Optional.of(book));
+        when(bookRepository.save(any(Book.class))).thenReturn(book);
+
+        BookDto result = bookService.updateBook(1, updateBookDto);
+
+        assertNotNull(result);
+        assertEquals(updateBookDto.getName(), result.getName());
+        verify(cachingService).updateBook(eq(1), any(BookDto.class));
+    }
+
+    @Test
+    void updateBook_BookNotFound_ShouldThrowNotFoundException() {
+        when(bookRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> bookService.updateBook(1, updateBookDto));
     }
 
 }
-

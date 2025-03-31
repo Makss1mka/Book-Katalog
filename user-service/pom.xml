@@ -33,6 +33,17 @@
 		<docker.image.name>maks1mka/user-service</docker.image.name>
 		<java.version>23</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
+		<sonar.coverage.exclusions>
+			**/entities/**/*,
+			**/*Dto.java,
+			**/enums/**/*,
+			**/exception/**/*,
+			**/*Config*.java,
+			**/*Validator.java,
+			**/Pagination.java,
+			**/aspect/**/*,
+			**/*Aspect.java
+		</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>

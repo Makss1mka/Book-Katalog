@@ -18,6 +18,7 @@ import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.exceptions.ConflictException;
 import maksim.booksservice.exceptions.NotFoundException;
+import maksim.booksservice.models.dtos.AddListOfBooksDto;
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.dtos.UpdateBookDto;
@@ -353,78 +354,12 @@ public class BookService {
 
 
 
-    public void changeOneRate(ChangeBookOneRateDto reviewData) {
-        logger.trace("BookService method entrance: changeOneRate | Params: {}", reviewData);
+    public void addListOfBooks(AddListOfBooksDto books) {
+        logger.trace("BookService method entrance: addListOfBooks");
 
-        if (reviewData == null || reviewData.getBookId() == null
-                || reviewData.getAction() == 0 || reviewData.getRating() == null) {
-            logger.info("BookService method: changeOneRate | Values cannot be null (except previous rate), review data: {}", reviewData);
 
-            return;
-        }
 
-        Optional<Book> optionalBook = bookRepository.findById(reviewData.getBookId());
-
-        if (optionalBook.isEmpty()) {
-            logger.info("BookService method: changeOneRate | Cannot find book with such id: {}", reviewData);
-
-            return;
-        }
-
-        Book book = optionalBook.get();
-
-        switch (reviewData.getAction()) {
-            case -1 -> {
-                if (book.getRatingCount() == 0) {
-                    logger.info("BookService method: changeOneRate | Rating count is 0, review data: {}", reviewData);
-
-                    return;
-                }
-
-                book.setRating(
-                        (book.getRating() * book.getRatingCount() - reviewData.getRating()) / (book.getRatingCount() - 1)
-                );
-
-                book.setRatingCount(
-                        book.getRatingCount() - 1
-                );
-            }
-            case 0 -> {
-                if (reviewData.getPreviousRate() == null) {
-                    logger.info("BookService method: changeOneRate | Previous rate is null, review data: {}", reviewData);
-
-                    return;
-                }
-
-                book.setRating(
-                        (book.getRating() * book.getRatingCount() + reviewData.getPreviousRate()
-                                - reviewData.getRating()) / book.getRatingCount()
-                );
-            }
-            case 1 -> {
-                book.setRating(
-                        (book.getRating() * book.getRatingCount() + reviewData.getRating()) / (book.getRatingCount() + 1)
-                );
-
-                book.setRatingCount(
-                        book.getRatingCount() + 1
-                );
-            }
-            default -> {
-                logger.info("BookService method: changeOneRate | Invalid action value, "
-                        + "action can be -1 - remove / 0 - change / 1 - add rate, review data: {}", reviewData);
-
-                return;
-            }
-        }
-
-        try {
-            bookRepository.save(book);
-        } catch (DataIntegrityViolationException ex) {
-            throw new ConflictException("Your review contains conflicted data");
-        }
-
-        logger.trace("BookService method return: changeOneRate");
+        logger.trace("BookService method end: addListOfBooks");
     }
 
 }

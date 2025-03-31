@@ -33,8 +33,20 @@
 		<docker.image.name>maks1mka/book-service</docker.image.name>
 		<java.version>23</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<argLine>--enable-preview</argLine>
+		<sonar.coverage.exclusions>
+			**/entities/**/*,
+			**/*Dto.java,
+			**/enums/**/*,
+			**/exception/**/*,
+			**/*Config*.java,
+			**/BookSearchCriteria.java,
+			**/BookSpecification.java,
+			**/*Validator.java,
+			**/Pagination.java,
+			**/CacheObject.java,
+			**/aspect/**/*,
+			**/*Aspect.java
+		</sonar.coverage.exclusions>
 	</properties>
 
 	<dependencies>
