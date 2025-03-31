@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import maksim.booksservice.exceptions.BadRequestException;
+import maksim.booksservice.models.dtos.AddListOfBooksDto;
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.dtos.UpdateBookDto;
@@ -473,6 +474,25 @@ public class BookController {
         return ResponseEntity.ok("Book file was successfully added");
     }
 
+
+    @PostMapping("/all")
+    public ResponseEntity<String> addAllBooksFromList(
+        @NotNull(message = "Author id shouldn't be null")
+        @Min(value = 0, message = "Author id should be greater than 0")
+        @RequestParam(value = "authorId")
+        int creatorId,
+
+        @Valid @RequestBody
+        AddListOfBooksDto books
+    ) {
+        logger.trace("BookController method entrance: addAllBooksFromList");
+
+        bookService.addListOfBooks(books);
+
+        logger.trace("BookController method end: addAllBooksFromList | Books were successfully added");
+
+        return ResponseEntity.ok("Books were successfully added");
+    }
 
 
     @DeleteMapping("/{id}")
