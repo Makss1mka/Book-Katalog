@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
@@ -40,7 +41,7 @@ class LogsControllerTest {
         ResponseEntity<InputStreamResource> response = logsController.getLogs(minDate, maxDate);
 
         assertNotNull(response);
-        assertEquals(200, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
 
         HttpHeaders headers = response.getHeaders();
@@ -63,7 +64,7 @@ class LogsControllerTest {
         ResponseEntity<InputStreamResource> response = logsController.getLogs(minDate, maxDate);
 
         assertNotNull(response);
-        assertEquals(200, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
