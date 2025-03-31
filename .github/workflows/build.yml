@@ -45,9 +45,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          cd book-service
-          mvn -B verify sonar:sonar \
+        run: mvn -B verify sonar:sonar \
             -Dsonar.projectKey=Makss1mka_Book-Katalog \
             -Dsonar.organization=makskroll134679 \
             -Dsonar.host.url=https://sonarcloud.io

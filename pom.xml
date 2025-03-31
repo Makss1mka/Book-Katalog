@@ -7,26 +7,10 @@
     <packaging>pom</packaging>
 
     <properties>
-        <!-- SonarCloud properties -->
         <sonar.organization>makskroll134679</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>Makss1mka_Book-Katalog</sonar.projectKey>
-
-        <!-- Coverage settings -->
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/**/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.jacoco.reportPaths>${project.basedir}/**/target/jacoco.exec</sonar.jacoco.reportPaths>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-
-        <!-- Path configurations -->
-        <sonar.sources>src/main/java</sonar.sources>
-        <sonar.tests>src/test/java</sonar.tests>
-        <sonar.java.binaries>target/classes</sonar.java.binaries>
-
-        <!-- Language -->
         <sonar.language>java</sonar.language>
-
-        <!-- JaCoCo version -->
-        <jacoco.version>0.8.12</jacoco.version>
     </properties>
 
     <modules>
@@ -36,50 +20,6 @@
     </modules>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco.version}</version>
-                    <executions>
-                        <execution>
-                            <id>pre-unit-test</id>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                            <configuration>
-                                <destFile>${project.build.directory}/jacoco.exec</destFile>
-                                <propertyName>surefireArgLine</propertyName>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>post-unit-test</id>
-                            <phase>test</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>report-aggregate</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>report-aggregate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
 
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
     </build>
 </project>
