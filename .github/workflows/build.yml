@@ -45,4 +45,5 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.jacoco:jacoco-maven-plugin:report-aggregate sonar:sonar -Dsonar.projectKey=Makss1mka_Book-Katalog
+        run: cd book-service \
+          mvn -B verify -Dsonar.projectKey=Makss1mka_Book-Katalog
