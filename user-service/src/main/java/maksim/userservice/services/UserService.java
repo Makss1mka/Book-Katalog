@@ -165,6 +165,21 @@ public class UserService {
 
 
 
+    private void saveChangesOfUpdatedStatus(
+        User user, int userId, boolean isSmthChanged,
+        UserBookStatuses statusEntity, UpdateBookStatusDto statusDto
+    ) {
+        if (statusEntity.getStatus() == null && !statusEntity.getLike()) {
+            deleteStatusEntity(userId, statusDto.getBookId());
+        } else {
+            if (isSmthChanged) {
+                userRepository.save(user);
+            } else {
+                throw new NoContentException("Nothing has changed");
+            }
+        }
+    }
+
     @Transactional
     public UserDto updateStatus(int userId, UpdateBookStatusDto statusDto) {
         logger.trace("UserService method entrance: changeStatus | Params: user id {} ; book id {} ; new status {}",
@@ -189,9 +204,7 @@ public class UserService {
 
         // Status changing
         switch (statusDto.getStatus()) {
-            case ANY -> {
-                throw new BadRequestException("Any here is not supported");
-            }
+            case ANY -> throw new BadRequestException("Any here is not supported");
             case LIKED -> {
                 if (statusEntity.getLike() != statusDto.getStatusValue()) {
                     statusEntity.setLike(statusDto.getStatusValue());
@@ -213,15 +226,7 @@ public class UserService {
             }
         }
 
-        if (statusEntity.getStatus() == null && !statusEntity.getLike()) {
-            deleteStatusEntity(userId, statusDto.getBookId());
-        } else {
-            if (isSmthChanged) {
-                userRepository.save(user);
-            } else {
-                throw new NoContentException("Nothing has changed");
-            }
-        }
+        saveChangesOfUpdatedStatus(user, userId, isSmthChanged, statusEntity, statusDto);
 
         logger.trace("UserService method end: changeStatus | Status was changed successfully");
 

@@ -5,17 +5,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CachingServiceTest {
     @InjectMocks
     private CachingService cachingService;
-
-    private final Logger logger = LoggerFactory.getLogger(CachingService.class);
 
     @BeforeEach
     void setUp() {
@@ -41,11 +39,9 @@ class CachingServiceTest {
 
         cachingService.addToCache(url, List.of(new BookDto()), 1);
 
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() -> !cachingService.contains(url));
 
         boolean result = cachingService.contains(url);
 
@@ -122,11 +118,9 @@ class CachingServiceTest {
         cachingService.addToCache("expired", books, 1);
         cachingService.addToCache("valid", books, 10000);
 
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() -> !cachingService.contains("expired"));
 
         cachingService.checkAndDeleteInvalidCaches();
 

@@ -48,9 +48,9 @@ public class UserDto {
         if (mode == JoinMode.WITH_STATUSES || mode == JoinMode.WITH_STATUSES_AND_BOOKS) {
             this.bookStatuses = new ArrayList<>(user.getBookStatuses().size());
 
-            user.getBookStatuses().forEach(bookStatuses -> {
-                this.bookStatuses.add(new UserBookStatusesDto(bookStatuses, mode));
-            });
+            user.getBookStatuses().forEach(statuses ->
+                this.bookStatuses.add(new UserBookStatusesDto(statuses, mode))
+            );
         }
     }
 

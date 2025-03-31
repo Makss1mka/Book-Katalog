@@ -2,7 +2,6 @@ package maksim.userservice.repositories;
 
 import java.util.List;
 import java.util.Optional;
-import maksim.userservice.models.entities.Book;
 import maksim.userservice.models.entities.User;
 import maksim.userservice.models.entities.UserBookStatuses;
 import org.springframework.data.domain.Pageable;

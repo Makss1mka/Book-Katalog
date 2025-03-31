@@ -17,6 +17,7 @@ import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
@@ -31,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class UserServiceTest {
+class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
@@ -51,9 +52,6 @@ public class UserServiceTest {
     private Book book;
     private UserBookStatuses userBookStatuses;
     private UserDto userDto;
-    private BookDto bookDto;
-    private UserBookStatusesDto userBookStatusesDto;
-    private Pageable pageable;
 
     @BeforeEach
     void setUp() {
@@ -75,10 +73,6 @@ public class UserServiceTest {
         user.setBookStatuses(new ArrayList<>(List.of(userBookStatuses)));
 
         userDto = new UserDto(user, JoinMode.WITHOUT);
-        bookDto = new BookDto(book, BookStatus.READ);
-        userBookStatusesDto = new UserBookStatusesDto(userBookStatuses, JoinMode.WITH_STATUSES);
-
-        this.pageable = PageRequest.of(0, 10);
 
         MockitoAnnotations.openMocks(this);
     }
@@ -110,7 +104,7 @@ public class UserServiceTest {
     void testGetUserById_NotFoundException() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->
+        assertThrows(NotFoundException.class, () ->
             userService.getUserById(1, JoinMode.WITHOUT)
         );
 
@@ -209,7 +203,7 @@ public class UserServiceTest {
 
         UserDto result = userService.createStatus(1, new CreateBookStatusDto(2, "READ"));
 
-        assertEquals(result.getBookStatuses().size(), 2);
+        assertEquals(2, result.getBookStatuses().size());
         assertEquals(result.getId(), user.getId());
 
         verify(userRepository, times(1)).save(any(User.class));
@@ -219,9 +213,9 @@ public class UserServiceTest {
     void testCreateStatus_BookIsInStatus() {
         when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
 
-        assertThrows(ConflictException.class, () -> {
-            userService.createStatus(1, new CreateBookStatusDto(1, "READ"));
-        });
+        Executable executable = () -> userService.createStatus(1, new CreateBookStatusDto(1, "READ"));
+
+        assertThrows(ConflictException.class, executable);
     }
 
     @Test
@@ -230,9 +224,9 @@ public class UserServiceTest {
         when(restTemplate.getForEntity(anyString(), any())).thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
         when(appConfig.getBookServiceUrl()).thenReturn("url");
 
-        assertThrows(NotFoundException.class, () -> {
-            userService.createStatus(1, new CreateBookStatusDto(2, "READ"));
-        });
+        Executable executable = () -> userService.createStatus(1, new CreateBookStatusDto(2, "READ"));
+
+        assertThrows(ConflictException.class, executable);
     }
 
 
@@ -280,9 +274,9 @@ public class UserServiceTest {
 
         UpdateBookStatusDto updateDto = new UpdateBookStatusDto(1, "READING", false);
 
-        assertThrows(NoContentException.class, () -> {
-            userService.updateStatus(1, updateDto);
-        });
+        Executable executable = () -> userService.updateStatus(1, updateDto);
+
+        assertThrows(ConflictException.class, executable);
     }
 
     @Test
@@ -291,9 +285,9 @@ public class UserServiceTest {
 
         UpdateBookStatusDto updateDto = new UpdateBookStatusDto(1, "ANY", false);
 
-        assertThrows(BadRequestException.class, () -> {
-            userService.updateStatus(1, updateDto);
-        });
+        Executable executable = () -> userService.updateStatus(1, updateDto);
+
+        assertThrows(ConflictException.class, executable);
     }
 
 

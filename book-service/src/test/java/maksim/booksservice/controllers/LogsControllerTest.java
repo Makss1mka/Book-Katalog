@@ -40,7 +40,7 @@ class LogsControllerTest {
         ResponseEntity<InputStreamResource> response = logsController.getLogs(minDate, maxDate);
 
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode());
         assertNotNull(response.getBody());
 
         HttpHeaders headers = response.getHeaders();
@@ -63,7 +63,7 @@ class LogsControllerTest {
         ResponseEntity<InputStreamResource> response = logsController.getLogs(minDate, maxDate);
 
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode());
     }
 
     @Test
