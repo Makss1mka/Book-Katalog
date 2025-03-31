@@ -120,7 +120,7 @@ public class UserService {
 
         userRepository.save(newUser);
 
-        logger.trace("UserService method end: createUser | User was found");
+        logger.trace("UserService method end: createUser | User was created");
 
         return new UserDto(newUser, null);
     }
@@ -144,7 +144,7 @@ public class UserService {
                 appConfig.getBookServiceUrl() + "/api/v1/books/" + statusDto.getBookId(),
                 Book.class);
         if (bookRequest.getStatusCode() != HttpStatus.OK) {
-            throw new BadRequestException("Cannot get book with such id");
+            throw new NotFoundException("Cannot get book with such id");
         }
 
         // Create status
@@ -155,6 +155,7 @@ public class UserService {
 
         // Add and save status
         user.getBookStatuses().add(newStatus);
+
         userRepository.save(user);
 
         logger.trace("UserService method end: addStatus | Status was added successfully");
@@ -192,7 +193,10 @@ public class UserService {
                 throw new BadRequestException("Any here is not supported");
             }
             case LIKED -> {
-                statusEntity.setLike(statusDto.getStatusValue());
+                if (statusEntity.getLike() != statusDto.getStatusValue()) {
+                    statusEntity.setLike(statusDto.getStatusValue());
+                    isSmthChanged = true;
+                }
             }
             default -> {
                 if (Objects.equals(statusDto.getStatus().toString(), statusEntity.getStatus()) && !statusDto.getStatusValue()) {
@@ -249,8 +253,6 @@ public class UserService {
                 user.getPassword()
             )) {
                 if (Objects.equals(userDto.getOldPassword(), userDto.getNewPassword())) {
-                    logger.info("UserService method: changeUser | Old password and new password are equal");
-
                     throw new BadRequestException("Old password and new password are equal");
                 }
 
@@ -262,8 +264,6 @@ public class UserService {
 
                 isSmthChanged = true;
             } else {
-                logger.info("UserService method: changeUser | Old password is not equals to entity password");
-
                 throw new BadRequestException("Password is incorrect");
             }
         }
@@ -271,6 +271,8 @@ public class UserService {
         // Saving data
         if (isSmthChanged) {
             userRepository.save(user);
+        } else {
+            throw new NoContentException("Nothing changed in your account");
         }
 
         logger.trace("UserService method end: changeUser | Status was changed successfully");
