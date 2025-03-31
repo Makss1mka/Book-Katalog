@@ -110,6 +110,10 @@ public class LogsController {
             }
         }
 
+        if (minDate.isAfter(maxDate)) {
+            throw new BadRequestException("Min date should be before max date");
+        }
+
         ByteArrayOutputStream outputStream = logsService.getLogs(minDate, maxDate);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
