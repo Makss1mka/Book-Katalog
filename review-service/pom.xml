@@ -39,6 +39,7 @@
 			**/enums/**/*,
 			**/exceptions/**/*,
 			**/*Config*.java,
+			**/GlobalExceptionHandler.java,
 			**/validators/**/*,
 			**/Pagination.java,
 			**/aspect/**/*,

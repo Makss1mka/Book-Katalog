@@ -41,6 +41,7 @@
 			**/*Config*.java,
 			**/BookSearchCriteria.java,
 			**/BookSpecification.java,
+			**/GlobalExceptionHandler.java,
 			**/validators/**/*,
 			**/Pagination.java,
 			**/CacheObject.java,
