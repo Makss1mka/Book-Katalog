@@ -3,9 +3,13 @@ package maksim.booksservice.controllers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import maksim.booksservice.exceptions.NotFoundException;
 import maksim.booksservice.config.GlobalExceptionHandler;
+import maksim.booksservice.models.dtos.AddListOfBooksDto;
 import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.services.CachingService;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
@@ -38,6 +42,7 @@ import static org.mockito.Mockito.*;
 
 class BookControllerTest {
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
     @Mock
     private BookService bookService;
@@ -69,6 +74,7 @@ class BookControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(bookController)
                 .setControllerAdvice(new GlobalExceptionHandler()) // Добавляем глобальный обработчик
                 .build();
+        objectMapper = new ObjectMapper();
     }
 
     @Test
@@ -204,6 +210,31 @@ class BookControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(bookService, never()).addBookFile(any(), anyInt());
+    }
+
+
+
+    @Test
+    void addAllBooksFromList_ValidRequest_ShouldReturnOk() throws Exception {
+        AddListOfBooksDto request = new AddListOfBooksDto();
+        request.setBooks(Collections.singletonList(new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), 1)));
+
+        mockMvc.perform(post("/api/v1/books/all")
+                        .param("authorId", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        verify(bookService).addListOfBooks(eq(1), any(AddListOfBooksDto.class));
+    }
+
+    @Test
+    void addAllBooksFromList_InvalidAuthorId_ShouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post("/api/v1/books/all")
+                        .param("authorId", "-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
     }
 
 }

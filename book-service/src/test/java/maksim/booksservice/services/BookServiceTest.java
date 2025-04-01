@@ -5,13 +5,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.exceptions.BadRequestException;
+import maksim.booksservice.exceptions.ForbiddenException;
 import maksim.booksservice.exceptions.NotFoundException;
 import maksim.booksservice.models.dtos.*;
 import maksim.booksservice.models.entities.Book;
@@ -32,7 +31,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +50,9 @@ class BookServiceTest {
 
     @Mock
     private AppConfig appConfig;
+
+    @Mock
+    private RestTemplate restTemplate;
 
     @Mock
     private CachingService cachingService;
@@ -270,4 +275,70 @@ class BookServiceTest {
         assertThrows(NotFoundException.class, () -> bookService.updateBook(1, updateBookDto));
     }
 
+
+
+
+    @Test
+    void addListOfBooks_ValidRequest_ShouldSaveBooks() {
+        int authorId = 1;
+        User user = new User();
+        user.setId(authorId);
+
+        CreateBookDto bookDto = new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), authorId);
+        AddListOfBooksDto request = new AddListOfBooksDto();
+        request.setBooks(Collections.singletonList(bookDto));
+
+        when(appConfig.getUserServiceUrl()).thenReturn("http://user-service");
+        when(restTemplate.getForEntity(anyString(), eq(User.class)))
+                .thenReturn(new ResponseEntity<>(user, HttpStatus.OK));
+
+        bookService.addListOfBooks(authorId, request);
+
+        verify(bookRepository).saveAll(anyList());
+    }
+
+    @Test
+    void addListOfBooks_UserNotFound_ShouldThrowNotFoundException() {
+        int authorId = 1;
+        AddListOfBooksDto request = new AddListOfBooksDto();
+        request.setBooks(Collections.singletonList(new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), authorId)));
+
+        when(appConfig.getUserServiceUrl()).thenReturn("http://user-service");
+        when(restTemplate.getForEntity(anyString(), eq(User.class)))
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+
+        assertThrows(NotFoundException.class, () ->
+            bookService.addListOfBooks(authorId, request)
+        );
+    }
+
+    @Test
+    void addListOfBooks_AddingBooksForOtherUser_ShouldThrowForbiddenException() {
+        int authorId = 1;
+        int otherAuthorId = 2;
+        User user = new User();
+        user.setId(authorId);
+
+        CreateBookDto bookDto = new CreateBookDto( "Book Name", Arrays.asList("gen1", "gen2"), otherAuthorId);
+        AddListOfBooksDto request = new AddListOfBooksDto();
+        request.setBooks(Collections.singletonList(bookDto));
+
+        when(appConfig.getUserServiceUrl()).thenReturn("http://user-service");
+        when(restTemplate.getForEntity(anyString(), eq(User.class)))
+                .thenReturn(new ResponseEntity<>(user, HttpStatus.OK));
+
+        assertThrows(ForbiddenException.class, () ->
+            bookService.addListOfBooks(authorId, request)
+        );
+    }
+
+    @Test
+    void addListOfBooks_EmptyList_ShouldNotSaveAnything() {
+        AddListOfBooksDto request = new AddListOfBooksDto();
+        request.setBooks(new ArrayList<>());
+
+        assertThrows(BadRequestException.class, () ->
+            bookService.addListOfBooks(1, request)
+        );
+    }
 }
