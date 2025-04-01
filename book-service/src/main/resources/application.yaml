@@ -1,4 +1,6 @@
 spring:
+  services:
+    user-service-url: http://user-service:8086
   kafka:
     bootstrap-servers: kafka:8090
     topics:
