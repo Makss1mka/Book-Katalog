@@ -369,7 +369,7 @@ public class BookService {
         List<Book> booksEntities = new ArrayList<>(books.size());
 
         ResponseEntity<User> userRequest = restTemplate.getForEntity(
-                appConfig.getUserServiceUrl() + "/api/v1/books/" + userWhoAddId,
+                appConfig.getUserServiceUrl() + "/api/v1/users/" + userWhoAddId,
                 User.class);
         if (userRequest.getStatusCode() != HttpStatus.OK) {
             throw new NotFoundException("Cannot get user with such id");
