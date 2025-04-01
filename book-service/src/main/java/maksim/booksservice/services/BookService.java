@@ -17,6 +17,7 @@ import java.util.Optional;
 import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.exceptions.ConflictException;
+import maksim.booksservice.exceptions.ForbiddenException;
 import maksim.booksservice.exceptions.NotFoundException;
 import maksim.booksservice.models.dtos.AddListOfBooksDto;
 import maksim.booksservice.models.dtos.BookDto;
@@ -25,7 +26,6 @@ import maksim.booksservice.models.dtos.UpdateBookDto;
 import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.models.entities.BookStatusLog;
 import maksim.booksservice.models.entities.User;
-import maksim.booksservice.models.kafkadtos.ChangeBookOneRateDto;
 import maksim.booksservice.repositories.BookRepository;
 import maksim.booksservice.repositories.UserRepository;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
@@ -37,7 +37,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -48,18 +51,21 @@ public class BookService {
     private final UserRepository userRepository;
     private final AppConfig appConfig;
     private final CachingService cachingService;
+    private final RestTemplate restTemplate;
 
     @Autowired
     public BookService(
             BookRepository bookRepository,
             UserRepository userRepository,
             AppConfig appConfig,
-            CachingService cachingService
+            CachingService cachingService,
+            RestTemplate restTemplate
     ) {
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
         this.appConfig = appConfig;
         this.cachingService = cachingService;
+        this.restTemplate = restTemplate;
     }
 
     private void saveOrThrow(Book book) {
@@ -354,10 +360,39 @@ public class BookService {
 
 
 
-    public void addListOfBooks(AddListOfBooksDto books) {
+    public void addListOfBooks(int userWhoAddId, AddListOfBooksDto books) {
         logger.trace("BookService method entrance: addListOfBooks");
 
+        if (books.getBooks().isEmpty()) {
+            throw new BadRequestException("Cannot add books, there are 0 books");
+        }
 
+        List<Book> booksEntities = new ArrayList<>(books.getBooks().size());
+
+        ResponseEntity<User> userRequest = restTemplate.getForEntity(
+                appConfig.getUserServiceUrl() + "/api/v1/books/" + userWhoAddId,
+                User.class);
+        if (userRequest.getStatusCode() != HttpStatus.OK) {
+            throw new NotFoundException("Cannot get user with such id");
+        }
+
+        User user = userRequest.getBody();
+
+        books.getBooks().forEach(createBookDto -> {
+            if (createBookDto.getAuthorId() != userWhoAddId) {
+                throw new ForbiddenException("You cannot add books for other person, only for you");
+            }
+
+            Book book = new Book();
+            book.setAuthor(user);
+            book.setGenres(createBookDto.getGenres());
+            book.setName(createBookDto.getName());
+            book.setIssuedDate(new Date());
+
+            booksEntities.add(book);
+        });
+
+        bookRepository.saveAll(booksEntities);
 
         logger.trace("BookService method end: addListOfBooks");
     }
