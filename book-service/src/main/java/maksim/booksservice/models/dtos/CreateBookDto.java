@@ -26,4 +26,12 @@ public class CreateBookDto {
     @Min(value = 0, message = "Author id should be greater than 0")
     @Schema(description = "Author id", example = "16")
     private Integer authorId;
+
+    public CreateBookDto(String name, List<String> genres, Integer authorId) {
+        this.name = name;
+        this.authorId = authorId;
+        this.genres = genres;
+    }
+
+    public CreateBookDto() {}
 }
