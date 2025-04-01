@@ -19,7 +19,6 @@ import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.exceptions.ConflictException;
 import maksim.booksservice.exceptions.ForbiddenException;
 import maksim.booksservice.exceptions.NotFoundException;
-import maksim.booksservice.models.dtos.AddListOfBooksDto;
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.dtos.UpdateBookDto;
@@ -360,14 +359,14 @@ public class BookService {
 
 
 
-    public void addListOfBooks(int userWhoAddId, AddListOfBooksDto books) {
+    public void addListOfBooks(int userWhoAddId, List<CreateBookDto> books) {
         logger.trace("BookService method entrance: addListOfBooks");
 
-        if (books.getBooks().isEmpty()) {
-            throw new BadRequestException("Cannot add books, there are 0 books");
+        if (books.isEmpty() || books.size() > 20) {
+            throw new BadRequestException("Can add 1-20 books");
         }
 
-        List<Book> booksEntities = new ArrayList<>(books.getBooks().size());
+        List<Book> booksEntities = new ArrayList<>(books.size());
 
         ResponseEntity<User> userRequest = restTemplate.getForEntity(
                 appConfig.getUserServiceUrl() + "/api/v1/books/" + userWhoAddId,
@@ -378,7 +377,7 @@ public class BookService {
 
         User user = userRequest.getBody();
 
-        books.getBooks().forEach(createBookDto -> {
+        books.forEach(createBookDto -> {
             if (createBookDto.getAuthorId() != userWhoAddId) {
                 throw new ForbiddenException("You cannot add books for other person, only for you");
             }

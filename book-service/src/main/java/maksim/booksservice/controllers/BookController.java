@@ -19,7 +19,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import maksim.booksservice.exceptions.BadRequestException;
-import maksim.booksservice.models.dtos.AddListOfBooksDto;
 import maksim.booksservice.models.dtos.BookDto;
 import maksim.booksservice.models.dtos.CreateBookDto;
 import maksim.booksservice.models.dtos.UpdateBookDto;
@@ -483,7 +482,7 @@ public class BookController {
         int authorId,
 
         @Valid @RequestBody
-        AddListOfBooksDto books
+        List<CreateBookDto> books
     ) {
         logger.trace("BookController method entrance: addAllBooksFromList");
 

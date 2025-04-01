@@ -284,15 +284,15 @@ class BookServiceTest {
         User user = new User();
         user.setId(authorId);
 
-        CreateBookDto bookDto = new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), authorId);
-        AddListOfBooksDto request = new AddListOfBooksDto();
-        request.setBooks(Collections.singletonList(bookDto));
+        List<CreateBookDto> bookDtos = List.of(
+            new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), authorId)
+        );
 
         when(appConfig.getUserServiceUrl()).thenReturn("http://user-service");
         when(restTemplate.getForEntity(anyString(), eq(User.class)))
                 .thenReturn(new ResponseEntity<>(user, HttpStatus.OK));
 
-        bookService.addListOfBooks(authorId, request);
+        bookService.addListOfBooks(authorId, bookDtos);
 
         verify(bookRepository).saveAll(anyList());
     }
@@ -300,15 +300,16 @@ class BookServiceTest {
     @Test
     void addListOfBooks_UserNotFound_ShouldThrowNotFoundException() {
         int authorId = 1;
-        AddListOfBooksDto request = new AddListOfBooksDto();
-        request.setBooks(Collections.singletonList(new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), authorId)));
+        List<CreateBookDto> bookDtos = List.of(
+            new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), authorId)
+        );
 
         when(appConfig.getUserServiceUrl()).thenReturn("http://user-service");
         when(restTemplate.getForEntity(anyString(), eq(User.class)))
                 .thenReturn(new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
 
         assertThrows(NotFoundException.class, () ->
-            bookService.addListOfBooks(authorId, request)
+            bookService.addListOfBooks(authorId, bookDtos)
         );
     }
 
@@ -319,26 +320,25 @@ class BookServiceTest {
         User user = new User();
         user.setId(authorId);
 
-        CreateBookDto bookDto = new CreateBookDto( "Book Name", Arrays.asList("gen1", "gen2"), otherAuthorId);
-        AddListOfBooksDto request = new AddListOfBooksDto();
-        request.setBooks(Collections.singletonList(bookDto));
+        List<CreateBookDto> bookDtos = List.of(
+            new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), otherAuthorId)
+        );
 
         when(appConfig.getUserServiceUrl()).thenReturn("http://user-service");
         when(restTemplate.getForEntity(anyString(), eq(User.class)))
                 .thenReturn(new ResponseEntity<>(user, HttpStatus.OK));
 
         assertThrows(ForbiddenException.class, () ->
-            bookService.addListOfBooks(authorId, request)
+            bookService.addListOfBooks(authorId, bookDtos)
         );
     }
 
     @Test
     void addListOfBooks_EmptyList_ShouldNotSaveAnything() {
-        AddListOfBooksDto request = new AddListOfBooksDto();
-        request.setBooks(new ArrayList<>());
+        List<CreateBookDto> bookDtos = new ArrayList<>();
 
         assertThrows(BadRequestException.class, () ->
-            bookService.addListOfBooks(1, request)
+            bookService.addListOfBooks(1, bookDtos)
         );
     }
 }
