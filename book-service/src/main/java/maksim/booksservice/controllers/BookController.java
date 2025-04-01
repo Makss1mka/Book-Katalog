@@ -480,14 +480,14 @@ public class BookController {
         @NotNull(message = "Author id shouldn't be null")
         @Min(value = 0, message = "Author id should be greater than 0")
         @RequestParam(value = "authorId")
-        int creatorId,
+        int authorId,
 
         @Valid @RequestBody
         AddListOfBooksDto books
     ) {
         logger.trace("BookController method entrance: addAllBooksFromList");
 
-        bookService.addListOfBooks(books);
+        bookService.addListOfBooks(authorId, books);
 
         logger.trace("BookController method end: addAllBooksFromList | Books were successfully added");
 
