@@ -37,9 +37,9 @@
 			**/entities/**/*,
 			**/*Dto.java,
 			**/enums/**/*,
-			**/exception/**/*,
+			**/exceptions/**/*,
 			**/*Config*.java,
-			**/*Validator.java,
+			**/validators/**/*,
 			**/Pagination.java,
 			**/aspect/**/*,
 			**/*Aspect.java
