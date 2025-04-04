@@ -7,7 +7,7 @@ spring:
   datasource:
     url: "jdbc:postgresql://host.docker.internal:5432/postgres"
     username: "postgres"
-    password: "postgres" # ${PASSWORD}
+    password: "postgres"
   jpa:
     show-sql: true
     hibernate:
@@ -20,6 +20,24 @@ spring:
   web:
     resources:
       add-mappings: false
+  kafka:
+    bootstrap-servers: kafka:8090
+    topics:
+      status-update: "status-update"
+      status-create: "status-create"
+      status-delete: "status-delete"
+      like-create: "like-create"
+      like-delete: "like-delete"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    admin:
+      auto-create: true
+      properties:
+        replication-factor: 1
+        num-partitions: 3
 
 server:
   port: 8086
