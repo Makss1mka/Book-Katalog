@@ -17,7 +17,7 @@ import lombok.ToString;
 @Table(name = "users")
 public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<UserBookStatuses> bookStatuses = new ArrayList<>();
+    private List<UserBookStatus> bookStatuses = new ArrayList<>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

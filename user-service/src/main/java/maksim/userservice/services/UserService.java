@@ -11,11 +11,17 @@ import java.util.Optional;
 import maksim.userservice.config.AppConfig;
 import maksim.userservice.exceptions.ConflictException;
 import maksim.userservice.exceptions.NoContentException;
-import maksim.userservice.models.dtos.*;
+import maksim.userservice.models.dtos.crud.CreateBookStatusDto;
+import maksim.userservice.models.dtos.crud.CreateUserDto;
+import maksim.userservice.models.dtos.crud.UpdateBookStatusDto;
+import maksim.userservice.models.dtos.crud.UpdateUserDto;
+import maksim.userservice.models.dtos.result.BookDto;
+import maksim.userservice.models.dtos.result.UserDto;
 import maksim.userservice.models.entities.Book;
 import maksim.userservice.models.entities.User;
-import maksim.userservice.models.entities.UserBookStatuses;
+import maksim.userservice.models.entities.UserBookStatus;
 import maksim.userservice.repositories.UserRepository;
+import maksim.userservice.services.kafka.producers.StatusEventsProducer;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
 import org.slf4j.Logger;
@@ -36,18 +42,21 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final AppConfig appConfig;
+    private final StatusEventsProducer statusEventsProducer;
 
     @Autowired
     UserService(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
         RestTemplate restTemplate,
-        AppConfig appConfig
+        AppConfig appConfig,
+        StatusEventsProducer statusEventsProducer
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.restTemplate = restTemplate;
         this.appConfig = appConfig;
+        this.statusEventsProducer = statusEventsProducer;
     }
 
     private User getUserEntityById(int userId, JoinMode mode) {
@@ -80,11 +89,11 @@ public class UserService {
     public List<BookDto> getAllBooksByUserStatus(int userId, BookStatus status, Pageable pageable) {
         logger.trace("UserService method entrance: getAllReadingBooks | Params: user id {}", userId);
 
-        List<UserBookStatuses> statuses = userRepository.findAllBooksByUserStatus(userId, status.toString(), pageable);
+        List<UserBookStatus> statuses = userRepository.findAllBooksByUserStatus(userId, status.toString(), pageable);
 
         List<BookDto> books = new ArrayList<>(statuses.size());
 
-        for (UserBookStatuses st : statuses) {
+        for (UserBookStatus st : statuses) {
             books.add(new BookDto(
                 st.getBook(), BookStatus.fromValue(st.getStatus())
             ));
@@ -133,7 +142,7 @@ public class UserService {
         User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
         // Status existence check
-        for (UserBookStatuses st : user.getBookStatuses()) {
+        for (UserBookStatus st : user.getBookStatuses()) {
             if (st.getBook().getId() == statusDto.getBookId()) {
                 throw new ConflictException("Status for such user and book already exist");
             }
@@ -148,7 +157,7 @@ public class UserService {
         }
 
         // Create status
-        UserBookStatuses newStatus = new UserBookStatuses();
+        UserBookStatus newStatus = new UserBookStatus();
         newStatus.setBook(bookRequest.getBody());
         newStatus.setStatus(statusDto.getStatus().toString());
         newStatus.setUser(user);
@@ -166,8 +175,8 @@ public class UserService {
 
 
     private void saveChangesOfUpdatedStatus(
-        User user, int userId, boolean isSmthChanged,
-        UserBookStatuses statusEntity, UpdateBookStatusDto statusDto
+            User user, int userId, boolean isSmthChanged,
+            UserBookStatus statusEntity, UpdateBookStatusDto statusDto
     ) {
         if (statusEntity.getStatus() == null && !statusEntity.getLike()) {
             deleteStatusEntity(userId, statusDto.getBookId());
@@ -187,10 +196,10 @@ public class UserService {
 
         User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
-        UserBookStatuses statusEntity = null;
+        UserBookStatus statusEntity = null;
 
         // Status existence check
-        for (UserBookStatuses st : user.getBookStatuses()) {
+        for (UserBookStatus st : user.getBookStatuses()) {
             if (st.getBook().getId() == statusDto.getBookId()) {
                 statusEntity = st;
             }
@@ -293,7 +302,7 @@ public class UserService {
 
         User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
-        List<UserBookStatuses> statuses = user.getBookStatuses();
+        List<UserBookStatus> statuses = user.getBookStatuses();
         boolean isFound = false;
 
         // Status existence check

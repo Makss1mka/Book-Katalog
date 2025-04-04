@@ -3,7 +3,11 @@ package maksim.userservice.controllers;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import maksim.userservice.models.dtos.*;
+
+import maksim.userservice.models.dtos.crud.CreateUserDto;
+import maksim.userservice.models.dtos.crud.UpdateUserDto;
+import maksim.userservice.models.dtos.result.BookDto;
+import maksim.userservice.models.dtos.result.UserDto;
 import maksim.userservice.models.entities.Book;
 import maksim.userservice.services.UserService;
 import maksim.userservice.utils.enums.BookStatus;

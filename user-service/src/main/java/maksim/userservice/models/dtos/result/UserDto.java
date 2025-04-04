@@ -1,4 +1,4 @@
-package maksim.userservice.models.dtos;
+package maksim.userservice.models.dtos.result;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -34,10 +34,10 @@ public class UserDto {
     @ArraySchema(
         schema = @Schema(
             description = "User book statuses",
-            implementation = UserBookStatusesDto.class
+            implementation = UserBookStatusDto.class
         )
     )
-    private List<UserBookStatusesDto> bookStatuses = null;
+    private List<UserBookStatusDto> bookStatuses = null;
 
     public UserDto(User user, JoinMode mode) {
         this.id = user.getId();
@@ -49,7 +49,7 @@ public class UserDto {
             this.bookStatuses = new ArrayList<>(user.getBookStatuses().size());
 
             user.getBookStatuses().forEach(statuses ->
-                this.bookStatuses.add(new UserBookStatusesDto(statuses, mode))
+                this.bookStatuses.add(new UserBookStatusDto(statuses, mode))
             );
         }
     }

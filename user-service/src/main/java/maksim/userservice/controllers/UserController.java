@@ -14,7 +14,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import maksim.userservice.exceptions.BadRequestException;
 import java.util.List;
-import maksim.userservice.models.dtos.*;
+
+import maksim.userservice.models.dtos.crud.CreateBookStatusDto;
+import maksim.userservice.models.dtos.crud.CreateUserDto;
+import maksim.userservice.models.dtos.crud.UpdateBookStatusDto;
+import maksim.userservice.models.dtos.crud.UpdateUserDto;
+import maksim.userservice.models.dtos.result.BookDto;
+import maksim.userservice.models.dtos.result.UserDto;
 import maksim.userservice.services.UserService;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
@@ -192,12 +198,12 @@ public class UserController {
     ) {
         JoinMode joinMode = JoinMode.fromValue(strJoinMode);
 
-        logger.trace("BookController method entrance: getAllBooksByUserStatus | Params: userId {} ; join mode {}",
+        logger.trace("BookController method entrance: getUserById | Params: userId {} ; join mode {}",
                 userId, joinMode);
 
         UserDto user = userService.getUserById(userId, joinMode);
 
-        logger.trace("BookController method return: getAllBooksByUserStatus | User was found successfully");
+        logger.trace("BookController method return: getUserById | User was found successfully");
 
         return ResponseEntity.ok(user);
     }

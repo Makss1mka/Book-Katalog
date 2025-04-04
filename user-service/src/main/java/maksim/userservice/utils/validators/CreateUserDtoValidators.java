@@ -1,6 +1,6 @@
 package maksim.userservice.utils.validators;
 
-import maksim.userservice.models.dtos.CreateUserDto;
+import maksim.userservice.models.dtos.crud.CreateUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

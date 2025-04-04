@@ -1,4 +1,4 @@
-package maksim.userservice.models.dtos;
+package maksim.userservice.models.dtos.result;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import maksim.userservice.models.entities.Book;

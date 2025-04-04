@@ -3,7 +3,7 @@ package maksim.userservice.repositories;
 import java.util.List;
 import java.util.Optional;
 import maksim.userservice.models.entities.User;
-import maksim.userservice.models.entities.UserBookStatuses;
+import maksim.userservice.models.entities.UserBookStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             + "OR (s.like = true AND (:status = 'LIKED')) "
             + "OR :status = 'ANY') "
             + "AND u.id = :userId")
-    List<UserBookStatuses> findAllBooksByUserStatus(@Param("userId") int userId, @Param("status") String status, Pageable pageable);
+    List<UserBookStatus> findAllBooksByUserStatus(@Param("userId") int userId, @Param("status") String status, Pageable pageable);
 
     Optional<User> findByName(String name);
 

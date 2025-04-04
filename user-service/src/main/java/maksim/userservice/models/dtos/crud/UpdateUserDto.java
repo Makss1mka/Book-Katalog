@@ -1,4 +1,4 @@
-package maksim.userservice.models.dtos;
+package maksim.userservice.models.dtos.crud;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

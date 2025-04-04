@@ -1,11 +1,11 @@
-package maksim.userservice.models.dtos;
+package maksim.userservice.models.dtos.result;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import maksim.userservice.models.entities.UserBookStatuses;
+import maksim.userservice.models.entities.UserBookStatus;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
 
@@ -14,7 +14,7 @@ import maksim.userservice.utils.enums.JoinMode;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Returning user-book status object")
-public class UserBookStatusesDto {
+public class UserBookStatusDto {
     @Schema(description = "User-book status id", example = "16")
     private Integer id = null;
 
@@ -30,7 +30,7 @@ public class UserBookStatusesDto {
     @Schema(description = "Book object", implementation = BookDto.class)
     private BookDto book = null;
 
-    public UserBookStatusesDto(UserBookStatuses st, JoinMode mode) {
+    public UserBookStatusDto(UserBookStatus st, JoinMode mode) {
         this.id = st.getId();
         this.like = st.getLike();
 
@@ -45,5 +45,5 @@ public class UserBookStatusesDto {
         }
     }
 
-    public UserBookStatusesDto() {}
+    public UserBookStatusDto() {}
 }

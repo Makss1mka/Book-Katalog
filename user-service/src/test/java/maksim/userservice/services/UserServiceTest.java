@@ -8,10 +8,15 @@ import maksim.userservice.exceptions.BadRequestException;
 import maksim.userservice.exceptions.ConflictException;
 import maksim.userservice.exceptions.NoContentException;
 import maksim.userservice.exceptions.NotFoundException;
-import maksim.userservice.models.dtos.*;
+import maksim.userservice.models.dtos.crud.CreateBookStatusDto;
+import maksim.userservice.models.dtos.crud.CreateUserDto;
+import maksim.userservice.models.dtos.crud.UpdateBookStatusDto;
+import maksim.userservice.models.dtos.crud.UpdateUserDto;
+import maksim.userservice.models.dtos.result.BookDto;
+import maksim.userservice.models.dtos.result.UserDto;
 import maksim.userservice.models.entities.Book;
 import maksim.userservice.models.entities.User;
-import maksim.userservice.models.entities.UserBookStatuses;
+import maksim.userservice.models.entities.UserBookStatus;
 import maksim.userservice.repositories.UserRepository;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
@@ -49,7 +54,7 @@ class UserServiceTest {
 
     private User user;
     private Book book;
-    private UserBookStatuses userBookStatuses;
+    private UserBookStatus userBookStatus;
     private UserDto userDto;
 
     @BeforeEach
@@ -63,20 +68,18 @@ class UserServiceTest {
         book.setId(1);
         book.setName("book");
 
-        userBookStatuses = new UserBookStatuses();
-        userBookStatuses.setId(1);
-        userBookStatuses.setBook(book);
-        userBookStatuses.setStatus("READ");
-        userBookStatuses.setLike(false);
+        userBookStatus = new UserBookStatus();
+        userBookStatus.setId(1);
+        userBookStatus.setBook(book);
+        userBookStatus.setStatus("READ");
+        userBookStatus.setLike(false);
 
-        user.setBookStatuses(new ArrayList<>(List.of(userBookStatuses)));
+        user.setBookStatuses(new ArrayList<>(List.of(userBookStatus)));
 
         userDto = new UserDto(user, JoinMode.WITHOUT);
 
         MockitoAnnotations.openMocks(this);
     }
-
-
 
     @Test
     void testGetUserById_Success() {
@@ -110,12 +113,9 @@ class UserServiceTest {
         verify(userRepository, times(1)).findById(anyInt());
     }
 
-
-
-
     @Test
     void testGetAllBooksByUserStatus_Success() {
-        List<UserBookStatuses> statuses = Arrays.asList(userBookStatuses, userBookStatuses);
+        List<UserBookStatus> statuses = Arrays.asList(userBookStatus, userBookStatus);
 
         when(userRepository.findAllBooksByUserStatus(anyInt(), anyString(), any(Pageable.class))).thenReturn(statuses);
 
@@ -137,10 +137,6 @@ class UserServiceTest {
         assertTrue(result.isEmpty());
         verify(userRepository, times(1)).findAllBooksByUserStatus(anyInt(), anyString(), any(Pageable.class));
     }
-
-
-
-
 
     @Test
     void testCreateUser_Success() {
@@ -190,10 +186,6 @@ class UserServiceTest {
         verify(userRepository, times(1)).findByName(anyString());
     }
 
-
-
-
-
     @Test
     void testCreateStatus_Success() {
         when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
@@ -227,10 +219,6 @@ class UserServiceTest {
             userService.createStatus(1, new CreateBookStatusDto(2, "READ"))
         );
     }
-
-
-
-
 
     @Test
     void testUpdateStatus_SuccessStatusUpdate() {
@@ -288,10 +276,6 @@ class UserServiceTest {
             userService.updateStatus(1, updateDto)
         );
     }
-
-
-
-
 
     @Test
     void testUpdateUser_SuccessNameChange() {
@@ -372,10 +356,6 @@ class UserServiceTest {
         );
     }
 
-
-
-
-
     @Test
     void testDeleteStatusEntity_Success() {
         when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
@@ -394,9 +374,6 @@ class UserServiceTest {
             userService.deleteStatusEntity(1, 999);
         });
     }
-
-
-
 
     @Test
     void testDeleteUser_Success() {
