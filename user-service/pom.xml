@@ -191,6 +191,15 @@
 			<artifactId>jersey-hk2</artifactId>
 			<version>3.0.0</version>
 		</dependency>
+
+
+		<!-- KAFKA -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>3.2.8</version>
+		</dependency>
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
