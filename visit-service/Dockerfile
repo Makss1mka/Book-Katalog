@@ -18,4 +18,4 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
-ENTRYPOINT ["java","-cp","app:app/lib/*","maksim.booksservice.BookServiceApplication"]
+ENTRYPOINT ["java","-cp","app:app/lib/*","maksim.visitservice.VisitServiceApplication"]

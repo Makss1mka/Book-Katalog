@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bdf3779e-3db7-4b9f-975a-70c0f65abe19" name="Changes" comment="Fix">
+      <change afterPath="$PROJECT_DIR$/../visit-service/src/main/java/maksim/visitservice/models/VisitDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../book-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../book-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gateway/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../gateway/src/main/resources/application.yaml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Makss1mka&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Makss1mka/Book-Katalog&quot;,
+    &quot;accountId&quot;: &quot;104fa4bc-daeb-4791-9cee-3a7393111313&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2uSBLRsBLPmpWR6VE8nXD1T1ZAk" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.BookServiceApplication.executor": "Debug",
+    "JUnit.BookControllerTest.addAllBooksFromList_InvalidAuthorId_ShouldReturnBadRequest.executor": "Run",
+    "JUnit.BookControllerTest.addAllBooksFromList_MissingAuthorId_ShouldReturnBadRequest.executor": "Run",
+    "JUnit.BookControllerTest.addAllBooksFromList_ValidRequest_ShouldReturnOk.executor": "Run",
+    "JUnit.BookControllerTest.executor": "Debug",
+    "JUnit.BookServiceTest.addBookFile_InvalidFileName_ShouldThrowBadRequestException.executor": "Run",
+    "JUnit.BookServiceTest.addBookFile_ValidFile_ShouldSaveFile.executor": "Run",
+    "JUnit.BookServiceTest.addBookMetaData_AuthorNotFound_ShouldThrowBadRequestException.executor": "Run",
+    "JUnit.BookServiceTest.addBookMetaData_ValidData_ShouldReturnBookDto.executor": "Run",
+    "JUnit.BookServiceTest.addListOfBooks_AddingBooksForOtherUser_ShouldThrowForbiddenException.executor": "Run",
+    "JUnit.BookServiceTest.addListOfBooks_EmptyList_ShouldNotSaveAnything.executor": "Run",
+    "JUnit.BookServiceTest.addListOfBooks_UserNotFound_ShouldThrowNotFoundException.executor": "Run",
+    "JUnit.BookServiceTest.addListOfBooks_ValidRequest_ShouldSaveBooks.executor": "Run",
+    "JUnit.BookServiceTest.deleteBook_BookNotFound_ShouldThrowNotFoundException.executor": "Run",
+    "JUnit.BookServiceTest.deleteBook_ValidId_ShouldDeleteBook.executor": "Run",
+    "JUnit.BookServiceTest.executor": "Run",
+    "JUnit.BookServiceTest.getAllBooks_WithCriteria_ShouldReturnListOfBookDtos.executor": "Run",
+    "JUnit.BookServiceTest.getById_NotFound_ShouldThrowNotFoundException.executor": "Run",
+    "JUnit.BookServiceTest.getById_WithJoin_ShouldReturnBookDto.executor": "Run",
+    "JUnit.BookServiceTest.getById_WithoutJoin_ShouldReturnBookDto.executor": "Run",
+    "JUnit.BookServiceTest.getFile_BookNotFound_ShouldThrowNotFoundException.executor": "Run",
+    "JUnit.BookServiceTest.getFile_FileNotFound_ShouldThrowNotFoundException.executor": "Run",
+    "JUnit.BookServiceTest.getFile_ValidBookId_ShouldReturnFile.executor": "Run",
+    "JUnit.BookServiceTest.testAddBookFile_BookNotFound.executor": "Run",
+    "JUnit.BookServiceTest.testAddBookFile_InvalidFileName.executor": "Run",
+    "JUnit.BookServiceTest.testAddBookFile_Success.executor": "Run",
+    "JUnit.BookServiceTest.updateBook_BookNotFound_ShouldThrowNotFoundException.executor": "Run",
+    "JUnit.BookServiceTest.updateBook_ValidData_ShouldReturnUpdatedBookDto.executor": "Run",
+    "JUnit.BookServiceTesta.testAddBookFile_Success.executor": "Run",
+    "JUnit.CachingServiceTest.addToCache_ShouldAddItemAndMaintainSizeLimit.executor": "Run",
+    "JUnit.CachingServiceTest.checkAndDeleteInvalidCaches_ShouldRemoveExpiredItems.executor": "Run",
+    "JUnit.CachingServiceTest.contains_ShouldReturnFalseForExpiredCache.executor": "Run",
+    "JUnit.CachingServiceTest.contains_ShouldReturnTrueForValidCache.executor": "Run",
+    "JUnit.CachingServiceTest.deleteBook_ShouldRemoveBookFromAllCaches.executor": "Run",
+    "JUnit.CachingServiceTest.executor": "Run",
+    "JUnit.CachingServiceTest.getFromCache_ShouldUpdateAccessTime.executor": "Run",
+    "JUnit.CachingServiceTest.invalidateCache_ShouldRemoveItem.executor": "Run",
+    "JUnit.CachingServiceTest.printStorage_ShouldLogCacheState.executor": "Run",
+    "JUnit.CachingServiceTest.updateBook_ShouldUpdateBookInAllCaches.executor": "Run",
+    "JUnit.LogsControllerTest.getLogs_EmptyDates.executor": "Run",
+    "JUnit.LogsControllerTest.getLogs_InvalidMaxDateFormat.executor": "Run",
+    "JUnit.LogsControllerTest.getLogs_InvalidMinDateFormat.executor": "Run",
+    "JUnit.LogsControllerTest.getLogs_MinDateAfterMaxDate.executor": "Run",
+    "JUnit.LogsControllerTest.getLogs_SuccessWithFullDateTimeFormat.executor": "Run",
+    "JUnit.LogsControllerTest.getLogs_SuccessWithShortDateFormat.executor": "Run",
+    "JUnit.LogsServiceTest.getLogs_SuccessWithMatchingLogs.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Максим/Desktop/PopuskPapka/java/Book-Katalog/visit-service",
+    "settings.editor.selected.configurable": "org.infernus.idea.checkstyle.CheckStyleConfigurable"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Максим\Desktop\PopuskPapka\java\Book-Katalog\visiting-service\src\main\java\maksim\visitingservice\utils" />
+      <recent name="C:\Users\Максим\Desktop\PopuskPapka\java\Book-Katalog\book-service\src\main\java\maksim\booksservice\models\dtos" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="maksim.booksservice.repositories" />
+      <recent name="maksim.booksservice.services.kafka.consumers" />
+      <recent name="maksim.booksservice.config" />
+      <recent name="maksim.booksservice.exceptions" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.BookControllerTest">
+    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+      <module name="visit-service" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookControllerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visit-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="maksim.visitservice.controllers.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="maksim.booksservice.controllers" />
+      <option name="MAIN_CLASS_NAME" value="maksim.visitingservice.controllers.BookControllerTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookControllerTest.addAllBooksFromList_InvalidAuthorId_ShouldReturnBadRequest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visit-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="maksim.visitservice.controllers.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="maksim.booksservice.controllers" />
+      <option name="MAIN_CLASS_NAME" value="maksim.visitingservice.controllers.BookControllerTest" />
+      <option name="METHOD_NAME" value="addAllBooksFromList_InvalidAuthorId_ShouldReturnBadRequest" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookControllerTest.addAllBooksFromList_ValidRequest_ShouldReturnOk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visit-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="maksim.visitservice.controllers.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="maksim.booksservice.controllers" />
+      <option name="MAIN_CLASS_NAME" value="maksim.visitingservice.controllers.BookControllerTest" />
+      <option name="METHOD_NAME" value="addAllBooksFromList_ValidRequest_ShouldReturnOk" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visit-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="maksim.visitingservice.services.kafka.consumers.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="maksim.booksservice.services" />
+      <option name="MAIN_CLASS_NAME" value="maksim.visitingservice.services.BookServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookServiceTest.addListOfBooks_AddingBooksForOtherUser_ShouldThrowForbiddenException" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visit-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="maksim.visitingservice.services.kafka.consumers.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="maksim.booksservice.services" />
+      <option name="MAIN_CLASS_NAME" value="maksim.visitingservice.services.BookServiceTest" />
+      <option name="METHOD_NAME" value="addListOfBooks_AddingBooksForOtherUser_ShouldThrowForbiddenException" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="visit-service" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="visit-service" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.Unnamed" />
+      <item itemvalue="JUnit.BookControllerTest" />
+      <item itemvalue="JUnit.BookControllerTest.addAllBooksFromList_InvalidAuthorId_ShouldReturnBadRequest" />
+      <item itemvalue="JUnit.BookControllerTest.addAllBooksFromList_ValidRequest_ShouldReturnOk" />
+      <item itemvalue="JUnit.BookServiceTest" />
+      <item itemvalue="JUnit.BookServiceTest.addListOfBooks_AddingBooksForOtherUser_ShouldThrowForbiddenException" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.BookControllerTest" />
+        <item itemvalue="JUnit.BookServiceTest" />
+        <item itemvalue="JUnit.BookServiceTest.addListOfBooks_AddingBooksForOtherUser_ShouldThrowForbiddenException" />
+        <item itemvalue="JUnit.BookControllerTest.addAllBooksFromList_InvalidAuthorId_ShouldReturnBadRequest" />
+        <item itemvalue="JUnit.BookControllerTest.addAllBooksFromList_ValidRequest_ShouldReturnOk" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bdf3779e-3db7-4b9f-975a-70c0f65abe19" name="Changes" comment="" />
+      <created>1742232038508</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1742232038508</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Add swagger deps">
+      <option name="closed" value="true" />
+      <created>1743097814860</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1743097814860</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Remove invalid fields">
+      <option name="closed" value="true" />
+      <created>1743097831871</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1743097831871</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Add swagger description for all dtos">
+      <option name="closed" value="true" />
+      <created>1743097859355</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1743097859355</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Add endpoints description (To book service)">
+      <option name="closed" value="true" />
+      <created>1743097880914</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1743097880914</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Change tiem delays between printing and cleaning cache">
+      <option name="closed" value="true" />
+      <created>1743097916370</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1743097916370</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Enable throwing of noHandlerFoundException">
+      <option name="closed" value="true" />
+      <created>1743154413676</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1743154413676</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Add fileException, codestyle fixes">
+      <option name="closed" value="true" />
+      <created>1743156787000</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1743156787000</updated>
+    </task>
+    <task id="LOCAL-00008" summary="codestyle fixes">
+      <option name="closed" value="true" />
+      <created>1743158446866</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1743158446866</updated>
+    </task>
+    <task id="LOCAL-00009" summary="codestyle fixes">
+      <option name="closed" value="true" />
+      <created>1743158482181</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1743158482181</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Add tests for logs controller and caching service">
+      <option name="closed" value="true" />
+      <created>1743447611938</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1743447611938</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Tests fixes">
+      <option name="closed" value="true" />
+      <created>1743450815906</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1743450815906</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Tests fixes">
+      <option name="closed" value="true" />
+      <created>1743461269174</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1743461269174</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Exlude some files from test coverege check, add some tests to book service">
+      <option name="closed" value="true" />
+      <created>1743463749451</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1743463749451</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Add dto for adding books in list and add controller method for adding list of books">
+      <option name="closed" value="true" />
+      <created>1743463950424</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1743463950424</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Add exception for forbidden and global handler for it.">
+      <option name="closed" value="true" />
+      <created>1743465872543</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1743465872543</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Add restTemplate config to book service, add url for user-service in bokk service, add in app config user-service url in book service">
+      <option name="closed" value="true" />
+      <created>1743465914420</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1743465914420</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Add logic for adding list of books.">
+      <option name="closed" value="true" />
+      <created>1743465941137</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1743465941137</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Add constructors for dto">
+      <option name="closed" value="true" />
+      <created>1743465958615</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1743465958615</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Rename creatorId -&gt; authorId">
+      <option name="closed" value="true" />
+      <created>1743465974188</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1743465974188</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Add some tests">
+      <option name="closed" value="true" />
+      <created>1743465989728</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1743465989728</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Add some new ignoring coverege files">
+      <option name="closed" value="true" />
+      <created>1743466345003</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1743466345003</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Remove dto and replace it with list of dtos">
+      <option name="closed" value="true" />
+      <created>1743467260609</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1743467260609</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Fix">
+      <option name="closed" value="true" />
+      <created>1743467669753</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1743467669753</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add swagger deps" />
+    <MESSAGE value="Remove invalid fields" />
+    <MESSAGE value="Add swagger description for all dtos" />
+    <MESSAGE value="Add endpoints description (To book service)" />
+    <MESSAGE value="Change tiem delays between printing and cleaning cache" />
+    <MESSAGE value="Enable throwing of noHandlerFoundException" />
+    <MESSAGE value="Add fileException, codestyle fixes" />
+    <MESSAGE value="codestyle fixes" />
+    <MESSAGE value="Add tests for logs controller and caching service" />
+    <MESSAGE value="Tests fixes" />
+    <MESSAGE value="Exlude some files from test coverege check, add some tests to book service" />
+    <MESSAGE value="Add dto for adding books in list and add controller method for adding list of books" />
+    <MESSAGE value="Add exception for forbidden and global handler for it." />
+    <MESSAGE value="Add restTemplate config to book service, add url for user-service in bokk service, add in app config user-service url in book service" />
+    <MESSAGE value="Add logic for adding list of books." />
+    <MESSAGE value="Add constructors for dto" />
+    <MESSAGE value="Rename creatorId -&gt; authorId" />
+    <MESSAGE value="Add some tests" />
+    <MESSAGE value="Add some new ignoring coverege files" />
+    <MESSAGE value="Remove dto and replace it with list of dtos" />
+    <MESSAGE value="Fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix" />
+  </component>
+</project>
