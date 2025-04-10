@@ -1,0 +1,34 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: book-service
+          uri: http://book-service:8084
+          predicates:
+            - Path=/api/v1/books/**
+        - id: review-service
+          uri: http://review-service:8087
+          predicates:
+            - Path=/api/v1/reviews/**
+        - id: user-service
+          uri: http://user-service:8086
+          predicates:
+            - Path=/api/v1/users/**
+        - id: auth-service
+          uri: http://auth-service:8082
+          predicates:
+            - Path=/api/v1/auth/**
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+
+
+server:
+  port: 8083
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: "http://eureka-server:8081/eureka"

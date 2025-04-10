@@ -24,6 +24,19 @@ services:
     networks:
       - backend
 
+
+  gateway:
+    container_name: gateway
+    depends_on:
+      eureka-server:
+        condition: service_started
+    image: maks1mka/gateway:latest
+    ports:
+      - 8083:8083
+    networks:
+      - backend
+
+
   user-service:
     container_name: user-service
     depends_on:

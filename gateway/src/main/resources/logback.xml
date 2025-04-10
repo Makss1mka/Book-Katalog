@@ -21,12 +21,12 @@
     </appender>
 
     <logger name="maksim" level="TRACE" additivity="false">
-        <appender-ref name="CONSOLE"/>
-        <appender-ref name="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
     </logger>
 
     <root level="INFO">
-        <appender-ref name="CONSOLE"/>
-        <appender-ref name="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>
