@@ -1,6 +1,6 @@
 package maksim.booksservice.utils.validators;
 
-import maksim.booksservice.models.dtos.CreateBookDto;
+import maksim.booksservice.models.dtos.crud.CreateBookDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

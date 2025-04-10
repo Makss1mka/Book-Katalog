@@ -1,4 +1,4 @@
-package maksim.booksservice.models.dtos;
+package maksim.booksservice.models.dtos.result;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
