@@ -4,7 +4,11 @@ spring:
   kafka:
     bootstrap-servers: kafka:8090
     topics:
-      changes: review-changes
+      status-update: "status-update"
+      status-create: "status-create"
+      status-delete: "status-delete"
+      like-create: "like-create"
+      like-delete: "like-delete"
     consumer:
       group-id: book-service
       auto-offset-reset: earliest
@@ -13,14 +17,16 @@ spring:
         spring:
           json:
             trusted:
-              packages: "maksim.booksservice, maksim.reviewsservice"
+              packages: "java.util,java.lang,maksim.booksservice,maksim.kafkaclient.dtos"
+    listener:
+      ack-mode: manual
   application:
     name: book-service
     book-files-directory: "app/statics/"
   datasource:
-    url: "jdbc:postgresql://host.docker.internal:5432/postgres"       # host.docker.internal 192.168.163.213
+    url: "jdbc:postgresql://host.docker.internal:5432/postgres"
     username: "postgres"
-    password: "postgres" # ${PASSWORD}
+    password: "postgres"
   jpa:
     show-sql: true
     hibernate:
