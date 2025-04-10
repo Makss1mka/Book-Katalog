@@ -7,7 +7,6 @@ public enum BookStatus {
     READING("reading"),
     READ("read"),
     DROP("drop"),
-    LIKED("liked"),
     ANY("any");
 
     private final String value;
