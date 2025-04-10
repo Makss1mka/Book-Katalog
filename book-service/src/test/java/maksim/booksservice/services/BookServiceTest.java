@@ -12,7 +12,9 @@ import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.exceptions.ForbiddenException;
 import maksim.booksservice.exceptions.NotFoundException;
-import maksim.booksservice.models.dtos.*;
+import maksim.booksservice.models.dtos.crud.CreateBookDto;
+import maksim.booksservice.models.dtos.crud.UpdateBookDto;
+import maksim.booksservice.models.dtos.result.BookDto;
 import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.models.entities.BookStatusLog;
 import maksim.booksservice.models.entities.User;
@@ -127,9 +129,6 @@ class BookServiceTest {
     }
 
 
-
-
-
     @Test
     void getAllBooks_WithCriteria_ShouldReturnListOfBookDtos() {
         BookSearchCriteria criteria = new BookSearchCriteria(new HashMap<>() {{
@@ -152,9 +151,6 @@ class BookServiceTest {
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
     }
-
-
-
 
 
     @Test
@@ -211,10 +207,6 @@ class BookServiceTest {
     }
 
 
-
-
-
-
     @Test
     void addBookMetaData_ValidData_ShouldReturnBookDto() {
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
@@ -233,9 +225,6 @@ class BookServiceTest {
 
         assertThrows(BadRequestException.class, () -> bookService.addBookMetaData(createBookDto));
     }
-
-
-
 
 
     @Test
@@ -274,8 +263,6 @@ class BookServiceTest {
 
         assertThrows(NotFoundException.class, () -> bookService.updateBook(1, updateBookDto));
     }
-
-
 
 
     @Test

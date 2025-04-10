@@ -7,8 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import maksim.booksservice.exceptions.NotFoundException;
 import maksim.booksservice.config.GlobalExceptionHandler;
-import maksim.booksservice.models.dtos.BookDto;
-import maksim.booksservice.models.dtos.CreateBookDto;
+import maksim.booksservice.models.dtos.result.BookDto;
+import maksim.booksservice.models.dtos.crud.CreateBookDto;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.services.CachingService;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
@@ -96,7 +96,6 @@ class BookControllerTest {
         verify(bookService, times(2)).getById(anyInt(), any(JoinMode.class));
     }
 
-
     @Test
     void testGet() throws Exception {
         List<BookDto> books = Arrays.asList(new BookDto(), new BookDto(), new BookDto());
@@ -143,8 +142,6 @@ class BookControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
 
-
-
     @Test
     void testAddBookMetaData_Success() throws Exception {
         when(createBookDtoValidator.isSafeFromSqlInjection(any())).thenReturn(true);
@@ -169,8 +166,6 @@ class BookControllerTest {
 
         verify(bookService, never()).addBookMetaData(any());
     }
-
-
 
     @Test
     void testAddBookFile_Success() throws Exception {
@@ -210,8 +205,6 @@ class BookControllerTest {
 
         verify(bookService, never()).addBookFile(any(), anyInt());
     }
-
-
 
     @Test
     void addAllBooksFromList_ValidRequest_ShouldReturnOk() throws Exception {

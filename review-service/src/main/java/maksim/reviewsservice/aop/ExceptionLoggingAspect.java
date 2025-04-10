@@ -18,6 +18,6 @@ public class ExceptionLoggingAspect {
 
     @AfterThrowing(pointcut = "applicationPackagePointcut()", throwing = "exception")
     public void logException(Exception exception) {
-        logger.error("Exception occurred", exception);
+        logger.error("Exception occurred: {}", exception.getMessage());
     }
 }

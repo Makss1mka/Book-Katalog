@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/api/v1/logs")
+@RequestMapping(value = "/logs")
 public class LogsController {
     private static final Logger logger = LoggerFactory.getLogger(LogsController.class);
 

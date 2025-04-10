@@ -18,9 +18,6 @@ public class UserBookStatusDto {
     @Schema(description = "User-book status id", example = "16")
     private Integer id = null;
 
-    @Schema(description = "Like status", example = "true")
-    private Boolean like = null;
-
     @Schema(description = "Status", example = "READ")
     private BookStatus status = null;
 
@@ -32,7 +29,6 @@ public class UserBookStatusDto {
 
     public UserBookStatusDto(UserBookStatus st, JoinMode mode) {
         this.id = st.getId();
-        this.like = st.getLike();
 
         if (st.getStatus() != null) {
             this.status = BookStatus.fromValue(st.getStatus());

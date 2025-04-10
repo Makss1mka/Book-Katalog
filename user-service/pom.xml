@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>maksim</groupId>
 	<artifactId>user-service</artifactId>
@@ -198,6 +198,11 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 			<version>3.2.8</version>
+		</dependency>
+		<dependency>
+			<groupId>maksim.kafkaclient</groupId>
+			<artifactId>kafka-client</artifactId>
+			<version>1.0</version>
 		</dependency>
 
 	</dependencies>

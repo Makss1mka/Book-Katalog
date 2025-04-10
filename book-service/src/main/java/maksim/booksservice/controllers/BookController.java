@@ -19,9 +19,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import maksim.booksservice.exceptions.BadRequestException;
-import maksim.booksservice.models.dtos.BookDto;
-import maksim.booksservice.models.dtos.CreateBookDto;
-import maksim.booksservice.models.dtos.UpdateBookDto;
+import maksim.booksservice.models.dtos.result.BookDto;
+import maksim.booksservice.models.dtos.crud.CreateBookDto;
+import maksim.booksservice.models.dtos.crud.UpdateBookDto;
 import maksim.booksservice.services.BookService;
 import maksim.booksservice.services.CachingService;
 import maksim.booksservice.utils.Pagination;
@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping(value = "/api/v1/books")
+@RequestMapping("/api/v1/books")
 @Validated
 public class BookController {
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);

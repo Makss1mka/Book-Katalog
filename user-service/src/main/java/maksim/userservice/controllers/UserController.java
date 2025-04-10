@@ -14,11 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import maksim.userservice.exceptions.BadRequestException;
 import java.util.List;
-
-import maksim.userservice.models.dtos.crud.CreateBookStatusDto;
-import maksim.userservice.models.dtos.crud.CreateUserDto;
-import maksim.userservice.models.dtos.crud.UpdateBookStatusDto;
-import maksim.userservice.models.dtos.crud.UpdateUserDto;
+import maksim.userservice.models.dtos.crud.*;
 import maksim.userservice.models.dtos.result.BookDto;
 import maksim.userservice.models.dtos.result.UserDto;
 import maksim.userservice.services.UserService;
@@ -335,6 +331,25 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
+    @PostMapping("/{userId}/like")
+    public ResponseEntity<String> createLike(
+            @NotNull(message = "User id shouldn't be null") @Min(value = 0, message = "User id should be greater than 0")
+            @PathVariable(name = "userId")
+            int userId,
+
+            @Valid @RequestBody
+            CreateLikeDto likeDto
+    ) {
+        logger.trace("BookController method entrance: createLike | Params {} {}", userId, likeDto.getBookId());
+
+        userService.addLike(userId, likeDto.getBookId());
+
+        logger.trace("BookController method return: createLike | Like was successfully added");
+
+        return ResponseEntity.ok("Like was successfully added");
+    }
+
+
 
 
     @PatchMapping("/{userId}")
@@ -577,11 +592,30 @@ public class UserController {
     ) {
         logger.trace("BookController method entrance: deleteStatus");
 
-        UserDto user = userService.deleteStatusEntity(userId, bookId);
+        UserDto user = userService.deleteStatus(userId, bookId);
 
         logger.trace("BookController method return: deleteUser | Status was successfully deleted");
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{userId}/like")
+    public ResponseEntity<String> deleteLike(
+            @NotNull(message = "User id shouldn't be null") @Min(value = 0, message = "User id should be greater than 0")
+            @PathVariable(name = "userId")
+            int userId,
+
+            @NotNull(message = "Review id shouldn't be null") @Min(value = 0, message = "Review id should be greater than 0")
+            @RequestParam(name = "toBook")
+            int bookId
+    ) {
+        logger.trace("BookController method entrance: deleteLike");
+
+        userService.deleteLike(userId, bookId);
+
+        logger.trace("BookController method return: createLike | Like was successfully deleted");
+
+        return ResponseEntity.ok("Like was successfully deleted");
     }
 
 }

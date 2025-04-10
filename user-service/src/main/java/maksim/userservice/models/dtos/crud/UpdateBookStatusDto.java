@@ -20,13 +20,8 @@ public class UpdateBookStatusDto {
     @Schema(description = "Status", example = "READ")
     private BookStatus status;
 
-    @NotNull(message = "Status value shouldn't be null")
-    @Schema(description = "Status value", example = "true")
-    private Boolean statusValue = null;
-
     public UpdateBookStatusDto(Integer bookId, String status, Boolean statusValue) {
         this.bookId = bookId;
         this.status = BookStatus.fromValue(status);
-        this.statusValue = statusValue;
     }
 }

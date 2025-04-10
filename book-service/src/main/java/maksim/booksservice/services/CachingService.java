@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import maksim.booksservice.models.dtos.BookDto;
+import maksim.booksservice.models.dtos.result.BookDto;
 import maksim.booksservice.utils.CacheObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -19,9 +19,14 @@ import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.exceptions.ConflictException;
 import maksim.booksservice.exceptions.ForbiddenException;
 import maksim.booksservice.exceptions.NotFoundException;
-import maksim.booksservice.models.dtos.BookDto;
-import maksim.booksservice.models.dtos.CreateBookDto;
-import maksim.booksservice.models.dtos.UpdateBookDto;
+import maksim.booksservice.repositories.BookStatusLogRepository;
+import maksim.kafkaclient.dtos.CreateLikeKafkaDto;
+import maksim.kafkaclient.dtos.CreateStatusKafkaDto;
+import maksim.kafkaclient.dtos.DeleteLikeKafkaDto;
+import maksim.kafkaclient.dtos.UpdateStatusKafkaDto;
+import maksim.booksservice.models.dtos.result.BookDto;
+import maksim.booksservice.models.dtos.crud.CreateBookDto;
+import maksim.booksservice.models.dtos.crud.UpdateBookDto;
 import maksim.booksservice.models.entities.Book;
 import maksim.booksservice.models.entities.BookStatusLog;
 import maksim.booksservice.models.entities.User;
@@ -36,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -51,27 +55,46 @@ public class BookService {
     private final AppConfig appConfig;
     private final CachingService cachingService;
     private final RestTemplate restTemplate;
+    private final BookStatusLogRepository bookStatusLogRepository;
 
     @Autowired
     public BookService(
-            BookRepository bookRepository,
-            UserRepository userRepository,
-            AppConfig appConfig,
-            CachingService cachingService,
-            RestTemplate restTemplate
+        BookRepository bookRepository,
+        UserRepository userRepository,
+        AppConfig appConfig,
+        CachingService cachingService,
+        RestTemplate restTemplate,
+        BookStatusLogRepository bookStatusLogRepository
     ) {
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
         this.appConfig = appConfig;
         this.cachingService = cachingService;
         this.restTemplate = restTemplate;
+        this.bookStatusLogRepository = bookStatusLogRepository;
     }
 
-    private void saveOrThrow(Book book) {
+    private void saveBookOrThrow(Book book) {
         try {
             bookRepository.save(book);
         } catch (DataIntegrityViolationException ex) {
             throw new ConflictException("Your review contains conflicted data");
+        }
+    }
+
+    private void saveBookOrPrint(Book book) {
+        try {
+            bookRepository.save(book);
+        } catch (DataIntegrityViolationException ex) {
+            logger.trace("Conflict found with book save {}", ex.getMessage());
+        }
+    }
+
+    private void saveBookStatusLogOrPrint(BookStatusLog bookStatusLog) {
+        try {
+            bookStatusLogRepository.save(bookStatusLog);
+        } catch (DataIntegrityViolationException ex) {
+            logger.trace("Conflict found with log save {}", ex.getMessage());
         }
     }
 
@@ -212,7 +235,6 @@ public class BookService {
     }
 
 
-
     public BookDto addBookMetaData(CreateBookDto bookData) {
         logger.trace("BookService method entrance: addBookMetaData");
 
@@ -228,7 +250,7 @@ public class BookService {
         book.setIssuedDate(new Date());
         book.setGenres(bookData.getGenres());
 
-        saveOrThrow(book);
+        saveBookOrThrow(book);
 
         logger.trace("BookService method end: addBookMetaData | Book metadata was created successfully");
 
@@ -279,7 +301,7 @@ public class BookService {
 
                 book.get().setFilePath(bookId + "." + fileExtension);
 
-                saveOrThrow(book.get());
+                saveBookOrThrow(book.get());
             }
         } catch (IOException e) {
             if (targetFile != null && targetFile.exists()) {
@@ -295,7 +317,6 @@ public class BookService {
 
         logger.trace("BookService method return: addBookFile | File was added successfully");
     }
-
 
 
     public void deleteBook(int bookId) {
@@ -348,7 +369,7 @@ public class BookService {
         }
 
         if (isSmthChanged) {
-            saveOrThrow(book.get());
+            saveBookOrThrow(book.get());
             cachingService.updateBook(bookId, new BookDto(book.get(), null, null));
         }
 
@@ -356,7 +377,6 @@ public class BookService {
 
         return new BookDto(book.get(), null, null);
     }
-
 
 
     public void addListOfBooks(int userWhoAddId, List<CreateBookDto> books) {
@@ -368,10 +388,12 @@ public class BookService {
 
         List<Book> booksEntities = new ArrayList<>(books.size());
 
-        ResponseEntity<User> userRequest = restTemplate.getForEntity(
-                appConfig.getUserServiceUrl() + "/api/v1/users/" + userWhoAddId,
-                User.class);
-        if (userRequest.getStatusCode() != HttpStatus.OK) {
+        ResponseEntity<User> userRequest;
+        try {
+            userRequest = restTemplate.getForEntity(
+                    appConfig.getUserServiceUrl() + "/api/v1/users/" + userWhoAddId,
+                    User.class);
+        } catch (Exception ex) {
             throw new NotFoundException("Cannot get user with such id");
         }
 
@@ -395,5 +417,98 @@ public class BookService {
 
         logger.trace("BookService method end: addListOfBooks");
     }
+
+
+    public void addLike(CreateLikeKafkaDto likeDto) {
+        logger.trace("BookService method entrance: addLike");
+
+        Optional<Book> book = bookRepository.findByIdWithJoin(likeDto.getBookId());
+
+        if (book.isEmpty()) {
+            throw new NotFoundException("Cannot find book with such id");
+        }
+
+        book.get().setLikes(
+            book.get().getLikes() + 1
+        );
+
+        saveBookOrPrint(book.get());
+
+        logger.trace("BookService method end: addLike | Like added successfully");
+    }
+
+    public void deleteLike(DeleteLikeKafkaDto likeDto) {
+        logger.trace("BookService method entrance: deleteLike");
+
+        Optional<Book> book = bookRepository.findByIdWithJoin(likeDto.getBookId());
+
+        if (book.isEmpty()) {
+            throw new NotFoundException("Cannot find book with such id");
+        }
+
+        book.get().setLikes(
+            book.get().getLikes() - 1
+        );
+
+        saveBookOrPrint(book.get());
+
+        logger.trace("BookService method end: deleteLike | Like deleted successfully");
+    }
+
+
+    public void createStatus(CreateStatusKafkaDto statusDto) {
+        logger.trace("BookService method entrance: createStatus | {} {}", statusDto.getBookId(), statusDto.getStatus());
+
+        Optional<Book> book = bookRepository.findByIdWithJoin(statusDto.getBookId());
+
+        if (book.isEmpty()) {
+            throw new NotFoundException("Cannot find book with such id");
+        }
+
+        /*
+            ADD USER EXISTENCE CHECK
+         */
+
+        BookStatusLog newLog = new BookStatusLog();
+        newLog.setAddedDate(new Date());
+        newLog.setStatus(statusDto.getStatus());
+        newLog.setUserId(statusDto.getUserId());
+
+        saveBookStatusLogOrPrint(newLog);
+
+        book.get().getStatusesLogs().add(newLog);
+
+        saveBookOrPrint(book.get());
+
+        logger.trace("BookService method end: createStatus | Status added successfully");
+    }
+
+    public void updateStatus(UpdateStatusKafkaDto statusDto) {
+        logger.trace("BookService method entrance: updateStatus");
+
+        Optional<Book> book = bookRepository.findByIdWithJoin(statusDto.getBookId());
+
+        if (book.isEmpty()) {
+            throw new NotFoundException("Cannot find book with such id");
+        }
+
+        /*
+            ADD USER EXISTENCE CHECK
+         */
+
+        BookStatusLog newLog = new BookStatusLog();
+        newLog.setAddedDate(new Date());
+        newLog.setStatus(statusDto.getNewStatus());
+        newLog.setUserId(statusDto.getUserId());
+
+        saveBookStatusLogOrPrint(newLog);
+
+        book.get().getStatusesLogs().add(newLog);
+
+        saveBookOrPrint(book.get());
+
+        logger.trace("BookService method end: updateStatus | Status updated successfully");
+    }
+
 
 }

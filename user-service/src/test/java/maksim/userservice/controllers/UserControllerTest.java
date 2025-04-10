@@ -158,7 +158,7 @@ class UserControllerTest {
     @Test
     void testDeleteStatus_Success() throws Exception {
         UserDto userDto = new UserDto();
-        when(userService.deleteStatusEntity(anyInt(), anyInt())).thenReturn(userDto);
+        when(userService.deleteStatus(anyInt(), anyInt())).thenReturn(userDto);
 
         mockMvc.perform(delete("/api/v1/users/1/book-status/1"))
                 .andExpect(status().isCreated())

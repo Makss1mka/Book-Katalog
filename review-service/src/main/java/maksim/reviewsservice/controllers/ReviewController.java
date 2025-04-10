@@ -14,7 +14,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import maksim.reviewsservice.exceptions.BadRequestException;
 import java.util.List;
-
 import maksim.reviewsservice.models.dtos.ReviewDto;
 import maksim.reviewsservice.models.dtos.CreateLikeDto;
 import maksim.reviewsservice.models.dtos.CreateReviewDto;
@@ -44,7 +43,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/api/v1/reviews")
+@RequestMapping("/api/v1/reviews")
 @Validated
 public class ReviewController {
     private static final Logger logger = LoggerFactory.getLogger(ReviewController.class);

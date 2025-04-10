@@ -16,7 +16,7 @@ public class UserBookStatus {
     @Column(name = "id")
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -26,7 +26,4 @@ public class UserBookStatus {
 
     @Column(name = "status")
     private String status;
-
-    @Column(name = "like")
-    private Boolean like;
 }

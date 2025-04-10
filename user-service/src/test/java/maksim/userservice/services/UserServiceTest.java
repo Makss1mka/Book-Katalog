@@ -10,14 +10,17 @@ import maksim.userservice.exceptions.NoContentException;
 import maksim.userservice.exceptions.NotFoundException;
 import maksim.userservice.models.dtos.crud.CreateBookStatusDto;
 import maksim.userservice.models.dtos.crud.CreateUserDto;
-import maksim.userservice.models.dtos.crud.UpdateBookStatusDto;
 import maksim.userservice.models.dtos.crud.UpdateUserDto;
+import maksim.kafkaclient.dtos.CreateStatusKafkaDto;
+import maksim.kafkaclient.dtos.DeleteStatusKafkaDto;
 import maksim.userservice.models.dtos.result.BookDto;
 import maksim.userservice.models.dtos.result.UserDto;
 import maksim.userservice.models.entities.Book;
 import maksim.userservice.models.entities.User;
 import maksim.userservice.models.entities.UserBookStatus;
 import maksim.userservice.repositories.UserRepository;
+import maksim.userservice.services.kafka.producers.LikeEventsProducer;
+import maksim.userservice.services.kafka.producers.StatusEventsProducer;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +52,12 @@ class UserServiceTest {
     @Mock
     private AppConfig appConfig;
 
+    @Mock
+    private LikeEventsProducer likeEventsProducer;
+
+    @Mock
+    private StatusEventsProducer statusEventsProducer;
+
     @InjectMocks
     private UserService userService;
 
@@ -72,7 +81,6 @@ class UserServiceTest {
         userBookStatus.setId(1);
         userBookStatus.setBook(book);
         userBookStatus.setStatus("READ");
-        userBookStatus.setLike(false);
 
         user.setBookStatuses(new ArrayList<>(List.of(userBookStatus)));
 
@@ -191,6 +199,7 @@ class UserServiceTest {
         when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
         when(restTemplate.getForEntity(anyString(), any())).thenReturn(new ResponseEntity<>(book, HttpStatus.OK));
         when(appConfig.getBookServiceUrl()).thenReturn("url");
+        doNothing().when(statusEventsProducer).publishStatusCreate(any(CreateStatusKafkaDto.class));
 
         UserDto result = userService.createStatus(1, new CreateBookStatusDto(2, "READ"));
 
@@ -220,62 +229,6 @@ class UserServiceTest {
         );
     }
 
-    @Test
-    void testUpdateStatus_SuccessStatusUpdate() {
-        when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        UpdateBookStatusDto updateDto = new UpdateBookStatusDto(1, "READ", true);
-
-        UserDto result = userService.updateStatus(1, updateDto);
-
-        assertEquals(BookStatus.READ, result.getBookStatuses().get(0).getStatus());
-    }
-
-    @Test
-    void testUpdateStatus_SuccessLikeUpdate() {
-        when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        UpdateBookStatusDto updateDto = new UpdateBookStatusDto(1, "LIKED", true);
-
-        UserDto result = userService.updateStatus(1, updateDto);
-
-        assertTrue(result.getBookStatuses().get(0).getLike());
-    }
-
-    @Test
-    void testUpdateStatus_StatusNotFound() {
-        when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
-
-        UpdateBookStatusDto updateDto = new UpdateBookStatusDto(999, "READ", true);
-
-        assertThrows(NotFoundException.class, () -> {
-            userService.updateStatus(1, updateDto);
-        });
-    }
-
-    @Test
-    void testUpdateStatus_NoContentException() {
-        when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
-
-        UpdateBookStatusDto updateDto = new UpdateBookStatusDto(1, "READING", false);
-
-        assertThrows(NoContentException.class, () ->
-            userService.updateStatus(1, updateDto)
-        );
-    }
-
-    @Test
-    void testUpdateStatus_StatusAny() {
-        when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
-
-        UpdateBookStatusDto updateDto = new UpdateBookStatusDto(1, "ANY", false);
-
-        assertThrows(BadRequestException.class, () ->
-            userService.updateStatus(1, updateDto)
-        );
-    }
 
     @Test
     void testUpdateUser_SuccessNameChange() {
@@ -357,21 +310,22 @@ class UserServiceTest {
     }
 
     @Test
-    void testDeleteStatusEntity_Success() {
+    void testDeleteStatus_Success() {
         when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
+        doNothing().when(statusEventsProducer).publishStatusDelete(any(DeleteStatusKafkaDto.class));
 
-        UserDto result = userService.deleteStatusEntity(1, 1);
+        UserDto result = userService.deleteStatus(1, 1);
 
         assertTrue(result.getBookStatuses().isEmpty());
     }
 
     @Test
-    void testDeleteStatusEntity_NotFound() {
+    void testDeleteStatus_NotFound() {
         when(userRepository.findByIdWithJoinStatusesAndBooks(1)).thenReturn(Optional.of(user));
 
         assertThrows(NotFoundException.class, () -> {
-            userService.deleteStatusEntity(1, 999);
+            userService.deleteStatus(1, 999);
         });
     }
 
