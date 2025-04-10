@@ -1,9 +1,13 @@
 package maksim.userservice.services;
 
 import jakarta.transaction.Transactional;
+import maksim.kafkaclient.dtos.CreateStatusKafkaDto;
+import maksim.kafkaclient.dtos.CreateLikeKafkaDto;
+import maksim.kafkaclient.dtos.DeleteLikeKafkaDto;
+import maksim.kafkaclient.dtos.DeleteStatusKafkaDto;
+import maksim.kafkaclient.dtos.UpdateStatusKafkaDto;
 import maksim.userservice.exceptions.BadRequestException;
 import maksim.userservice.exceptions.NotFoundException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +24,9 @@ import maksim.userservice.models.dtos.result.UserDto;
 import maksim.userservice.models.entities.Book;
 import maksim.userservice.models.entities.User;
 import maksim.userservice.models.entities.UserBookStatus;
+import maksim.userservice.repositories.UserBookStatusRepository;
 import maksim.userservice.repositories.UserRepository;
+import maksim.userservice.services.kafka.producers.LikeEventsProducer;
 import maksim.userservice.services.kafka.producers.StatusEventsProducer;
 import maksim.userservice.utils.enums.BookStatus;
 import maksim.userservice.utils.enums.JoinMode;
@@ -43,6 +49,8 @@ public class UserService {
     private final RestTemplate restTemplate;
     private final AppConfig appConfig;
     private final StatusEventsProducer statusEventsProducer;
+    private final LikeEventsProducer likeEventsProducer;
+    private final UserBookStatusRepository userBookStatusRepository;
 
     @Autowired
     UserService(
@@ -50,13 +58,17 @@ public class UserService {
         PasswordEncoder passwordEncoder,
         RestTemplate restTemplate,
         AppConfig appConfig,
-        StatusEventsProducer statusEventsProducer
+        StatusEventsProducer statusEventsProducer,
+        LikeEventsProducer likeEventsProducer,
+        UserBookStatusRepository userBookStatusRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.restTemplate = restTemplate;
         this.appConfig = appConfig;
         this.statusEventsProducer = statusEventsProducer;
+        this.likeEventsProducer = likeEventsProducer;
+        this.userBookStatusRepository = userBookStatusRepository;
     }
 
     private User getUserEntityById(int userId, JoinMode mode) {
@@ -162,32 +174,50 @@ public class UserService {
         newStatus.setStatus(statusDto.getStatus().toString());
         newStatus.setUser(user);
 
-        // Add and save status
+        userBookStatusRepository.save(newStatus);
+
         user.getBookStatuses().add(newStatus);
 
         userRepository.save(user);
+
+        statusEventsProducer.publishStatusCreate(
+            new CreateStatusKafkaDto(userId, statusDto.getBookId(), statusDto.getStatus().toString())
+        );
 
         logger.trace("UserService method end: addStatus | Status was added successfully");
 
         return new UserDto(user, JoinMode.WITH_STATUSES_AND_BOOKS);
     }
 
+    @Transactional
+    public void addLike(int userId, int bookId) {
+        logger.trace("UserService method entrance: addLike | Params: {} , {}", userId, bookId);
 
+        User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
-    private void saveChangesOfUpdatedStatus(
-            User user, int userId, boolean isSmthChanged,
-            UserBookStatus statusEntity, UpdateBookStatusDto statusDto
-    ) {
-        if (statusEntity.getStatus() == null && !statusEntity.getLike()) {
-            deleteStatusEntity(userId, statusDto.getBookId());
-        } else {
-            if (isSmthChanged) {
-                userRepository.save(user);
-            } else {
-                throw new NoContentException("Nothing has changed");
+        for (Book book : user.getLikedBooks()) {
+            if (book.getId() == bookId) {
+                throw new ConflictException("Like for such book is already exist");
             }
         }
+
+        ResponseEntity<Book> bookRequest = restTemplate.getForEntity(
+                appConfig.getBookServiceUrl() + "/api/v1/books/" + bookId,
+                Book.class);
+        if (bookRequest.getStatusCode() != HttpStatus.OK) {
+            throw new NotFoundException("Cannot get book with such id");
+        }
+
+        user.getLikedBooks().add(bookRequest.getBody());
+
+        userRepository.save(user);
+
+        likeEventsProducer.publishLikeCreate(new CreateLikeKafkaDto(userId, bookId));
+
+        logger.trace("UserService method end: addLike | Like was added successfully");
     }
+
+
 
     @Transactional
     public UserDto updateStatus(int userId, UpdateBookStatusDto statusDto) {
@@ -214,20 +244,8 @@ public class UserService {
         // Status changing
         switch (statusDto.getStatus()) {
             case ANY -> throw new BadRequestException("Any here is not supported");
-            case LIKED -> {
-                if (statusEntity.getLike() != statusDto.getStatusValue()) {
-                    statusEntity.setLike(statusDto.getStatusValue());
-                    isSmthChanged = true;
-                }
-            }
             default -> {
-                if (Objects.equals(statusDto.getStatus().toString(), statusEntity.getStatus()) && !statusDto.getStatusValue()) {
-                    statusEntity.setStatus(null);
-
-                    isSmthChanged = true;
-                }
-
-                if (statusDto.getStatusValue()) {
+                if (!statusEntity.getStatus().equals(statusDto.getStatus().toString())) {
                     statusEntity.setStatus(statusDto.getStatus().toString());
 
                     isSmthChanged = true;
@@ -235,7 +253,15 @@ public class UserService {
             }
         }
 
-        saveChangesOfUpdatedStatus(user, userId, isSmthChanged, statusEntity, statusDto);
+        if (isSmthChanged) {
+            userRepository.save(user);
+
+            statusEventsProducer.publishStatusUpdate(new UpdateStatusKafkaDto(
+                userId, statusDto.getBookId(), statusDto.getStatus().toString()
+            ));
+        } else {
+            throw new NoContentException("Nothing has changed");
+        }
 
         logger.trace("UserService method end: changeStatus | Status was changed successfully");
 
@@ -297,18 +323,21 @@ public class UserService {
 
 
     @Transactional
-    public UserDto deleteStatusEntity(int userId, int bookId) {
-        logger.trace("UserService method entrance: deleteStatus | Params: user id {} ; book id {}", userId, bookId);
+    public UserDto deleteStatus(int userId, int bookId) {
+        logger.trace("UserService method entrance: deleteStatus");
 
         User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
 
         List<UserBookStatus> statuses = user.getBookStatuses();
         boolean isFound = false;
+        String bookStatus = null;
 
-        // Status existence check
-        for (int i = 0; i < statuses.size(); i++) {
-            if (statuses.get(i).getBook().getId() == bookId) {
-                statuses.remove(i);
+        for (int i = 0; i < user.getBookStatuses().size(); i++) {
+            if (user.getBookStatuses().get(i).getBook().getId() == bookId) {
+                bookStatus = user.getBookStatuses().get(i).getStatus();
+
+                userBookStatusRepository.delete(user.getBookStatuses().get(i));
+                user.getBookStatuses().remove(i);
 
                 isFound = true;
                 break;
@@ -320,6 +349,8 @@ public class UserService {
         }
 
         userRepository.save(user);
+
+        statusEventsProducer.publishStatusDelete(new DeleteStatusKafkaDto(userId, bookId, bookStatus));
 
         logger.trace("UserService method end: deleteStatus | Status was changed successfully");
 
@@ -335,6 +366,33 @@ public class UserService {
         userRepository.delete(user);
 
         logger.trace("UserService method end: deleteUser | User was deleted successfully");
+    }
+
+    @Transactional
+    public void deleteLike(int userId, int bookId) {
+        logger.trace("UserService method entrance: deleteLike");
+
+        User user = getUserEntityById(userId, JoinMode.WITH_STATUSES_AND_BOOKS);
+
+        boolean isDeleted = false;
+
+        for (Book book : user.getLikedBooks()) {
+            if (book.getId() == bookId) {
+                user.getLikedBooks().remove(book);
+                isDeleted = true;
+                break;
+            }
+        }
+
+        if (!isDeleted) {
+            throw new ConflictException("Like for such book doesn't exist");
+        }
+
+        userRepository.save(user);
+
+        likeEventsProducer.publishLikeDelete(new DeleteLikeKafkaDto(userId, bookId));
+
+        logger.trace("UserService method end: deleteLike | Like was deleted successfully");
     }
 
 }
