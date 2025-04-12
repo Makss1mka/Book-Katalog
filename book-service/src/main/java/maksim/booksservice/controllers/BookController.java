@@ -199,7 +199,7 @@ public class BookController {
 
         logger.trace("BookController method end | Return: selected items {}", findBooks.size());
 
-        cachingService.addToCache(url, findBooks, 60000);
+        cachingService.addToCache(url, findBooks, 200000);
 
         return new ResponseEntity<>(findBooks, HttpStatus.OK);
     }
