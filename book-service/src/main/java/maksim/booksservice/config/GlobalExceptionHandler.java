@@ -3,10 +3,8 @@ package maksim.booksservice.config;
 import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
-import maksim.booksservice.exceptions.BadRequestException;
-import maksim.booksservice.exceptions.ConflictException;
-import maksim.booksservice.exceptions.ForbiddenException;
-import maksim.booksservice.exceptions.NotFoundException;
+
+import maksim.booksservice.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -61,6 +59,14 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(AcceptedException.class)
+    public ResponseEntity<String> handleAcceptedExceptions(AcceptedException ex) {
+        logger.error(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(ex.getMessage());
+    }
+
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<String> handleFprbiddenExceptions(ForbiddenException ex) {
