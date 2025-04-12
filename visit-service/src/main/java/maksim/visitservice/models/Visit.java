@@ -17,8 +17,8 @@ public class Visit {
     @Column(name = "method")
     private String method;
 
-    @Column(name = "url")
-    private String url;
+    @Column(name = "service_name")
+    private String serviceName;
 
     @Column(name = "count")
     private Long count;
