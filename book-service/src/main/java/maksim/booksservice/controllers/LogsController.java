@@ -1,32 +1,28 @@
 package maksim.booksservice.controllers;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+
 import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.services.LogsService;
+import maksim.booksservice.utils.enums.LogRequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/logs")
+@RequestMapping(value = "/api/v1/books/logs")
 public class LogsController {
     private static final Logger logger = LoggerFactory.getLogger(LogsController.class);
 
@@ -37,53 +33,15 @@ public class LogsController {
         this.logsService = logsService;
     }
 
-    @GetMapping
-    @Operation(
-        summary = "Get all logs by some period",
-        description = "Get all logs by some inputted dates period"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-                responseCode = "200",
-                description = "Get logs",
-                content = @Content(
-                    mediaType = "text/plain",
-                    schema = @Schema(example = "Some log")
-                )
-            ),
-        @ApiResponse(
-                responseCode = "400",
-                description = "Bad request (validation failed)",
-                content = @Content(
-                    mediaType = "plain/text",
-                    schema = @Schema(example = "Invalid date format")
-                )
-            ),
-        @ApiResponse(
-                responseCode = "500",
-                description = "Server error",
-                content = @Content(
-                    mediaType = "plain/text",
-                    schema = @Schema(example = "Something goes wrong, Sorry my bad :(")
-                )
-            )
-    })
-    public ResponseEntity<InputStreamResource> getLogs(
-        @Parameter(
-            description = "(type: String in format 'yyyy-MM-dd') - min date edge from which logs will be found",
-            required = false
-        )
+    @PostMapping("/request")
+    public ResponseEntity<String> requestLogs(
         @RequestParam(name = "minDate")
         String strMinDate,
 
-        @Parameter(
-            description = "(type: String in format 'yyyy-MM-dd') - max date edge till which logs will be found",
-            required = false
-        )
         @RequestParam(name = "maxDate")
         String strMaxDate
     ) {
-        logger.trace("LogsController method entrance: getLogs");
+        logger.trace("LogsController method entrance: requestLogs");
 
         DateTimeFormatter fullDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter shortDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -114,22 +72,46 @@ public class LogsController {
             throw new BadRequestException("Min date should be before max date");
         }
 
-        ByteArrayOutputStream outputStream = logsService.getLogs(minDate, maxDate);
+        String id = UUID.randomUUID().toString();
+        logsService.requestLogsFile(id, minDate, maxDate);
 
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        logger.trace("LogsController method end: requestLogs | File has successfully requested");
+
+        return ResponseEntity.ok(id);
+    }
+
+    @GetMapping("/status/{id}")
+    public ResponseEntity<String> getStatus(
+        @PathVariable(name = "id") String id
+    ) {
+        logger.trace("LogsController method entrance: getStatus");
+
+        LogRequestStatus status = logsService.getStatus(id);
+
+        logger.trace("LogsController method end: getStatus");
+
+        return ResponseEntity.ok(status.toString());
+    }
+
+    @GetMapping("/file/{id}")
+    public ResponseEntity<Resource> getLogFile(
+        @PathVariable(name = "id") String id
+    ) {
+        logger.trace("LogsController method entrance: getLogFile");
+
+        ByteArrayOutputStream logBuffer = logsService.getLogsFromFile(id);
+        ByteArrayResource resource = new ByteArrayResource(logBuffer.toByteArray());
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=filtered_logs.log");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"logs_" + id + ".log\"");
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+        headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(logBuffer.size()));
 
-        InputStreamResource resource = new InputStreamResource(inputStream);
-
-        logger.trace("LogsController method end: getLogs | File has successfully created");
+        logger.trace("LogsController method end: getLogFile");
 
         return ResponseEntity.ok()
-            .headers(headers)
-            .contentLength(outputStream.size())
-            .body(resource);
+                .headers(headers)
+                .body(resource);
     }
 
 }
