@@ -37,6 +37,18 @@ services:
       - backend
 
 
+  visit-service:
+    container_name: visit-service
+    depends_on:
+      eureka-server:
+        condition: service_started
+    image: maks1mka/visit-service:latest
+    ports:
+      - 8085:8085
+    networks:
+      - backend
+
+
   user-service:
     container_name: user-service
     depends_on:
