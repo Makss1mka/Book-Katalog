@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import maksim.booksservice.models.dtos.result.BookDto;
 import maksim.booksservice.utils.CacheObject;
 import org.slf4j.Logger;
@@ -18,19 +20,18 @@ public class CachingService {
 
     private static final int STORAGE_MAX_SIZE = 10;
 
-    private final Map<String, CacheObject<List<BookDto>>> storage = new HashMap<>();
-
+    private final Map<String, CacheObject<List<BookDto>>> storage = new ConcurrentHashMap<>();
     private final List<String> history = new LinkedList<>();
     private int storageSize = 0;
 
-    public void invalidateCache(String url) {
+    synchronized public void invalidateCache(String url) {
         storage.remove(url);
         history.remove(url);
 
         storageSize--;
     }
 
-    public List<BookDto> getFromCache(String url) {
+    synchronized public List<BookDto> getFromCache(String url) {
         storage.get(url).setCreationDate(new Date());
 
         logger.trace("Caching service method: getFromCache | Get values from cache");
@@ -38,7 +39,7 @@ public class CachingService {
         return storage.get(url).getValue();
     }
 
-    public boolean contains(String url) {
+    synchronized public boolean contains(String url) {
         if (!storage.containsKey(url)) {
             return false;
         }
@@ -52,7 +53,7 @@ public class CachingService {
         return true;
     }
 
-    public void addToCache(String url, List<BookDto> dtos, long expirationTime) {
+    synchronized public void addToCache(String url, List<BookDto> dtos, long expirationTime) {
         logger.trace("Caching service method: addToCache | Add value to cache");
 
         if (storageSize >= STORAGE_MAX_SIZE) {
@@ -68,7 +69,7 @@ public class CachingService {
         history.addLast(url);
     }
 
-    public void deleteBook(int bookId) {
+    synchronized public void deleteBook(int bookId) {
         for (int i = 0; i < storageSize; i++) {
             List<BookDto> value = storage.get(history.get(i)).getValue();
 
@@ -82,7 +83,7 @@ public class CachingService {
         }
     }
 
-    public void updateBook(int bookId, BookDto updatedBook) {
+    synchronized public void updateBook(int bookId, BookDto updatedBook) {
         for (int i = 0; i < storageSize; i++) {
             List<BookDto> value = storage.get(history.get(i)).getValue();
 
@@ -97,7 +98,7 @@ public class CachingService {
         }
     }
 
-    @Scheduled(fixedRate = 40000)
+    @Scheduled(fixedRate = 120000)
     public void printStorage() {
         logger.info("---------CURRENT CACHE STORAGE STATE--------------------");
 
@@ -108,7 +109,7 @@ public class CachingService {
         logger.info("--------------------------------------------------------");
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 120000)
     public void checkAndDeleteInvalidCaches() {
         logger.trace("CachingService method: checkAndDeleteInvalidCaches | STARTING CLEANING");
 
