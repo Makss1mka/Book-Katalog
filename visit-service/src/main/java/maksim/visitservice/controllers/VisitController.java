@@ -26,11 +26,11 @@ public class VisitController {
 
     @GetMapping
     public ResponseEntity<List<VisitDto>> getAllVisits() {
-        logger.trace("Visit service method entrance: addNewVisitUrl");
+        logger.trace("VisitController method entrance: getAllVisits");
 
         List<VisitDto> visits = visitService.getAllVisits();
 
-        logger.trace("Visit service method end: addNewVisitUrl");
+        logger.trace("VisitController method end: getAllVisits");
 
         return ResponseEntity.ok(visits);
     }
