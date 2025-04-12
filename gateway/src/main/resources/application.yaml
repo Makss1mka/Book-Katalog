@@ -18,10 +18,10 @@ spring:
           uri: http://auth-service:8082
           predicates:
             - Path=/api/v1/auth/**
-        - id: visiting-service
-          uri: http://visiting-service:8085
+        - id: visit-service
+          uri: http://visit-service:8085
           predicates:
-            - Path=/api/v1/visitings/**
+            - Path=/api/v1/visits/**
   mvc:
     throw-exception-if-no-handler-found: true
   web:
