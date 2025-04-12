@@ -1,5 +1,6 @@
 package maksim.visitservice.services;
 
+import jakarta.transaction.Transactional;
 import maksim.kafkaclient.dtos.ListOfNewVisitsKafkaDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ public class VisitEventsConsumer {
     }
 
     @KafkaListener(topics = "new-visit", groupId = "visit-service")
+    @Transactional
     public void listenNewVisits(
             ListOfNewVisitsKafkaDto newVisits,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -38,7 +40,7 @@ public class VisitEventsConsumer {
             ack.nack(Duration.ofSeconds(1));
         }
 
-        logger.trace("Kafka VisitEventsConsumer method end: listenNewVisits | Like created successfully");
+        logger.trace("Kafka VisitEventsConsumer method end: listenNewVisits | Visits added successfully");
     }
 
 
