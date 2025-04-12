@@ -28,6 +28,7 @@ spring:
       status-delete: "status-delete"
       like-create: "like-create"
       like-delete: "like-delete"
+      new-visit: "new-visit"
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

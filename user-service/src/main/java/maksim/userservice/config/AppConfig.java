@@ -44,4 +44,7 @@ public class AppConfig {
     @Value("${" + kafkaPath + "like-delete" + "}")
     private String kafkaLikeDeleteTopic;
 
+    @Value("${" + kafkaPath + "new-visit" + "}")
+    private String kafkaNewVisitTopic;
+
 }

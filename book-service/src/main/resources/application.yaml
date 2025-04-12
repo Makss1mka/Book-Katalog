@@ -1,6 +1,7 @@
 spring:
   services:
     user-service-url: http://user-service:8086
+
   kafka:
     bootstrap-servers: kafka:8090
     topics:
@@ -9,6 +10,7 @@ spring:
       status-delete: "status-delete"
       like-create: "like-create"
       like-delete: "like-delete"
+      new-visit: "new-visit"
     consumer:
       group-id: book-service
       auto-offset-reset: earliest
@@ -18,9 +20,19 @@ spring:
           json:
             trusted:
               packages: "java.util,java.lang,maksim.booksservice,maksim.kafkaclient.dtos"
-    listener:
-      ack-mode: manual
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    admin:
+      auto-create: true
+      properties:
+        replication-factor: 1
+        num-partitions: 3
+
   application:
+    upload_visits_size: 500
     name: book-service
     book-files-directory: "app/statics/"
   datasource:
@@ -43,6 +55,7 @@ spring:
   web:
     resources:
       add-mappings: false
+
 
 server:
   port: 8084

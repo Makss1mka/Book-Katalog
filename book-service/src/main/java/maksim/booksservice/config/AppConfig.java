@@ -13,6 +13,9 @@ public class AppConfig {
     @Value("${spring.application.book-files-directory}")
     private String bookFilesDirectory;
 
+    @Value("${spring.application.upload_visits_size}")
+    private Long visitsUploadSize;
+
 
     /*
         SERViCES PARAMS:
@@ -42,5 +45,8 @@ public class AppConfig {
 
     @Value("${" + kafkaPath + "like-delete" + "}")
     private String kafkaLikeDeleteTopic;
+
+    @Value("${" + kafkaPath + "new-visit" + "}")
+    private String kafkaNewVisitTopic;
 
 }

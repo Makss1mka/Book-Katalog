@@ -1,4 +1,20 @@
 spring:
+
+  kafka:
+    bootstrap-servers: kafka:8090
+    topics:
+      new-visit: "new-visit"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    admin:
+      auto-create: true
+      properties:
+        replication-factor: 1
+        num-partitions: 3
+
   application:
     name: review-service
   datasource:
@@ -12,16 +28,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  kafka:
-    bootstrap-servers: kafka:8090
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        acks: all
-        retries: 3
-    topics:
-      changes: review-changes
   mvc:
     throw-exception-if-no-handler-found: true
   web:
