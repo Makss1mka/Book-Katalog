@@ -26,11 +26,11 @@ public class VisitService {
         visitEntries = visitRepository.findAll();
     }
 
-    public void addNewVisitUrl(String method, String url, Long count) {
-        logger.trace("Visit service method entrance: addNewVisitUrl");
+    synchronized public void addNewVisitEntry(String method, String serviceName, Long count) {
+        logger.trace("Visit service method entrance: addNewVisitEntry");
 
         Visit newVisit = new Visit();
-        newVisit.setUrl(url);
+        newVisit.setServiceName(serviceName);
         newVisit.setMethod(method);
         newVisit.setCount(count);
 
@@ -38,24 +38,34 @@ public class VisitService {
 
         visitEntries.add(newVisit);
 
-        logger.trace("Visit service method end: addNewVisitUrl");
+        logger.trace("Visit service method end: addNewVisitEntry");
     }
 
-    public void addListOfVisits(ListOfNewVisitsKafkaDto newVisits) {
+    synchronized public void addListOfVisits(ListOfNewVisitsKafkaDto newVisits) {
         logger.trace("Visit service method entrance: addListOfVisits");
+
+        boolean isFound = false;
 
         for (VisitKafkaDto newVisit : newVisits.getNewVisits()) {
             for (Visit visitEntry : visitEntries) {
                 if (
                     visitEntry.getMethod().equals(newVisit.getMethod())
-                    && visitEntry.getUrl().equals(newVisit.getUrl())
+                    && visitEntry.getServiceName().equals(newVisit.getServiceName())
                 ) {
                     visitEntry.setCount(
-                        visitEntry.getCount() + 1
+                        visitEntry.getCount() + newVisit.getCount()
                     );
-                } else {
-                    addNewVisitUrl(newVisit.getMethod(), newVisit.getUrl(), 1L);
+
+                    isFound = true;
+
+                    break;
                 }
+            }
+
+            if (!isFound) {
+                addNewVisitEntry(newVisit.getMethod(), newVisit.getServiceName(), newVisit.getCount());
+            } else {
+                isFound = false;
             }
         }
 
@@ -64,7 +74,7 @@ public class VisitService {
         logger.trace("Visit service method end: addListOfVisits");
     }
 
-    public List<VisitDto> getAllVisits() {
+    synchronized public List<VisitDto> getAllVisits() {
         logger.trace("Visit service method entrance: getAllVisits");
 
         List<VisitDto> visitDtos = new ArrayList<>(visitEntries.size());
