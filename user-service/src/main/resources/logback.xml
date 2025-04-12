@@ -2,7 +2,7 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
-                %d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n
+                %d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] %logger{36} - %msg%n
             </pattern>
         </encoder>
     </appender>
@@ -20,7 +20,7 @@
         </encoder>
     </appender>
 
-    <logger name="maksim" level="TRACE" additivity="false">
+    <logger name="maksim" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </logger>
