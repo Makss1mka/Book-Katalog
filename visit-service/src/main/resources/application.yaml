@@ -2,10 +2,10 @@ spring:
   kafka:
     bootstrap-servers: kafka:8090
     topics:
-      new-visiting: "new-visit"
+      new-visit: "new-visit"
     consumer:
       group-id: visit-service
-      auto-offset-reset: earliest
+      auto-offset-reset: latest
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring:
