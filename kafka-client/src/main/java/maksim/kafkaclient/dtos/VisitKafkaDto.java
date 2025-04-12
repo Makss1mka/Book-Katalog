@@ -13,11 +13,14 @@ public class VisitKafkaDto {
 
     private String method;
 
-    private String url;
+    private String serviceName;
 
-    public VisitKafkaDto(String method, String url) {
+    private Long count;
+
+    public VisitKafkaDto(String method, String serviceName, Long count) {
         this.method = method;
-        this.url = url;
+        this.serviceName = serviceName;
+        this.count = count;
     }
 
 }
