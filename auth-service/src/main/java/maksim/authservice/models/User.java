@@ -6,35 +6,27 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id", nullable = false)
-    private int id;
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-    @Column(name="name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name="profilePicPath", nullable = true)
-    private String profilePicPath;
-
-    @Column(name="email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name="role", nullable = false, columnDefinition = "Text USER")
-    private String role;
+    @Column(name = "role", nullable = false, columnDefinition = "Text USER")
+    private String role = "USER";
 
     @JsonIgnore
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="reg_date", nullable = false)
-    private Date registrationDate;
-
-    @JsonIgnore
-    @Column(name="password", nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 }
