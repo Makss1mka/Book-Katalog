@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-import jakarta.validation.constraints.NotNull;
 import maksim.authservice.config.AppConfig;
 
 import maksim.authservice.models.User;
@@ -21,20 +20,20 @@ import java.util.function.Function;
 public class JwtTokenService {
     private final static Logger logger = LoggerFactory.getLogger(JwtTokenService.class);
 
-    @Autowired
-    private UserService userService;
+    private final AppConfig appConfig;
 
     @Autowired
-    private AppConfig appConfig;
+    public JwtTokenService(AppConfig appConfig) {
+        this.appConfig = appConfig;
+    }
 
-    public String generateToken(@NotNull String username, @NotNull String email,
-                                @NotNull String role, int id, int expirationTime) {
+    public String generateToken(String username, String email, String role, int id, int expirationTime) {
         logger.trace("Start creating token from plain values:" +
-                "\n\t\t\tusername - {}" +
-                "\n\t\t\temail - {}" +
-                "\n\t\t\ttole - {}" +
-                "\n\t\t\tid - {}" +
-                "\n\t\t\texpTime - {}", username, email, role, id, expirationTime);
+                "username - {} ; " +
+                "email - {} ; " +
+                "tole - {} ; " +
+                "id - {} ; " +
+                "expTime - {}", username, email, role, id, expirationTime);
 
         HashMap<String, Object> claims = new HashMap<String, Object>();
         claims.put("email", email);
@@ -54,13 +53,8 @@ public class JwtTokenService {
         return token;
     }
 
-    public String generateToken(@NotNull User user, int expirationTime) {
-        logger.trace("Start creating token from user object:" +
-                "\n\t\t\tusername - {}" +
-                "\n\t\t\temail - {}" +
-                "\n\t\t\ttole - {}" +
-                "\n\t\t\tid - {}" +
-                "\n\t\t\texpTime - {}", user.getName(), user.getEmail(), user.getRole(), user.getId(), expirationTime);
+    public String generateToken(User user, int expirationTime) {
+        logger.trace("Start creating token");
 
         HashMap<String, Object> claims = new HashMap<String, Object>();
         claims.put("email", user.getEmail());
@@ -117,8 +111,16 @@ public class JwtTokenService {
         return extractExpirationTime(token).before(new Date());
     }
 
+    public boolean validateToken(String token, int id, String name, String email) {
+        return (!isTokenExpired(token)
+                && extractId(token) == id
+                && extractUsername(token).equals(name)
+                && extractEmail(token).equals(email));
+    }
+
     public boolean validateToken(String token, User user) {
         return (!isTokenExpired(token)
+                && extractId(token) == user.getId()
                 && extractUsername(token).equals(user.getName())
                 && extractEmail(token).equals(user.getEmail()));
     }
