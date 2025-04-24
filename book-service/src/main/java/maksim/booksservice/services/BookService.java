@@ -7,13 +7,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import maksim.booksservice.config.AppConfig;
 import maksim.booksservice.exceptions.BadRequestException;
 import maksim.booksservice.exceptions.ConflictException;
@@ -36,6 +32,7 @@ import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.bookutils.BookSpecification;
 import maksim.booksservice.utils.enums.BookStatus;
 import maksim.booksservice.utils.enums.JoinMode;
+import org.apache.kafka.common.protocol.types.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -233,6 +230,27 @@ public class BookService {
 
         return file;
     }
+
+    public List<BookDto> searchBooks(String keyWords, String genres, Pageable pageable) {
+        String[] genresList = genres.split(",");
+        int genresListLen = (genres.isEmpty()) ? 0 : genresList.length;
+
+        logger.trace("BookService method entrance: searchBooks | {} - {}", genresList, genresListLen);
+
+        List<Book> booksEntities = bookRepository.searchBooks(
+            genresList,
+            genresListLen,
+            (!Objects.equals(keyWords, "")) ? keyWords : null,
+            pageable
+        );
+
+        logger.trace("BookService method end: searchBooks");
+
+        return booksEntities.stream()
+                .map(book -> new BookDto(book, JoinMode.WITH, null))
+                .collect(Collectors.toList());
+    }
+
 
 
     public BookDto addBookMetaData(CreateBookDto bookData) {

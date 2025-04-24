@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.File;
@@ -27,6 +28,8 @@ import maksim.booksservice.services.CachingService;
 import maksim.booksservice.utils.Pagination;
 import maksim.booksservice.utils.bookutils.BookSearchCriteria;
 import maksim.booksservice.utils.enums.JoinMode;
+import maksim.booksservice.utils.enums.SortDirection;
+import maksim.booksservice.utils.enums.SortField;
 import maksim.booksservice.utils.validators.BookSearchCriteriaValidator;
 import maksim.booksservice.utils.validators.CreateBookDtoValidator;
 import maksim.booksservice.utils.validators.FileValidator;
@@ -86,6 +89,48 @@ public class BookController {
         this.cachingService = cachingService;
     }
 
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<BookDto>> searchBooks(
+        @Size(max=50)
+        @RequestParam(name = "keyWords", required = false, defaultValue = "")
+        String keyWords,
+
+        @Size(max=50)
+        @RequestParam(name = "genres", required = false, defaultValue = "")
+        String genres,
+
+        @RequestParam(name = "pageNum", required = false, defaultValue = "0")
+        @Min(value = 0, message = "Page num should be greater than 0")
+        int pageNum,
+
+        @RequestParam(name = "pageSize", required = false, defaultValue = "20")
+        @Min(value = 0, message = "Page size should be greater than 0")
+        int pageSize,
+
+        @RequestParam(name = "sortField", required = false, defaultValue = "rating")
+        @NotBlank(message = "Sort field shouldn't be empty string")
+        @Size(min = 2, max = 10, message = "Too much chars for sort field")
+        String sortStrField,
+
+        @RequestParam(name = "sortDir", required = false, defaultValue = "desc")
+        @NotBlank(message = "Sort direction shouldn't be empty string")
+        @Size(min = 2, max = 10, message = "Too much chars for sort direction")
+        String sortStrDirection
+    ) {
+        logger.trace("Book Controller method entrance: searchBooks | {} {}", keyWords, genres);
+
+        SortField sortField = SortField.fromValue(sortStrField);
+        SortDirection sortDirection = SortDirection.fromValue(sortStrDirection);
+        Pageable pageable = Pagination.getPageable(pageNum, pageSize, sortField, sortDirection);
+
+        List<BookDto> books = bookService.searchBooks(keyWords, genres, pageable);
+
+        logger.trace("Book Controller method end: searchBooks");
+
+        return ResponseEntity.ok(books);
+    }
 
 
     @GetMapping
