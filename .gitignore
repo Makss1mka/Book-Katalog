@@ -18,6 +18,8 @@ visit-service/src/main/resources/.env
 
 postgres-data
 .env
+logs
+.idea
 
 auth-service/logs/
 book-service/logs/
