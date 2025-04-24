@@ -11,7 +11,24 @@ env:
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
 
 jobs:
-  build-and-push:
+  build-kafka-client:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 23
+      uses: actions/setup-java@v3
+      with:
+        java-version: '23'
+        distribution: 'temurin'
+
+    - name: Build Kafka Client
+      working-directory: ./kafka-client
+      run: mvn install -DskipTests
+
+  build-and-push-microservices:
+    needs: build-kafka-client
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,6 +62,4 @@ jobs:
 
     - name: Build and Push Docker Image
       working-directory: ./${{ matrix.service }}
-      run: mvn install -DskipTests
-
-
+      run: mvn install

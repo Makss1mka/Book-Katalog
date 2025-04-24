@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-service
+  template:
+    metadata:
+      labels:
+        app: book-service
+    spec:
+      containers:
+      - name: book-service
+        image: maks1mka/book-service:latest
+        resources:
+          requests:
+            cpu: 150m
+            memory: 150Mi
+          limits:
+            cpu: 150m
+            memory: 150Mi
+        ports:
+        - containerPort: 8084
+        envFrom:
+        - configMapRef:
+            name: common-config
+        - secretRef:
+            name: app-secrets
