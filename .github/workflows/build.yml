@@ -3,29 +3,51 @@ name: Build and Push Microservices
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+  MAVEN_OPTS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
 
 jobs:
-  build-kafka-client:
+  setup:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
+    
     - name: Set up JDK 23
       uses: actions/setup-java@v3
       with:
         java-version: '23'
         distribution: 'temurin'
+    
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ github.workspace }}/.m2/repository
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2-
 
-    - name: Build Kafka Client
+  build-kafka-client:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Restore Maven cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ github.workspace }}/.m2/repository
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2-
+    
+    - name: Build and install Kafka Client
       working-directory: ./kafka-client
-      run: mvn install -DskipTests
+      run: |
+        mvn clean install -DskipTests
+        echo "kafka-client installed to local Maven repo"
 
   build-and-push-microservices:
     needs: build-kafka-client
@@ -33,33 +55,41 @@ jobs:
     strategy:
       matrix:
         service: ['book-service', 'user-service', 'review-service', 'visit-service', 'auth-service']
-
+    
     services:
       postgres:
         image: postgres:latest
+        env:
+          POSTGRES_DB: test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
         ports:
           - 5432:5432
-        env:
-          POSTGRES_DB: ${{ secrets.POSTGRE_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRE_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRE_PASSWORD }}
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
+    
+    - name: Restore Maven cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ github.workspace }}/.m2/repository
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2-
+    
     - name: Set up JDK 23
       uses: actions/setup-java@v3
       with:
         java-version: '23'
         distribution: 'temurin'
-
+    
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ env.DOCKER_HUB_USERNAME }}
         password: ${{ env.DOCKER_HUB_TOKEN }}
-
-    - name: Build and Push Docker Image
+    
+    - name: Build and push microservice
       working-directory: ./${{ matrix.service }}
-      run: mvn install
+      run: mvn clean install
