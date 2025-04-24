@@ -1,23 +1,22 @@
 services:
-  eureka-server:
-    container_name: eureka-server
-    image: maks1mka/eureka-server:latest
+  local-nginx:
+    container_name: local-nginx
+    image: local-nginx:latest
+    ports:
+      - 8080:8080
+    networks:
+      - backend
+
+  static-nginx:
+    container_name: static-nginx
+    image: maks1mka/static-nginx:latest
     ports:
       - 8081:8081
     networks:
       - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 20s
 
   auth-service:
     container_name: auth-service
-    depends_on:
-      eureka-server:
-        condition: service_started
     image: maks1mka/auth-service:latest
     ports:
       - 8082:8082
@@ -27,9 +26,6 @@ services:
 
   gateway:
     container_name: gateway
-    depends_on:
-      eureka-server:
-        condition: service_started
     image: maks1mka/gateway:latest
     ports:
       - 8083:8083
@@ -39,9 +35,6 @@ services:
 
   visit-service:
     container_name: visit-service
-    depends_on:
-      eureka-server:
-        condition: service_started
     image: maks1mka/visit-service:latest
     ports:
       - 8085:8085
@@ -51,9 +44,6 @@ services:
 
   user-service:
     container_name: user-service
-    depends_on:
-      eureka-server:
-        condition: service_started
     image: maks1mka/user-service:latest
     ports:
       - 8086:8086
@@ -64,9 +54,6 @@ services:
 
   book-service:
     container_name: book-service
-    depends_on:
-      eureka-server:
-        condition: service_healthy
     image: maks1mka/book-service:latest
     ports:
       - 8084:8084
@@ -77,9 +64,6 @@ services:
 
   review-service:
     container_name: review-service
-    depends_on:
-      eureka-server:
-        condition: service_healthy
     image: maks1mka/review-service:latest
     ports:
       - 8087:8087
