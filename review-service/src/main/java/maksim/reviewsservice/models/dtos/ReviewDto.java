@@ -42,8 +42,7 @@ public class ReviewDto {
     @Schema(description = "Book id", example = "16")
     private Integer bookId = null;
 
-    @Schema(description = "User id", example = "16")
-    private Integer userId = null;
+    private UserDto author = null;
 
     public ReviewDto(Review review, JoinMode joinMode) {
         this.id = review.getId();
@@ -51,7 +50,6 @@ public class ReviewDto {
         this.rating = review.getRating();
         this.likes = review.getLikes();
         this.bookId = review.getBookId();
-        this.userId = review.getUserId();
 
         if (joinMode == JoinMode.WITH) {
             likedUsers = new HashSet<>(review.getLikedUsers().size());
@@ -61,6 +59,8 @@ public class ReviewDto {
                     new UserDto(user)
                 );
             }
+
+            author = new UserDto(review.getAuthor());
         }
     }
 

@@ -95,10 +95,15 @@ public class ReviewService {
         /*
         * Тут надо проверки на то существуют ли book и user по переданным id
         * */
+        Optional<User> user = userRepository.findById(reviewData.getUserId());
+
+        if (user.isEmpty()) {
+            throw new NotFoundException("Cannot find such user");
+        }
 
         Review newReview = new Review();
         newReview.setBookId(reviewData.getBookId());
-        newReview.setUserId(reviewData.getUserId());
+        newReview.setAuthor(user.get());
         newReview.setText(reviewData.getText());
         newReview.setRating(reviewData.getRating());
 
