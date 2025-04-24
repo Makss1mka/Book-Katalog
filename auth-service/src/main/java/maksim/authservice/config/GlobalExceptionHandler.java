@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<String> handleFprbiddenExceptions(ForbiddenException ex) {
+    public ResponseEntity<String> handleForbiddenExceptions(ForbiddenException ex) {
         logger.trace(ex.getMessage());
 
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
