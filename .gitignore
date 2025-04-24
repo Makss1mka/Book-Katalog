@@ -16,7 +16,6 @@ review-service/src/main/resources/.env
 user-service/src/main/resources/.env
 visit-service/src/main/resources/.env
 
-local-nginx
 postgres-data
 .env
 
