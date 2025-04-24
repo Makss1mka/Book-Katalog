@@ -19,6 +19,8 @@ postgres-data
 logs
 .idea
 
+kube/secrets.yaml
+
 auth-service/logs/
 book-service/logs/
 config-service/logs/

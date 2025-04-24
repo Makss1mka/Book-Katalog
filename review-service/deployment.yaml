@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: book-service
+  name: review-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: book-service
+      app: review-service
   template:
     metadata:
       labels:
-        app: book-service
+        app: review-service
     spec:
       containers:
-      - name: book-service
-        image: maks1mka/book-service:latest
+      - name: review-service
+        image: maks1mka/review-service:latest
         resources:
           requests:
             cpu: 150m

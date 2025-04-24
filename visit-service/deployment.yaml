@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: book-service
+  name: visit-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: book-service
+      app: visit-service
   template:
     metadata:
       labels:
-        app: book-service
+        app: visit-service
     spec:
       containers:
-      - name: book-service
-        image: maks1mka/book-service:latest
+      - name: visit-service
+        image: maks1mka/visit-service:latest
         resources:
           requests:
             cpu: 150m
@@ -23,7 +23,7 @@ spec:
             cpu: 150m
             memory: 150Mi
         ports:
-        - containerPort: 8084
+        - containerPort: 8085
         env:
         - name: DB_URL
           valueFrom:
