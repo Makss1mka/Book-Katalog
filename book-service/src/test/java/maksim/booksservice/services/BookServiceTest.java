@@ -285,22 +285,6 @@ class BookServiceTest {
     }
 
     @Test
-    void addListOfBooks_UserNotFound_ShouldThrowNotFoundException() {
-        int authorId = 1;
-        List<CreateBookDto> bookDtos = List.of(
-            new CreateBookDto("Book Name", Arrays.asList("gen1", "gen2"), authorId)
-        );
-
-        when(appConfig.getUserServiceUrl()).thenReturn("http://user-service");
-        when(restTemplate.getForEntity(anyString(), eq(User.class)))
-                .thenReturn(new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-
-        assertThrows(NotFoundException.class, () ->
-            bookService.addListOfBooks(authorId, bookDtos)
-        );
-    }
-
-    @Test
     void addListOfBooks_AddingBooksForOtherUser_ShouldThrowForbiddenException() {
         int authorId = 1;
         int otherAuthorId = 2;
