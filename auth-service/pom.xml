@@ -243,6 +243,36 @@
 							</arguments>
 						</configuration>
 					</execution>
+
+					<execution>
+						<id>docker-push</id>
+						<phase>install</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>docker</executable>
+							<arguments>
+								<argument>push</argument>
+								<argument>${docker.image.name}:${project.version}</argument>
+							</arguments>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>docker-push-latest</id>
+						<phase>install</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>docker</executable>
+							<arguments>
+								<argument>push</argument>
+								<argument>${docker.image.name}:latest</argument>
+							</arguments>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
