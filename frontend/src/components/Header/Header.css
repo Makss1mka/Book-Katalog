@@ -1,0 +1,200 @@
+/* Header.css */
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+  padding: 0 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.Header > div {
+  display: flex;
+  gap: 15px;
+}
+
+.Header_Button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.Header_Button:hover {
+  transform: translateY(-2px);
+}
+
+.Header_ButtonIcon {
+  width: 20px;
+  height: 20px;
+  transition: all 0.3s ease;
+}
+
+.Header_Button:hover .Header_ButtonIcon {
+  transform: scale(1.1);
+}
+
+.Header_ButtonText {
+  max-height: 13px;
+  height: 12px;
+  margin-top: 4px;
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.Header_Button:hover .Header_ButtonText {
+  color: #000;
+  font-weight: 600;
+}
+
+.Header_ButtinLine {
+  position: absolute;
+  bottom: -5px;
+  width: 0;
+  height: 2px;
+  background-color: #4a90e2;
+  transition: width 0.3s ease;
+}
+
+.Header_Button:hover .Header_ButtinLine {
+  width: 100%;
+}
+
+/* Анимация для активной кнопки */
+.Header_Button.active .Header_ButtonIcon {
+  transform: scale(1.1);
+  filter: brightness(0.8);
+}
+
+.Header_Button.active .Header_ButtonText {
+  color: #4a90e2;
+  font-weight: 600;
+}
+
+.Header_Button.active .Header_ButtinLine {
+  width: 100%;
+  background-color: #4a90e2;
+}
+
+@media (max-width: 768px) {
+  .Header {
+    height: 50px;
+    padding: 0 10px;
+  }
+    
+  .Header_ButtonText {
+    display: none;
+  }
+    
+  .Header_Button {
+    padding: 8px;
+  }
+}
+
+
+/* Основной контейнер логотипа */
+.LOGO {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.LOGO:hover {
+  transform: scale(1.02);
+}
+
+/* Стили для иконки */
+.LOGO_Icon {
+  width: 40px;
+  height: 40px;
+  color: #4a6fa5; /* Основной цвет иконки */
+  transition: color 0.3s ease;
+}
+
+.LOGO:hover .LOGO_Icon {
+  color: #3a5a8a; /* Цвет иконки при наведении */
+}
+
+/* Контейнер для текстовой части */
+.LOGO_Texts {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+/* Основной текст логотипа */
+.LOGO_Texts_Main {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.LOGO:hover .LOGO_Texts_Main {
+  color: #1a2634;
+}
+
+/* Подзаголовок логотипа */
+.LOGO_Texts_Sub {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
+}
+
+.LOGO:hover .LOGO_Texts_Sub {
+  color: #5d6d7e;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+  .LOGO_Icon {
+      width: 32px;
+      height: 32px;
+  }
+  
+  .LOGO_Texts_Main {
+      font-size: 1.2rem;
+  }
+  
+  .LOGO_Texts_Sub {
+      font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .LOGO {
+      gap: 8px;
+  }
+  
+  .LOGO_Icon {
+      width: 28px;
+      height: 28px;
+  }
+  
+  .LOGO_Texts_Main {
+      font-size: 1rem;
+  }
+  
+  .LOGO_Texts_Sub {
+      display: none; /* Скрываем подзаголовок на очень маленьких экранах */
+  }
+}

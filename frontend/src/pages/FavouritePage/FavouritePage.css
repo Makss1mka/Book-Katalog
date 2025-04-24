@@ -1,0 +1,136 @@
+/* FavouritePage.css */
+.FavouritePage {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 80vh;
+}
+
+/* Switch buttons container */
+.FavouritePage_SwitchButtons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Individual switch buttons */
+.FavouritePage_SwitchButton {
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+.FavouritePage_SwitchButton:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.FavouritePage_SwitchButton:active,
+.FavouritePage_SwitchButton.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* Book cards grid */
+.FavouritePage_BookCardsList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 10px;
+    justify-items: center;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* Loading state */
+.FavouritePage .Loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    font-size: 1.2rem;
+    color: #666;
+    grid-column: 1 / -1;
+}
+
+/* Animation for book cards */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.FavouritePage_BookCardsList > * {
+    animation: fadeIn 0.5s ease forwards;
+    width: 100%;
+    max-width: 350px;
+}
+
+/* Hover effect for book cards */
+.FavouritePage_BookCardsList > *:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .FavouritePage_BookCardsList {
+        gap: 25px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .FavouritePage_BookCardsList {
+        grid-template-columns: repeat(3, minmax(250px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .FavouritePage_BookCardsList {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .FavouritePage_SwitchButtons {
+        gap: 10px;
+    }
+    
+    .FavouritePage_SwitchButton {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .FavouritePage {
+        padding: 15px;
+    }
+    
+    .FavouritePage_BookCardsList {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .FavouritePage_SwitchButtons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .FavouritePage_SwitchButton {
+        width: 100%;
+        max-width: 250px;
+    }
+}

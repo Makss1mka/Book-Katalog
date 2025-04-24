@@ -1,0 +1,145 @@
+/* ReviewCard.css */
+.ReviewCard {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+    transition: box-shadow 0.2s ease;
+}
+
+.ReviewCard:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ReviewCard_Author {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #2c3e50;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.ReviewCard_Author:hover {
+    color: #1a73e8;
+}
+
+.ReviewCard_Text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.ReviewCard_Rating {
+    font-size: 0.9rem;
+    color: #ff9800;
+    margin-bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+/* Блок с лайками и кнопкой */
+.ReviewCard_Likes {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #666;
+    margin-right: 8px;
+    margin-left: 25px;
+    vertical-align: middle;
+}
+
+/* Кнопка лайка */
+.ReviewCard_LikeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+    margin-left: 4px;
+}
+
+/* Размер иконок лайка */
+.ReviewCard_LikeButtonIcon_Active,
+.ReviewCard_LikeButtonIcon_Inactive {
+    width: 18px;
+    height: 18px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Цвета иконок */
+.ReviewCard_LikeButtonIcon_Active {
+    color: #e53935;
+    fill: currentColor;
+}
+
+.ReviewCard_LikeButtonIcon_Inactive {
+    color: #bdbdbd;
+    fill: currentColor;
+}
+
+/* Эффекты при наведении */
+.ReviewCard_LikeButton:hover {
+    transform: scale(1.1);
+}
+
+.ReviewCard_LikeButton:hover .ReviewCard_LikeButtonIcon_Inactive {
+    color: #e53935;
+}
+
+/* Анимация при клике */
+@keyframes likeBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.ReviewCard_LikeButton:active {
+    animation: likeBounce 0.3s ease;
+}
+
+/* Разделитель между отзывами */
+.ReviewCard + .ReviewCard {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .ReviewCard {
+        padding: 12px;
+    }
+    
+    .ReviewCard_Text {
+        font-size: 0.9rem;
+    }
+    
+    .ReviewCard_LikeButtonIcon_Active,
+    .ReviewCard_LikeButtonIcon_Inactive {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .ReviewCard_Likes {
+        font-size: 0.8rem;
+        gap: 4px;
+    }
+}
+
+/* Выравнивание рейтинга, лайков и кнопки в одну линию */
+.ReviewCard_Rating,
+.ReviewCard_Likes,
+.ReviewCard_LikeButton {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}

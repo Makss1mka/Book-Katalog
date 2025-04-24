@@ -1,0 +1,252 @@
+/* BookPage.css */
+.BookPage {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.BookPage_NameLabel {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.BookPage_Author {
+    font-size: 1.2rem;
+    color: #3498db;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.BookPage_Author:hover {
+    text-decoration: underline;
+}
+
+.BookPage_Rating {
+    font-size: 1.5rem;
+    color: #f39c12;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.BookPage_Rating::before {
+    color: #f39c12;
+}
+
+.BookPage_RatingsCount {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-bottom: 15px;
+}
+
+.BookPage_Genres {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.BookPage_Genres span {
+    background-color: #e0e0e0;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    color: #34495e;
+}
+
+.BookPage_Likes {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1rem;
+    color: #e74c3c;
+    margin-bottom: 25px;
+}
+
+.BookPage_ReviewCreateForm {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.BookPage_ReviewCreateForm_TextInput {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.BookPage_ReviewCreateForm button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.BookPage_ReviewCreateForm button:hover {
+    background-color: #2980b9;
+}
+
+.BookPage_ReviewsList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.BookPage_ReviewsList > button {
+    align-self: center;
+    background: none;
+    border: 1px solid #3498db;
+    color: #3498db;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+}
+
+.BookPage_ReviewsList > button:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Стили для состояния загрузки */
+.BookPage .Loading {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+}
+
+/* Стили для состояния ошибки */
+.BookPage .Error {
+    color: #e74c3c;
+    background-color: #fde8e8;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .BookPage {
+        padding: 15px;
+    }
+    
+    .BookPage_NameLabel {
+        font-size: 1.8rem;
+    }
+}
+
+
+
+
+
+
+/* Стили для блока с лайками */
+.BookPage_Likes {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    color: #333;
+    margin-right: 15px;
+    vertical-align: middle;
+}
+
+/* Стили для кнопки лайка */
+.BookPage_LikeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    vertical-align: middle;
+    outline: none;
+}
+
+/* Размер иконок лайка */
+.BookPage_LikeButtonIcon_Active,
+.BookPage_LikeButtonIcon_Inactive {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Стиль активного лайка */
+.BookPage_LikeButtonIcon_Active {
+    color: #e74c3c;
+    fill: currentColor;
+}
+
+/* Стиль неактивного лайка */
+.BookPage_LikeButtonIcon_Inactive {
+    color: #95a5a6;
+    fill: currentColor;
+}
+
+/* Эффекты при наведении */
+.BookPage_LikeButton:hover .BookPage_LikeButtonIcon_Inactive {
+    color: #e74c3c;
+}
+
+.BookPage_LikeButton:hover {
+    transform: scale(1.1);
+}
+
+/* Анимация при нажатии */
+.BookPage_LikeButton:active {
+    transform: scale(0.95);
+}
+
+.BookPage_Rating,
+.BookPage_RatingsCount,
+.BookPage_Genres,
+.BookPage_Likes {
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 15px;
+    vertical-align: middle;
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.BookPage_LikeButtonIcon_Active {
+    animation: heartBeat 0.5s ease;
+}
+
+@media (max-width: 768px) {
+    .BookPage_LikeButtonIcon_Active,
+    .BookPage_LikeButtonIcon_Inactive {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .BookPage_Likes {
+        font-size: 1rem;
+    }
+}

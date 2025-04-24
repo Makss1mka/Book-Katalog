@@ -1,0 +1,100 @@
+/* CatalogPage.css */
+.CatalogPage {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.CatalogPage_Title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+    text-align: center;
+}
+
+.CatalogPage_BookCardsList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 10px;
+    justify-items: center;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.CatalogPage .Loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    font-size: 1.2rem;
+    color: #666;
+    grid-column: 1 / -1;
+}
+
+/* Стили для состояния ошибки */
+.CatalogPage .Error {
+    color: #e74c3c;
+    background-color: #fde8e8;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 500px;
+    grid-column: 1 / -1;
+}
+
+/* Адаптивность для разных экранов */
+@media (max-width: 1200px) {
+    .CatalogPage_BookCardsList {
+        gap: 25px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .CatalogPage_BookCardsList {
+        grid-template-columns: repeat(3, minmax(250px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .CatalogPage_BookCardsList {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .CatalogPage {
+        padding: 15px;
+    }
+    
+    .CatalogPage_BookCardsList {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
+
+/* Анимация появления карточек */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.CatalogPage_BookCardsList > * {
+    animation: fadeIn 0.5s ease forwards;
+    width: 100%;
+    max-width: 350px;
+}
+
+/* Эффект при наведении на карточки */
+.CatalogPage_BookCardsList > *:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}

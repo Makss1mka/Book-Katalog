@@ -1,0 +1,167 @@
+/* Main container */
+.SearchBar {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* Inputs container */
+.SearchBar_Inputs {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+}
+
+/* Input field */
+.SearchBar_InputField {
+    flex: 1;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.SearchBar_InputField:focus {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.SearchBar_Button_Text {
+    padding: 2px;
+}
+
+/* Search button */
+.SearchBar_Button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.SearchBar_Button:hover {
+    background-color: #0069d9;
+    transform: translateY(-2px);
+}
+
+.SearchBar_Button:active {
+    transform: translateY(0);
+}
+
+/* Button icon */
+.SearchBar_Button_Icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+/* Filters button */
+.Filters_Button {
+    background-color: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.Filters_Button:hover {
+    background-color: #e9ecef;
+}
+
+/* Filters menu */
+.Filters_Menu {
+    position: absolute;
+    top: 100%;
+    left: 20px;
+    right: 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.Filters_Menu p {
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Filter options grid */
+.Filter_Option {
+    display: inline-block;
+    margin: 0 15px 15px 0;
+    padding: 8px 15px;
+    background-color: #f8f9fa;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+}
+
+.Filter_Option:hover {
+    background-color: #e9ecef;
+}
+
+.Filter_Option input {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.Filter_Option input[type="checkbox"]:checked + span {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .SearchBar_Inputs {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .SearchBar_InputField,
+    .SearchBar_Button {
+        width: 100%;
+    }
+    
+    .Filters_Menu {
+        position: static;
+        margin-top: 15px;
+        box-shadow: none;
+        border: none;
+        padding: 15px 0;
+    }
+    
+    .Filter_Option {
+        margin: 0 10px 10px 0;
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .SearchBar {
+        padding: 15px;
+    }
+    
+    .Filter_Option {
+        display: block;
+        margin: 0 0 10px 0;
+    }
+}
