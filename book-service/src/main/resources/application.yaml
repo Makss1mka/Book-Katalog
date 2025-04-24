@@ -3,6 +3,8 @@ spring:
     user-service-url: http://user-service:8086
 
   kafka:
+    listener:
+      ack-mode: manual
     bootstrap-servers: kafka:8090
     topics:
       status-update: "status-update"
@@ -36,9 +38,9 @@ spring:
     name: book-service
     book-files-directory: "app/statics/"
   datasource:
-    url: "jdbc:postgresql://host.docker.internal:5432/postgres"
-    username: "postgres"
-    password: "postgres"
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     show-sql: true
     hibernate:

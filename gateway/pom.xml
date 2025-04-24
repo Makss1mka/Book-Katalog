@@ -53,13 +53,6 @@
 		</dependency>
 
 
-		<!-- EUREKA DEPS -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-		</dependency>
-
-
 		<!-- LOMBOCK DEPS -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>

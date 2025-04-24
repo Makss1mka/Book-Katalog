@@ -5,6 +5,20 @@ eureka-server/target/
 gateway/target/
 review-service/target/
 user-service/target/
+visit-service/target/
+
+auth-service/src/main/resources/.env
+book-service/src/main/resources/.env
+config-service/src/main/resources/.env
+eureka-server/src/main/resources/.env
+gateway/src/main/resources/.env
+review-service/src/main/resources/.env
+user-service/src/main/resources/.env
+visit-service/src/main/resources/.env
+
+local-nginx
+postgres-data
+.env
 
 auth-service/logs/
 book-service/logs/
@@ -13,6 +27,7 @@ eureka-server/logs/
 gateway/logs/
 review-service/logs/
 user-service/logs/
+visit-service/logs/
 
 my_google_checks.xml
 ports.txt

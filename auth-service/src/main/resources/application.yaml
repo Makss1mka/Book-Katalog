@@ -3,9 +3,9 @@ spring:
     name: auth-service
     secret: secret
   datasource:
-    url: "jdbc:postgresql://host.docker.internal:5432/postgres"
-    username: "postgres"
-    password: "postgres" # ${PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     show-sql: true
     hibernate:
@@ -16,11 +16,5 @@ spring:
 
 
 server:
-  port: 8083
-
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://eureka-server:8081/eureka/
+  port: 8082
 
