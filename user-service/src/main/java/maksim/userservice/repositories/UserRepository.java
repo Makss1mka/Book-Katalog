@@ -13,10 +13,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findById(int id);
 
-    @Query("SELECT u FROM User u JOIN FETCH u.bookStatuses s WHERE u.id = :id")
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.bookStatuses s LEFT JOIN FETCH u.likedBooks l WHERE u.id = :id")
     Optional<User> findByIdWithJoinStatuses(@Param(value = "id") int id);
 
-    @Query("SELECT u FROM User u JOIN FETCH u.bookStatuses s JOIN FETCH s.book k WHERE u.id = :id")
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.bookStatuses s JOIN FETCH s.book k LEFT JOIN FETCH u.likedBooks l WHERE u.id = :id")
     Optional<User> findByIdWithJoinStatusesAndBooks(@Param(value = "id") int id);
 
     @Query("SELECT s FROM User u "

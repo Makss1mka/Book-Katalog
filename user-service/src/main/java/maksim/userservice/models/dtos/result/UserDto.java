@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
+import maksim.userservice.models.entities.Book;
 import maksim.userservice.models.entities.User;
 import maksim.userservice.utils.enums.JoinMode;
 import java.util.ArrayList;
@@ -17,27 +18,18 @@ import java.util.List;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-@Schema(description = "Returning user object")
 public class UserDto {
-    @Schema(description = "User id", example = "16")
     private Integer id = null;
 
-    @Schema(description = "Username", example = "Maks")
     private String name = null;
 
-    @Schema(description = "Profile picture path", example = "/some/path")
     private String profilePicPath = null;
 
-    @Schema(description = "Email", example = "email@email.email")
     private String email = null;
 
-    @ArraySchema(
-        schema = @Schema(
-            description = "User book statuses",
-            implementation = UserBookStatusDto.class
-        )
-    )
     private List<UserBookStatusDto> bookStatuses = null;
+
+    private List<BookDto> likedBooks = null;
 
     public UserDto(User user, JoinMode mode) {
         this.id = user.getId();
@@ -47,9 +39,14 @@ public class UserDto {
 
         if (mode == JoinMode.WITH_STATUSES || mode == JoinMode.WITH_STATUSES_AND_BOOKS) {
             this.bookStatuses = new ArrayList<>(user.getBookStatuses().size());
+            this.likedBooks = new ArrayList<>(user.getLikedBooks().size());
 
             user.getBookStatuses().forEach(status ->
                 this.bookStatuses.add(new UserBookStatusDto(status, mode))
+            );
+
+            user.getLikedBooks().forEach(book ->
+                this.likedBooks.add(new BookDto(book, null))
             );
         }
     }

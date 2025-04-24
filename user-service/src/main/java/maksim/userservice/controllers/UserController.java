@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -258,9 +259,15 @@ public class UserController {
 
         UserDto user = userService.createUser(createUserDto);
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(
+            "Authorization",
+            String.format("Bearer %s", userService.getToken(user.getName(), createUserDto.getPassword()))
+        );
+
         logger.trace("BookController method return: createUser | User was successfully created");
 
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
     }
 
 

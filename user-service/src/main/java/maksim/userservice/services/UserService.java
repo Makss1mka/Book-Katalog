@@ -1,6 +1,9 @@
 package maksim.userservice.services;
 
 import jakarta.transaction.Transactional;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import maksim.kafkaclient.dtos.CreateStatusKafkaDto;
 import maksim.kafkaclient.dtos.CreateLikeKafkaDto;
 import maksim.kafkaclient.dtos.DeleteLikeKafkaDto;
@@ -8,10 +11,9 @@ import maksim.kafkaclient.dtos.DeleteStatusKafkaDto;
 import maksim.kafkaclient.dtos.UpdateStatusKafkaDto;
 import maksim.userservice.exceptions.BadRequestException;
 import maksim.userservice.exceptions.NotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+
+import java.util.*;
+
 import maksim.userservice.config.AppConfig;
 import maksim.userservice.exceptions.ConflictException;
 import maksim.userservice.exceptions.NoContentException;
@@ -135,6 +137,7 @@ public class UserService {
         User newUser = new User();
         newUser.setName(userDto.getName());
         newUser.setEmail(userDto.getEmail());
+        newUser.setRegistrationDate(new Date());
         newUser.setPassword(
             passwordEncoder.encode(userDto.getPassword())
         );
@@ -394,5 +397,43 @@ public class UserService {
 
         logger.trace("UserService method end: deleteLike | Like was deleted successfully");
     }
+
+
+    @Getter
+    @Setter
+    private class AuthDto {
+        private String name;
+        private String password;
+
+        public AuthDto(String name, String password) {
+            this.name = name;
+            this.password = password;
+        }
+    }
+
+    public String getToken(String name, String password) {
+        logger.trace("UserService method entrance: getToken");
+
+        AuthDto authDto = new AuthDto(name, password);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+            appConfig.getAuthServiceUrl() + "/api/v1/auth",
+                authDto,
+                String.class
+        );
+
+        if (
+            response.getStatusCode() != HttpStatus.OK
+            || !response.getHeaders().containsKey("Authorization")
+            || response.getHeaders().getFirst("Authorization") == null
+        ) {
+            throw new NotFoundException("Cannot get token");
+        }
+
+        logger.trace("UserService method end: getToken");
+
+        return response.getHeaders().getFirst("Authorization").substring(7);
+    }
+
 
 }
