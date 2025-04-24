@@ -54,6 +54,11 @@ jobs:
         service_account_key: ${{ env.GKE_SA_KEY }}
         export_default_credentials: true
     
+    - name: Authenticate to Google Cloud
+      run: |
+        echo "${{ secrets.GKE_KEY }}" > key.json
+        gcloud auth activate-service-account --key-file=key.json
+
     - name: Connect to GKE cluster
       id: connect
       run: |
