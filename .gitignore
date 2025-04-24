@@ -1,7 +1,6 @@
 auth-ervice/target/
 book-service/target/
 config-service/target/
-eureka-server/target/
 gateway/target/
 review-service/target/
 user-service/target/
@@ -10,7 +9,6 @@ visit-service/target/
 auth-service/src/main/resources/.env
 book-service/src/main/resources/.env
 config-service/src/main/resources/.env
-eureka-server/src/main/resources/.env
 gateway/src/main/resources/.env
 review-service/src/main/resources/.env
 user-service/src/main/resources/.env
@@ -24,7 +22,6 @@ logs
 auth-service/logs/
 book-service/logs/
 config-service/logs/
-eureka-server/logs/
 gateway/logs/
 review-service/logs/
 user-service/logs/
@@ -32,4 +29,4 @@ visit-service/logs/
 
 my_google_checks.xml
 ports.txt
-statics
+book-service/statics/
