@@ -7,6 +7,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import maksim.userservice.utils.enums.BookStatus;
+import maksim.userservice.utils.enums.JoinMode;
+
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,25 +18,42 @@ import maksim.userservice.utils.enums.BookStatus;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Returning book object")
 public class BookDto {
-    @Schema(description = "Book id", example = "16")
-    private Integer id;
+    @Schema(description = "book id", example = "1")
+    private Integer id = null;
 
-    @Schema(description = "Author id", example = "16")
-    private Integer authorId;
+    @Schema(description = "book name", example = "Властелин колец. Братсво кольца")
+    private String name = null;
 
-    @Schema(description = "Book name", example = "Some Name")
-    private String name;
+    @Schema(description = "file path", example = "/some/file/path")
+    private String filePath = null;
 
-    @Schema(description = "Status", example = "READ")
-    private String status;
+    @Schema(description = "rating", example = "5.0")
+    private Float rating = null;
+
+    @Schema(description = "amount or ratings", example = "10000")
+    private Integer ratingsCount = null;
+
+    @Schema(description = "date when book was added", example = "23.03.2006")
+    private Date issuedDate = null;
+
+    @Schema(description = "list of book genres", example = "[ \"Adventure\", \"Horror\", \"Action\" ]")
+    private List<String> genres = null;
+
+    @Schema(description = "amount of likes", example = "10000")
+    private Integer likes = null;
+
+    @Schema(description = "author object", example = "{ \"id\": 17, \"name\": \"Talkin\", \"profilePicPath\": \"some/path\" }")
+    private UserDto author = null;
 
     public BookDto(Book book, BookStatus status) {
         this.id = book.getId();
-        this.authorId = book.getAuthorId();
         this.name = book.getName();
-
-        if (status != null) {
-            this.status = status.toString();
-        }
+        this.filePath = book.getFilePath();
+        this.rating = book.getRating();
+        this.ratingsCount = book.getRatingCount();
+        this.issuedDate = book.getIssuedDate();
+        this.genres = book.getGenres();
+        this.likes = book.getLikes();
+        this.author = new UserDto(book.getAuthor(), JoinMode.WITHOUT);
     }
 }

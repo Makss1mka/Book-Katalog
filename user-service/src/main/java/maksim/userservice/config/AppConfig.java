@@ -11,17 +11,19 @@ import org.springframework.stereotype.Component;
 public class AppConfig {
     private final String kafkaPath = "spring.kafka.topics.";
 
+    @Value("${spring.application.users-profiles-directory}")
+    private String userProfilesDirectory;
 
     /*
         SERViCES PARAMS:
         urls
      */
 
-    @Value("${spring.application.users-profiles-directory}")
-    private String bookFilesDirectory;
-
     @Value("${spring.services.book-service-url}")
     private String bookServiceUrl;
+
+    @Value("${spring.services.auth-service-url}")
+    private String authServiceUrl;
 
 
     /*
