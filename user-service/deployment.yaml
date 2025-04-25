@@ -17,11 +17,11 @@ spec:
         image: maks1mka/user-service:latest
         resources:
           requests:
-            cpu: 150m
-            memory: 150Mi
+            cpu: 300m
+            memory: 700Mi
           limits:
-            cpu: 150m
-            memory: 150Mi
+            cpu: 300m
+            memory: 700Mi
         ports:
         - containerPort: 8087
         env:

@@ -17,15 +17,15 @@ spec:
         image: confluentinc/cp-zookeeper:7.0.0
         resources:
           requests:
-            cpu: 150m
-            memory: 150Mi
+            cpu: 300m
+            memory: 500Mi
           limits:
-            cpu: 150m
-            memory: 150Mi
+            cpu: 300m
+            memory: 500Mi
         ports:
-        - containerPort: 8089
+        - containerPort: 2181
         env:
         - name: ZOOKEEPER_CLIENT_PORT
-          value: "8089"
+          value: "2181"
         - name: ZOOKEEPER_TICK_TIME
           value: "2000"
