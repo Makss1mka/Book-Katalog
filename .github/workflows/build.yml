@@ -156,11 +156,15 @@ jobs:
         echo "$GOOGLE_APPLICATION_CREDENTIALS" > gcloud-key.json
         gcloud auth activate-service-account --key-file=gcloud-key.json
 
+
+    - name: Install gke-gcloud-auth-plugin
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        install_components: gke-gcloud-auth-plugin
+
     - name: Connect to GKE cluster
       id: connect
       run: |
-        sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin
-
         gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
           --zone ${{ env.GKE_ZONE }} \
           --project ${{ env.GKE_PROJECT }}
