@@ -54,6 +54,9 @@ jobs:
         service_account_key: ${{ env.GKE_SA_KEY }}
         export_default_credentials: true
     
+    - name: Debug token
+      run: echo "${{ steps.auth.outputs.id_token }}" | jq -R 'split(".") | .[1] | @base64d | fromjson'
+
     - name: Authenticate to Google Cloud
       run: |
         echo "${{ secrets.GKE_KEY }}" > key.json
@@ -183,4 +186,5 @@ jobs:
       run: |
         kubectl apply -f ./frontend/static-nginx-deployment.yaml
         kubectl apply -f ./frontend/static-nginx-service.yaml
+
 
