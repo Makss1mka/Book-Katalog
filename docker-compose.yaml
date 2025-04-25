@@ -87,11 +87,11 @@ services:
     image: confluentinc/cp-kafka:7.0.0
     container_name: kafka
     ports:
-      - 8090:8090
+      - 9092:9092
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:8089
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:8090
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
     depends_on:

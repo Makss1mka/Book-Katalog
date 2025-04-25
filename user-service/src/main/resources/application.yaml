@@ -22,7 +22,7 @@ spring:
     resources:
       add-mappings: false
   kafka:
-    bootstrap-servers: kafka:8090
+    bootstrap-servers: kafka:9092
     topics:
       status-update: "status-update"
       status-create: "status-create"

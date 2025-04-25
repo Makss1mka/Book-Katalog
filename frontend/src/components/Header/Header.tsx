@@ -54,6 +54,11 @@ export default function Header() {
                     onClick={ handleFavouriteClicked }
                 />
             </div>
+        </header>
+    )
+}
+
+/*
             <div>
                 <HeaderButton
                     className="Header_Button"
@@ -74,9 +79,7 @@ export default function Header() {
                     onClick={() => console.log("Button pressed")}
                 />
             </div>
-        </header>
-    )
-}
+*/
 
 interface HeaderButtonProps {
     className: string;

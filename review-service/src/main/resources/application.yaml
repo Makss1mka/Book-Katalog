@@ -1,7 +1,7 @@
 spring:
 
   kafka:
-    bootstrap-servers: kafka:8090
+    bootstrap-servers: kafka:9092
     topics:
       new-visit: "new-visit"
     producer:
