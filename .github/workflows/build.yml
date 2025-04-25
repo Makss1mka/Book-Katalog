@@ -152,6 +152,8 @@ jobs:
     - name: Deploy to Kubernetes
       if: steps.check_changes.outputs.service_changed == 'true'
       run: |
+        kubectl cluster-info
+        kubectl get nodes
         kubectl apply -f ./${{ matrix.service }}/deployment.yaml
         kubectl apply -f ./${{ matrix.service }}/service.yaml
 
