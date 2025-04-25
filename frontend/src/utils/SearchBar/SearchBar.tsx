@@ -66,7 +66,7 @@ export default function SearchBar() {
             <div className="SearchBar_Inputs">
                 <input id="SearchBar_Input" className="SearchBar_InputField" placeholder="Введите запрос" />
                 <button className="SearchBar_Button" onClick={handleSearchClicked}>
-                    <IconSearch className="SearchBar_Button_Icon" />
+                    {/* <IconSearch className="SearchBar_Button_Icon" /> */}
                     <p className="SearchBar_Button_Text">Найти</p>
                 </button>
                 <button
