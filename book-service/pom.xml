@@ -50,6 +50,7 @@
 		</sonar.coverage.exclusions>
 	</properties>
 
+
 	<dependencies>
 		<dependency>
 			<groupId>me.paulschwarz</groupId>
