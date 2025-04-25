@@ -65,7 +65,7 @@ jobs:
         echo "kafka-client installed to local Maven repo"
 
   build-and-deploy-microservices:
-    needs: [setup, build-kafka-client, setup-gke]
+    needs: [setup, build-kafka-client]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -187,7 +187,30 @@ jobs:
       run: |
         docker build -t ${{ env.DOCKER_HUB_USERNAME }}/static-nginx:latest .
         docker push ${{ env.DOCKER_HUB_USERNAME }}/static-nginx:latest
-    
+
+    - name: Authenticate to Google Cloud
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GKE_KEY }}
+      run: |
+        echo "$GOOGLE_APPLICATION_CREDENTIALS" > gcloud-key.json
+        gcloud auth activate-service-account --key-file=gcloud-key.json
+
+    - name: Install gke-gcloud-auth-plugin
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        install_components: gke-gcloud-auth-plugin
+
+    - name: Connect to GKE cluster
+      id: connect
+      run: |
+        gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
+          --zone ${{ env.GKE_ZONE }} \
+          --project ${{ env.GKE_PROJECT }}
+
+        kubectl cluster-info
+        kubectl get nodes
+        echo "kubeconfig=$(cat ~/.kube/config | base64 -w0)" >> $GITHUB_OUTPUT
+
     - name: Deploy frontend to Kubernetes
       run: |
         kubectl apply -f ./frontend/static-nginx-deployment.yaml
