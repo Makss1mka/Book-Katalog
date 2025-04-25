@@ -2,6 +2,7 @@ spring:
   services:
     user-service-url: http://user-service:8086
 
+
   kafka:
     listener:
       ack-mode: manual

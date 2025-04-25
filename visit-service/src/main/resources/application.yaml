@@ -1,4 +1,5 @@
 spring:
+
   kafka:
     bootstrap-servers: kafka:9092
     topics:
