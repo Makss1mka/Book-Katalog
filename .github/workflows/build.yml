@@ -137,6 +137,9 @@ jobs:
       run: |
         echo "$GOOGLE_APPLICATION_CREDENTIALS" > gcloud-key.json
         gcloud auth activate-service-account --key-file=gcloud-key.json
+        echo %DB_URL%
+        echo %DB_USERNAME%
+        exho %DB_PASSWORD%
 
 
     - name: Install gke-gcloud-auth-plugin
