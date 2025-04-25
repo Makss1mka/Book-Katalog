@@ -11,6 +11,9 @@ env:
   GKE_ZONE: ${{ secrets.GKE_ZONE }}
   GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
   MAVEN_OPTS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
+  DB_URL: ${{ secrets.DB_URL }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_USERNAME: ${{ secrets.DB_USERNAME }}
 
 jobs:
   setup:
