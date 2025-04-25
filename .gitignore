@@ -15,7 +15,6 @@ user-service/src/main/resources/.env
 visit-service/src/main/resources/.env
 
 postgres-data
-.env
 logs
 .idea
 

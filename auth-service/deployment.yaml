@@ -21,7 +21,7 @@ spec:
             memory: 700Mi
           limits:
             cpu: 300m
-            memory: 701Mi
+            memory: 700Mi
         ports:
         - containerPort: 8082
         env:
