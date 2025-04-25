@@ -159,16 +159,19 @@ jobs:
     - name: Connect to GKE cluster
       id: connect
       run: |
+        sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
+
         gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
           --zone ${{ env.GKE_ZONE }} \
           --project ${{ env.GKE_PROJECT }}
+
+        kubectl cluster-info
+        kubectl get nodes
         echo "kubeconfig=$(cat ~/.kube/config | base64 -w0)" >> $GITHUB_OUTPUT
 
     - name: Deploy to Kubernetes
       if: steps.check_changes.outputs.service_changed == 'true'
       run: |
-        kubectl cluster-info
-        kubectl get nodes
         kubectl apply -f ./${{ matrix.service }}/deployment.yaml
         kubectl apply -f ./${{ matrix.service }}/service.yaml
 
