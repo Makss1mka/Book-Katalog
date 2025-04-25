@@ -34,6 +34,7 @@ spring:
         replication-factor: 1
         num-partitions: 3
 
+
   application:
     upload_visits_size: 500
     name: book-service

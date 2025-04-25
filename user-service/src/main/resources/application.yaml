@@ -41,7 +41,6 @@ spring:
         replication-factor: 1
         num-partitions: 3
 
-
 server:
   port: 8086
 
