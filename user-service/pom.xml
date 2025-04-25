@@ -294,6 +294,7 @@
 						</configuration>
 					</execution>
 
+
 					<execution>
 						<id>docker-push</id>
 						<phase>install</phase>

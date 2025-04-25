@@ -259,6 +259,7 @@
 						</configuration>
 					</execution>
 
+
 					<execution>
 						<id>docker-push-latest</id>
 						<phase>install</phase>
