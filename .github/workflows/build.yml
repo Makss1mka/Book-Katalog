@@ -159,7 +159,7 @@ jobs:
     - name: Connect to GKE cluster
       id: connect
       run: |
-        gcloud components install gke-gcloud-auth-plugin
+        sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin
 
         gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
           --zone ${{ env.GKE_ZONE }} \
