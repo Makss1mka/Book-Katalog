@@ -149,6 +149,21 @@ jobs:
       working-directory: ./${{ matrix.service }}
       run: mvn clean install
     
+    - name: Authenticate to Google Cloud
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GKE_KEY }}
+      run: |
+        echo "$GOOGLE_APPLICATION_CREDENTIALS" > gcloud-key.json
+        gcloud auth activate-service-account --key-file=gcloud-key.json
+
+    - name: Connect to GKE cluster
+      id: connect
+      run: |
+        gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
+          --zone ${{ env.GKE_ZONE }} \
+          --project ${{ env.GKE_PROJECT }}
+        echo "kubeconfig=$(cat ~/.kube/config | base64 -w0)" >> $GITHUB_OUTPUT
+
     - name: Deploy to Kubernetes
       if: steps.check_changes.outputs.service_changed == 'true'
       run: |
