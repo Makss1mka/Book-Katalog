@@ -80,7 +80,7 @@ jobs:
           - service: review-service
           - service: visit-service
           - service: auth-service
-      max-parallel: 5
+      max-parallel: 6
     
     # services:
     #   postgres:

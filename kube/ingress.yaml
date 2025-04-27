@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /api/v1/books(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: book-service
+            port: 
+              number: 8083
+
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: static-nginx
+            port:
+              number: 8081
+
+

@@ -17,11 +17,11 @@ spec:
         image: maks1mka/gateway:latest
         resources:
           requests:
-            cpu: 200m
-            memory: 500Mi
+            cpu: 700m
+            memory: 700Mi
           limits:
-            cpu: 200m
-            memory: 500Mi
+            cpu: 700m
+            memory: 700Mi
         readinessProbe: 
           initialDelaySeconds: 15 
           periodSeconds: 30 
@@ -42,3 +42,5 @@ spec:
           timeoutSeconds: 5 
           failureThreshold: 10 
           successThreshold: 1
+        ports:
+        - containerPort: 8083
