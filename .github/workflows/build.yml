@@ -11,9 +11,6 @@ env:
   GKE_ZONE: ${{ secrets.GKE_ZONE }}
   GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
   MAVEN_OPTS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
-  DB_URL: ${{ secrets.DB_URL }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  DB_USERNAME: ${{ secrets.DB_USERNAME }}
 
 jobs:
   setup:
@@ -81,17 +78,6 @@ jobs:
           - service: visit-service
           - service: auth-service
       max-parallel: 6
-    
-    # services:
-    #   postgres:
-    #     image: postgres:latest
-    #     env:
-    #       POSTGRES_DB: test
-    #       POSTGRES_USER: test
-    #       POSTGRES_PASSWORD: test
-    #     ports:
-    #       - 5432:5432
-    #     options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
     - name: Check if service changed
@@ -155,16 +141,13 @@ jobs:
         gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
           --zone ${{ env.GKE_ZONE }} \
           --project ${{ env.GKE_PROJECT }}
-
-        kubectl cluster-info
-        kubectl get nodes
         echo "kubeconfig=$(cat ~/.kube/config | base64 -w0)" >> $GITHUB_OUTPUT
 
     - name: Deploy to Kubernetes
       if: steps.check_changes.outputs.service_changed == 'true'
       run: |
-        kubectl apply -f ./${{ matrix.service }}/deployment.yaml
-        kubectl apply -f ./${{ matrix.service }}/service.yaml
+        kubectl replace --force -f ./${{ matrix.service }}/deployment.yaml
+        kubectl replace --force -f ./${{ matrix.service }}/service.yaml
 
   build-and-deploy-frontend:
     needs: setup
@@ -218,15 +201,12 @@ jobs:
         gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
           --zone ${{ env.GKE_ZONE }} \
           --project ${{ env.GKE_PROJECT }}
-
-        kubectl cluster-info
-        kubectl get nodes
         echo "kubeconfig=$(cat ~/.kube/config | base64 -w0)" >> $GITHUB_OUTPUT
 
     - name: Deploy frontend to Kubernetes
       if: steps.check_changes.outputs.service_changed == 'true'
       run: |
-        kubectl apply -f ./frontend/static-nginx-deployment.yaml
-        kubectl apply -f ./frontend/static-nginx-service.yaml
+        kubectl replace --force -f ./frontend/static-nginx-deployment.yaml
+        kubectl replace --force -f ./frontend/static-nginx-service.yaml
 
 

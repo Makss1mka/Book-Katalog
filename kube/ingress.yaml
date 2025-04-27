@@ -6,11 +6,11 @@ spec:
   rules:
   - http:
       paths:
-      - path: /api/v1/books(/|$)(.*)
+      - path: /api(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
-            name: book-service
+            name: gateway
             port: 
               number: 8083
 

@@ -7,6 +7,8 @@ spec:
   selector:
     matchLabels:
       app: book-service
+  strategy: 
+    type: Recreate
   template:
     metadata:
       labels:
@@ -17,10 +19,10 @@ spec:
         image: maks1mka/book-service:latest
         resources:
           requests:
-            cpu: 700m
+            cpu: 300m
             memory: 700Mi
           limits:
-            cpu: 700m
+            cpu: 300m
             memory: 700Mi
         readinessProbe: 
           initialDelaySeconds: 15 
