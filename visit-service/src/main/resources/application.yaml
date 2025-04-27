@@ -39,5 +39,16 @@ spring:
       add-mappings: false
 
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+
 server:
   port: 8085

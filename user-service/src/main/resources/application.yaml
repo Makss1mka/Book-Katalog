@@ -41,6 +41,18 @@ spring:
         replication-factor: 1
         num-partitions: 3
 
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+
 server:
   port: 8086
 

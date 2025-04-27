@@ -184,6 +184,17 @@
 		</dependency>
 
 
+		<!-- TRACING -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-brave</artifactId>
+		</dependency>
+
+
 		<!-- KAFKA -->
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>

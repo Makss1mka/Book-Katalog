@@ -136,6 +136,17 @@
 		</dependency>
 
 
+		<!-- TRACING -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-brave</artifactId>
+		</dependency>
+
+
 		<!-- LOGGING DEPS -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -257,7 +268,6 @@
 							</arguments>
 						</configuration>
 					</execution>
-
 
 					<execution>
 						<id>docker-push-latest</id>
