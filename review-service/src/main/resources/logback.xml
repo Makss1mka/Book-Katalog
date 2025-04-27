@@ -20,7 +20,7 @@
         </encoder>
     </appender>
 
-    <logger name="maksim" level="INFO" additivity="false">
+    <logger name="maksim" level="TRACE" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </logger>

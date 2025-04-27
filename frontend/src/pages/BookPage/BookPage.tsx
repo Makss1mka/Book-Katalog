@@ -6,8 +6,9 @@ import Review from '../../models/Review';
 import ReviewCard from '../../utils/ReviewCard/ReviewCard';
 import GlobalUser from '../../GlobalUser';
 import { addLikeToBook, deleteLikeFromBook } from '../../api/BooksApi';
-import { IconLikeEmpty, IconLikeFilled } from '../../utils/icons';
-import { createSecureContext } from 'tls';
+import { IconFavouriteEmpty, IconFavouriteFilled, IconLikeEmpty, IconLikeFilled } from '../../utils/icons';
+import BookStatus from '../../models/BookStatus';
+import { Dropdown, Menu } from 'antd';
 
 interface BookPageProps {
     book: Book;
@@ -20,6 +21,18 @@ export default function BookPage({ book }: BookPageProps) {
     const [pageReviewsNum, setPageReviewNum] = useState<number>(0);
     const [showErrOnAddReview, setShowErrOnAddReview] = useState<boolean>(false);
     const [addReviewErrText, setAddReviewErrText] = useState<string>("");
+    const [isStatusMenuOpen, setIsStatusMenuOpen] = useState<boolean>(false);
+    const [userStatus, setUserStatus] = useState<string>(() => {
+        let statuses: BookStatus[] | undefined = GlobalUser.getStatusesBooks();
+        
+        if (statuses == undefined) return "";
+
+        for (let status of statuses) {
+            if (status.book.id == book.id) return status.status;
+        } 
+
+        return "";
+    });
     const [isLiked, setIsLiked] = useState<boolean>(() => {
         let likedBooks: Book[] | undefined = GlobalUser.getLikedBooks();
 
@@ -218,12 +231,27 @@ export default function BookPage({ book }: BookPageProps) {
         return <div className="BookPage">Loading...</div>;
     }
 
+    // const statusMenu = [
+    //     { key: "1", label: "Читаю" },
+    //     { key: "2", label: "Прочитал" },
+    //     { key: "3", label: "Бросил читать" },
+    // ];
+
+    // <Dropdown menu={{ items: statusMenu }} placement='bottomLeft' arrow>
+    //                 {userStatus == ""
+    //                     ? <IconFavouriteEmpty className='BookPage_StatusIcon'/>
+    //                     : <IconFavouriteFilled className='BookPage_StatusIcon'/>
+    //                 }
+    // </Dropdown>
+
     return (
         <div className="BookPage">
-            <label className='BookPage_NameLabel'>{book.name}</label>
+            <div className="BookPage_UpperBlock">
+                <label className='BookPage_NameLabel'>{book.name}</label>
+            </div>
             {
                 (book.author)
-                    ? <a className='BookPage_Author'>{book.author.name}</a>
+                    ? <p className='BookPage_Author'>{book.author.name}</p>
                     : <></>
             }
             <p className='BookPage_Rating'>
@@ -233,16 +261,18 @@ export default function BookPage({ book }: BookPageProps) {
             </p>
             <p className='BookPage_RatingsCount'>{book.ratings_count}</p>
             <p className='BookPage_Genres'>{genres}</p>
-            <p className='BookPage_Likes'>{book.likes}</p>
-            <button
-                className="BookPage_LikeButton"
-                onClick={ handleLikeClick }
-            >
-                {isLiked
-                    ? <IconLikeFilled className="BookPage_LikeButtonIcon_Active" />
-                    : <IconLikeEmpty className="BookPage_LikeButtonIcon_Inactive" />
-                }
-            </button>
+            <div className='BookPage_LikeBlock'>
+                <p className='BookPage_Likes'>{book.likes}</p>
+                <button
+                    className="BookPage_LikeButton"
+                    onClick={ handleLikeClick }
+                >
+                    {isLiked
+                        ? <IconLikeFilled className="BookPage_LikeButtonIcon_Active" />
+                        : <IconLikeEmpty className="BookPage_LikeButtonIcon_Inactive" />
+                    }
+                </button>
+            </div>
             <div className='BookPage_ReviewCreateForm'>
                 <form onSubmit={handleAddReview}>
                     <div className='BookPage_ReviewCreateForm_RatingSelector'>
@@ -258,7 +288,7 @@ export default function BookPage({ book }: BookPageProps) {
                             </label>
                         ))}
                     </div>
-                    <input
+                    <textarea
                         className='BookPage_ReviewCreateForm_TextInput'
                         name="reviewText"
                         placeholder="Напишите ваш отзыв"

@@ -1,7 +1,9 @@
 import GlobalUser from "../GlobalUser";
 import Book from "../models/Book";
 
-export async function getAllBooks(keyWords: string | null = null, genres: string | null = null): Promise<Book[] | number> {
+export async function getAllBooks(keyWords: string | null = null, genres: string | null = null, 
+    pageNum: number = 0, pageSize: number = 20): Promise<Book[] | number> {
+
     const url = process.env.REACT_APP_BOOKS_URL;
 
     if (!url) throw new Error("Cannot access .env file properties");
@@ -20,7 +22,7 @@ export async function getAllBooks(keyWords: string | null = null, genres: string
 
     let response;
     try {
-        response = await fetch(url + "/search?" + queryLine + `_=${Date.now()}`);
+        response = await fetch(url + "/search?" + queryLine + `_=${Date.now()}&pageSize=${pageSize}&pageNum=${pageNum}`);
     
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

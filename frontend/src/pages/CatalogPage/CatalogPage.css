@@ -7,6 +7,28 @@
     width: 100%;
 }
 
+.CatalogPage_LoadButton_Outer {
+    display: flex;
+    justify-content: center;
+}
+
+.CatalogPage_LoadButton {
+    align-self: center;
+    background: none;
+    border: 1px solid #3498db;
+    color: #3498db;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+}
+
+.CatalogPage_LoadButton:hover {
+    background-color: #3498db;
+    color: white;
+}
+
 .CatalogPage_Title {
     font-size: 2rem;
     color: #2c3e50;

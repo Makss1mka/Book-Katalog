@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client';
-import { IconSearch, IconFavourite, IconPhone, IconUser, IconBook } from "../../utils/icons"
+import { IconSearch, IconFavouriteEmpty, IconPhone, IconUser, IconBook } from "../../utils/icons"
 import './Header.css';
 import CatalogPage from '../../pages/CatalogPage/CatalogPage';
 import FavouritePage from '../../pages/FavouritePage/FavouritePage';
@@ -28,7 +28,7 @@ export default function Header() {
     return (
         <header className="Header">
             <div>
-                <div className="LOGO">
+                <div className="LOGO" onClick={ handleCatalogClicked }>
                     <IconBook className='LOGO_Icon' />
                     <div className='LOGO_Texts'>
                         <div className='LOGO_Texts_Main'>Raise | Book shop</div>
@@ -48,7 +48,7 @@ export default function Header() {
                     className="Header_Button"
                     text="Закладки"
                     textClassName="Header_ButtonText"
-                    Icon={ IconFavourite }
+                    Icon={ IconFavouriteEmpty }
                     iconClassName="Header_ButtonIcon"
                     lineClassName="Header_ButtinLine"
                     onClick={ handleFavouriteClicked }

@@ -13,6 +13,7 @@ interface CatalogPageProps {
 export default function CatalogPage({ keyWords = null, genres = null }: CatalogPageProps) {
     const [books, setBooks] = useState<Book[] | undefined>(undefined);
     const [error, setError] = useState<string | null>(null);
+    const [pageNum, setPageNum] = useState<number>(0);
 
     useEffect(() => {
         async function fetchBooks() {
@@ -53,6 +54,41 @@ export default function CatalogPage({ keyWords = null, genres = null }: CatalogP
         fetchBooks();
     }, []); 
 
+    const handleBooksLoad = async () => {
+        try {
+            const newBooks = await getAllBooks(keyWords, genres, pageNum + 1, 20);
+
+            if (typeof newBooks == "number") {
+                switch (newBooks) {
+                    case 400: {
+                        setError("Неверное значение номера или размера страницы отзывов.");
+                        break;
+                    }
+                    case 403: {
+                        setError("У вас нет прав.");
+                        break;
+                    }
+                    case 404: {
+                        setError("Не найдено.");
+                        break;
+                    }
+                    default: {
+                        setError("Упс, какая-то ошибка.");
+                    }
+                }
+    
+                return;
+            } 
+            
+            if (newBooks.length) {
+                setBooks(prev => [...(prev || []), ...newBooks]);
+                setPageNum(prev => prev + 1);
+            }
+        } catch (err) {
+            setError("Ошибка загрузки отзывов");
+        }
+    };
+
     if (error) {
         return <div className="CatalogPage">Error: {error}</div>;
     }
@@ -68,6 +104,9 @@ export default function CatalogPage({ keyWords = null, genres = null }: CatalogP
                 {books.map((book, index) => (
                     <BookCard key={index} book={book} />
                 ))}
+            </div>
+            <div className="CatalogPage_LoadButton_Outer">
+                <button className="CatalogPage_LoadButton" onClick={ handleBooksLoad }>Еще...</button>
             </div>
         </div>
     );
