@@ -3,19 +3,20 @@ kind: Ingress
 metadata:
   name: main-ingress
 spec:
+  ingressClassName: nginx
   rules:
   - http:
       paths:
-      - path: /api(/|$)(.*)
-        pathType: ImplementationSpecific
+      - path: /api
+        pathType: Prefix
         backend:
           service:
             name: gateway
             port: 
               number: 8083
 
-      - path: /*
-        pathType: ImplementationSpecific
+      - path: /
+        pathType: Prefix
         backend:
           service:
             name: static-nginx
