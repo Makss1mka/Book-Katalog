@@ -10,8 +10,6 @@ FROM openjdk:23-slim
 
 VOLUME /tmp
 
-COPY ./logs /app/logs
-
 ARG DEPENDENCY=/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
