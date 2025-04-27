@@ -22,6 +22,26 @@ spec:
           limits:
             cpu: 300m
             memory: 700Mi
+        readinessProbe: 
+          initialDelaySeconds: 15 
+          periodSeconds: 30 
+          httpGet: 
+            path: /actuator/health/readiness
+            port: 8083
+            scheme: HTTP 
+          timeoutSeconds: 2 
+          failureThreshold: 1 
+          successThreshold: 1
+        livenessProbe: 
+          initialDelaySeconds: 30 
+          periodSeconds: 30 
+          httpGet: 
+            path: /actuator/health/liveness
+            port: 8083
+            scheme: HTTP 
+          timeoutSeconds: 5 
+          failureThreshold: 10 
+          successThreshold: 1
         ports:
         - containerPort: 8085
         env:

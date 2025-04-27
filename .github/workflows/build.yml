@@ -29,7 +29,7 @@ jobs:
     - name: Get changed directories
       id: changed_files
       run: |
-        changed_dirs=$(git diff --name-only HEAD^ HEAD | awk -F'/' '{print $1}' | sort | uniq | grep -E '^(book-service|user-service|review-service|visit-service|auth-service|frontend)' || echo "")
+        changed_dirs=$(git diff --name-only HEAD^ HEAD | awk -F'/' '{print $1}' | sort | uniq | grep -E '^(gateway|book-service|user-service|review-service|visit-service|auth-service|frontend)' || echo "")
         echo "changed_dirs<<EOF" >> $GITHUB_OUTPUT
         echo "$changed_dirs" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
@@ -72,8 +72,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: ['book-service', 'user-service', 'review-service', 'visit-service', 'auth-service']
+        service: ['gateway', 'book-service', 'user-service', 'review-service', 'visit-service', 'auth-service']
         include:
+          - service: gateway
           - service: book-service
           - service: user-service
           - service: review-service
@@ -81,16 +82,16 @@ jobs:
           - service: auth-service
       max-parallel: 5
     
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: test
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    # services:
+    #   postgres:
+    #     image: postgres:latest
+    #     env:
+    #       POSTGRES_DB: test
+    #       POSTGRES_USER: test
+    #       POSTGRES_PASSWORD: test
+    #     ports:
+    #       - 5432:5432
+    #     options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
     - name: Check if service changed
@@ -140,10 +141,6 @@ jobs:
       run: |
         echo "$GOOGLE_APPLICATION_CREDENTIALS" > gcloud-key.json
         gcloud auth activate-service-account --key-file=gcloud-key.json
-        echo %DB_URL%
-        echo %DB_USERNAME%
-        echo %DB_PASSWORD%
-
 
     - name: Install gke-gcloud-auth-plugin
       if: steps.check_changes.outputs.service_changed == 'true'
