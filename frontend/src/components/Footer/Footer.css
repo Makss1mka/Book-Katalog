@@ -95,37 +95,37 @@
 /* Анимация для разных соцсетей */
 .Footer_SocialBlock:nth-child(1):hover .Footer_SocialBlock_icon {
   filter: brightness(1) invert(1);
-  background: radial-gradient(circle at 30% 107%, #020b68 0%, #020b68 5%, #02a6b6 45%, #29db60 60%, #d7a514 90%);
+  /* background: radial-gradient(circle at 30% 107%, #020b68 0%, #020b68 5%, #02a6b6 45%, #29db60 60%, #d7a514 90%); */
   border-radius: 7px;
 }
 
 .Footer_SocialBlock:nth-child(2):hover .Footer_SocialBlock_icon {
   filter: brightness(1) invert(1);
-  background: #e7880d;
+  /* background: #e7880d; */
   border-radius: 7px;
 }
 
 .Footer_SocialBlock:nth-child(3):hover .Footer_SocialBlock_icon {
   filter: brightness(1) invert(1);
-  background: #ff7733;
+  /* background: #ff7733; */
   border-radius: 7px;
 }
 
 .Footer_SocialBlock:nth-child(4):hover .Footer_SocialBlock_icon {
   filter: brightness(1) invert(1);
-  background: #e25e0d;
+  /* background: #e25e0d; */
   border-radius: 7px;
 }
 
 .Footer_SocialBlock:nth-child(5):hover .Footer_SocialBlock_icon {
   filter: brightness(1) invert(1);
-  background: #00ffff;
+  /* background: #00ffff; */
   border-radius: 7px;
 }
 
 .Footer_SocialBlock:nth-child(6):hover .Footer_SocialBlock_icon {
   filter: brightness(1) invert(1);
-  background: #ff8800;
+  /* background: #ff8800; */
   border-radius: 7px;
 }
 
