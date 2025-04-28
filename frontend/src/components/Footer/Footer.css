@@ -106,25 +106,25 @@
 }
 
 .Footer_SocialBlock:nth-child(3):hover .Footer_SocialBlock_icon {
-  filter: brightness(1) invert(0);
+  filter: brightness(1) invert(1);
   background: #ff7733;
   border-radius: 7px;
 }
 
 .Footer_SocialBlock:nth-child(4):hover .Footer_SocialBlock_icon {
-  filter: brightness(1) invert(0);
+  filter: brightness(1) invert(1);
   background: #e25e0d;
   border-radius: 7px;
 }
 
 .Footer_SocialBlock:nth-child(5):hover .Footer_SocialBlock_icon {
-  filter: brightness(1) invert(0);
+  filter: brightness(1) invert(1);
   background: #00ffff;
   border-radius: 7px;
 }
 
 .Footer_SocialBlock:nth-child(6):hover .Footer_SocialBlock_icon {
-  filter: brightness(1) invert(0);
+  filter: brightness(1) invert(1);
   background: #ff8800;
   border-radius: 7px;
 }
