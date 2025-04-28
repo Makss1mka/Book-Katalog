@@ -58,7 +58,6 @@
 
 .Header_Button:hover .Header_ButtonText {
   color: #000;
-  font-weight: 600;
 }
 
 .Header_ButtinLine {
@@ -71,7 +70,7 @@
 }
 
 .Header_Button:hover .Header_ButtinLine {
-  width: 100%;
+  width: 60%;
 }
 
 /* Анимация для активной кнопки */

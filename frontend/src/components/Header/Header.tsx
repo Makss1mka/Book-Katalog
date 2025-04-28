@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client';
-import { IconSearch, IconFavouriteEmpty, IconPhone, IconUser, IconBook } from "../../utils/icons"
+import { IconSearch, IconFavouriteEmpty, IconPhone, IconUser, IconBook, IconPlus } from "../../utils/icons"
 import './Header.css';
 import CatalogPage from '../../pages/CatalogPage/CatalogPage';
 import FavouritePage from '../../pages/FavouritePage/FavouritePage';
@@ -59,6 +59,18 @@ export default function Header() {
 }
 
 /*
+            <div>
+                <HeaderButton
+                    className="Header_Button"
+                    text="Добавить книгу"
+                    textClassName="Header_ButtonText"
+                    Icon={ IconPlus }
+                    iconClassName="Header_ButtonIcon"
+                    lineClassName="Header_ButtinLine"
+                    onClick={() => console.log("Button pressed")}
+                />
+            </div>
+            
             <div>
                 <HeaderButton
                     className="Header_Button"
