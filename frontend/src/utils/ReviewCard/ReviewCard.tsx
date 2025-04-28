@@ -1,22 +1,23 @@
 import { useState } from "react";
 import GlobalUser from "../../GlobalUser";
 import Review from "../../models/Review";
-import { IconLikeEmpty, IconLikeFilled } from "../icons";
+import { IconLikeEmpty, IconLikeFilled, IconTrashBin } from "../icons";
 import "./ReviewCard.css";
-import { addLikeToReview, deleteLikeFromReview } from "../../api/ReviewApi";
+import { addLikeToReview, deleteLikeFromReview, deleteReview } from "../../api/ReviewApi";
 import User from "../../models/User";
 
 interface ReviewCardProps {
-    review: Review,
+    review: Review, 
     key: number
 }
 
 export default function ReviewCard({ review, key }: ReviewCardProps) {
+    const [isDeleted, setIsDeleted] = useState<boolean>(false);
     const rating = (review.rating !== undefined)
         ? Math.min(Math.max(Math.round(review.rating), 0), 5)
         : -1;
-    const authorName = (review.user && review.user.name)
-        ? review.user.name
+    const authorName = (review.author && review.author.name)
+        ? review.author.name
         : undefined;
     const [isLiked, setIsLiked] = useState<boolean>(() => {
         if (!review.likedUsers) return false;
@@ -71,33 +72,73 @@ export default function ReviewCard({ review, key }: ReviewCardProps) {
         }
     };
 
-    return (
-        <div className="ReviewCard" key={ key }>
-            <a className="ReviewCard_Author">{ authorName }</a>
-            <div className="ReviewCard_Text">{ review.text }</div>
-            <div className="ReviewCard_Rating">
-                {
-                    (rating == -1)
-                        ? undefined
-                        : <>
-                            {'★'.repeat(Math.round(rating))}
-                            {'☆'.repeat(5 - Math.round(rating))}
-                            {` ${ review.rating }/5.0`}
-                        </>
-                }
+    const handleDeleteClick = async () => {
+        let author = GlobalUser.getUser()
+
+        if (author == undefined || isDeleted) {
+            console.log("Cannot handle delete pressing cause smth is null", author, isDeleted);
+            return;
+        }
+
+        let response: number = await deleteReview(review);
+        if (response != 200) {
+            console.log(`Some error. ${response}.`);
+            return;
+        } else {
+            setIsDeleted(true);
+        }
+    }
+
+    const isUserAuthor = () => {
+        let globalUserId: number | undefined = GlobalUser.getUserId();
+        
+        if (globalUserId == undefined || review.author == undefined || globalUserId != review.author.id) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    if (isDeleted) {
+        return <></> 
+    } else {
+        return ( 
+            <div className="ReviewCard" key={ key }>
+                <div className="ReviewCard_UpperBlock">
+                    <div className="ReviewCard_Author">{ authorName }</div>
+                    {(isUserAuthor()) &&
+                        <div className="ReviewCard_TrahsButton" onClick={ handleDeleteClick }>
+                            <IconTrashBin className="ReviewCard_TrahsButton_Icon"/>
+                        </div>
+                    }
+                </div>
+                <div className="ReviewCard_Text">{ review.text }</div>
+                <div className="ReviewCard_Rating">
+                    {
+                        (rating == -1)
+                            ? undefined
+                            : <>
+                                {'★'.repeat(Math.round(rating))}
+                                {'☆'.repeat(5 - Math.round(rating))}
+                                {` ${ review.rating }/5.0`}
+                            </>
+                    }
+                </div>
+                <div className="ReviewCard_LikesBlock">
+                    <div className="ReviewCard_Likes">{ review.likes }</div>
+                    <button 
+                        className="ReviewCard_LikeButton" 
+                        onClick={handleLikeClick}
+                    >
+                        {isLiked 
+                            ? <IconLikeFilled className="ReviewCard_LikeButtonIcon_Active" /> 
+                            : <IconLikeEmpty className="ReviewCard_LikeButtonIcon_Inactive" />
+                        }
+                    </button>
+                </div>
             </div>
-            <div className="ReviewCard_Likes">{ review.likes }</div>
-            <button 
-                className="ReviewCard_LikeButton" 
-                onClick={handleLikeClick}
-            >
-                {isLiked 
-                    ? <IconLikeFilled className="ReviewCard_LikeButtonIcon_Active" /> 
-                    : <IconLikeEmpty className="ReviewCard_LikeButtonIcon_Inactive" />
-                }
-            </button>
-        </div>
-    )
+        )
+    }
 }
 
 

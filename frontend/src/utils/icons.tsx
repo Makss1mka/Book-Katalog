@@ -199,15 +199,29 @@ export function IconYoutube({ className }: IconProps) {
 
 export function IconFavouriteEmpty({ className }: IconProps) {
     return (
-        <svg 
+        <svg
             className={ className }
-            xmlns="http://www.w3.org/2000/svg" 
-            id="Outline" 
-            viewBox="0 0 24 24" 
-            width="512" 
-            height="512"
+            version="1.0"
+            xmlns="http://www.w3.org/2000/svg"
+            width="128.000000pt"
+            height="128.000000pt"
+            viewBox="0 0 128.000000 128.000000"
+            preserveAspectRatio="xMidYMid meet"
         >
-            <path d="M20.137,24a2.8,2.8,0,0,1-1.987-.835L12,17.051,5.85,23.169a2.8,2.8,0,0,1-3.095.609A2.8,2.8,0,0,1,1,21.154V5A5,5,0,0,1,6,0H18a5,5,0,0,1,5,5V21.154a2.8,2.8,0,0,1-1.751,2.624A2.867,2.867,0,0,1,20.137,24ZM6,2A3,3,0,0,0,3,5V21.154a.843.843,0,0,0,1.437.6h0L11.3,14.933a1,1,0,0,1,1.41,0l6.855,6.819a.843.843,0,0,0,1.437-.6V5a3,3,0,0,0-3-3Z"/>
+            <g
+                transform="translate(0.000000,128.000000) scale(0.100000,-0.100000)"
+                fill="#000000"
+                stroke="none"
+            >
+                <path
+                    d="M311 1044 c-20 -26 -21 -37 -21 -411 0 -246 4 -391 10 -404 18 -32
+                    56 -22 201 54 l139 72 139 -72 c145 -76 183 -86 201 -54 6 13 10 158 10 404 0
+                    374 -1 385 -21 411 l-20 26 -309 0 -309 0 -20 -26z m637 -403 c1 -212 -1 -388
+                    -5 -392 -5 -3 -66 25 -138 64 -90 49 -141 71 -165 71 -25 0 -74 -21 -165 -71
+                    -72 -39 -133 -69 -137 -66 -10 5 -11 767 -1 776 4 4 142 6 307 5 l301 -3 3
+                    -384z"
+                />
+            </g>
         </svg>
     )
 }
@@ -215,6 +229,7 @@ export function IconFavouriteEmpty({ className }: IconProps) {
 export function IconFavouriteFilled({ className }: IconProps) {
     return (
         <svg
+            className={ className }
             version="1.0"
             xmlns="http://www.w3.org/2000/svg"
             width="128.000000pt"
@@ -259,8 +274,8 @@ export function IconLikeEmpty({ className }: IconProps) {
             className={className}
             version="1.0" 
             xmlns="http://www.w3.org/2000/svg"
-            width="30.000000pt" 
-            height="30.000000pt" 
+            width="128.000000pt" 
+            height="128.000000pt" 
             viewBox="0 0 128.000000 128.000000"
             preserveAspectRatio="xMidYMid meet"
         >
@@ -310,8 +325,8 @@ export function IconLikeFilled({ className }: IconProps) {
             className={className}
             version="1.0" 
             xmlns="http://www.w3.org/2000/svg"
-            width="30.000000pt" 
-            height="30.000000pt" 
+            width="128.000000pt" 
+            height="128.000000pt" 
             viewBox="0 0 128.000000 128.000000"
             preserveAspectRatio="xMidYMid meet"
         >
@@ -375,6 +390,51 @@ export function IconBook({ className }: IconProps) {
                 64 3 101 32 272 16 357 -34 9 -5 -86 -9 -232 -9 l-248 0 0 340 0 340 25 0 25
                 0 0 -312z m1130 -28 l0 -340 -247 0 -248 1 60 26 c82 36 220 44 307 17 51 -15
                 61 -16 69 -3 5 8 9 155 9 327 l0 312 25 0 25 0 0 -340z"/>
+            </g>
+        </svg>
+    )
+}
+
+export function IconTrashBin({ className }: IconProps) {
+    return (
+        <svg
+            className={ className }
+            version="1.0"
+            xmlns="http://www.w3.org/2000/svg"
+            width="128.000000pt"
+            height="128.000000pt"
+            viewBox="0 0 128.000000 128.000000"
+            preserveAspectRatio="xMidYMid meet"
+        >
+            <g
+                transform="translate(0.000000,128.000000) scale(0.100000,-0.100000)"
+                fill="#000000"
+                stroke="none"
+            >
+                <path 
+                    d="M443 1265 c-36 -15 -63 -60 -63 -105 l0 -30 -100 0 c-148 0 -200 -31
+                    -200 -116 0 -30 7 -44 38 -73 l38 -36 33 -405 c22 -273 38 -415 48 -437 28
+                    -60 45 -63 403 -63 358 0 375 3 403 63 10 22 26 164 48 437 l33 405 38 36 c31
+                    29 38 43 38 73 0 20 -7 48 -16 62 -29 43 -64 54 -179 54 l-105 0 0 35 c0 43
+                    -23 81 -61 101 -39 20 -350 20 -396 -1z m375 -77 c7 -7 12 -22 12 -35 l0 -23
+                    -190 0 -190 0 0 23 c0 13 5 28 12 35 17 17 339 17 356 0z m301 -152 c9 -11 10
+                    -20 1 -35 -11 -21 -16 -21 -480 -21 -464 0 -469 0 -480 21 -27 49 -24 49 480
+                    49 394 0 469 -2 479 -14z m-74 -193 c-3 -32 -19 -212 -34 -400 -16 -187 -32
+                    -346 -35 -352 -10 -15 -662 -15 -672 0 -3 6 -19 165 -35 352 -15 188 -31 368
+                    -34 400 l-6 57 411 0 411 0 -6 -57z"
+                />
+                <path 
+                    d="M390 815 c-10 -13 -10 -71 4 -303 9 -158 19 -301 22 -319 6 -37 38
+                    -53 61 -31 12 13 12 54 -6 327 -12 199 -24 318 -32 327 -15 18 -33 18 -49 -1z"
+                />
+                <path 
+                    d="M610 811 c-14 -27 -14 -615 0 -642 14 -25 46 -25 60 0 14 27 14 615
+                    0 642 -6 10 -19 19 -30 19 -11 0 -24 -9 -30 -19z"
+                />
+                <path
+                    d="M841 816 c-8 -9 -20 -128 -32 -327 -18 -273 -18 -314 -6 -327 23 -22
+                    55 -6 61 31 3 18 13 161 22 319 14 232 14 290 4 303 -16 19 -34 19 -49 1z"
+                />
             </g>
         </svg>
     )

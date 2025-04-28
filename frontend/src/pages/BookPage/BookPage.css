@@ -1,6 +1,7 @@
 /* BookPage.css */
 .BookPage {
     max-width: 1200px;
+    width: 1000px;
     margin: 0 auto;
     padding: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -89,6 +90,7 @@
 .BookPage_ReviewCreateForm_TextInput {
     width: 100%;
     min-height: 100px;
+    max-width: 700px;
     padding: 10px;
     margin-right: 20px;
     border: 1px solid #ddd;

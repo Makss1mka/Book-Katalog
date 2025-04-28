@@ -7,6 +7,6 @@ export default interface Review {
     rating?: number;
     book_id?: number;
     user_id?: number;
-    user?: User;
+    author?: User;
     likedUsers?: User[];
 }

@@ -8,7 +8,8 @@ import GlobalUser from '../../GlobalUser';
 import { addLikeToBook, deleteLikeFromBook } from '../../api/BooksApi';
 import { IconFavouriteEmpty, IconFavouriteFilled, IconLikeEmpty, IconLikeFilled } from '../../utils/icons';
 import BookStatus from '../../models/BookStatus';
-import { Dropdown, Menu } from 'antd';
+import { Button, Dropdown, Menu } from 'antd';
+import User from '../../models/User';
 
 interface BookPageProps {
     book: Book;
@@ -187,6 +188,16 @@ export default function BookPage({ book }: BookPageProps) {
         }
     };
 
+    // const handleReadingStatusClicked = async () => {
+    //     let user: User | undefined = GlobalUser.getUser();
+    
+    //     if (user == undefined || userStatus == "reading") return;
+    
+    //     let response: number = await 
+    
+    
+    // }
+
     useEffect(() => {
         (async () => {
             try {
@@ -232,17 +243,19 @@ export default function BookPage({ book }: BookPageProps) {
     }
 
     // const statusMenu = [
-    //     { key: "1", label: "Читаю" },
-    //     { key: "2", label: "Прочитал" },
-    //     { key: "3", label: "Бросил читать" },
+    //     { key: "1", label: "Читаю", onclick={ handleReadingStatusClicked } },
+    //     { key: "2", label: "Прочитал", onclick={ handleReadStatusClicked } },
+    //     { key: "3", label: "Бросил читать", onclick={ handleDropStatusClicked } },
     // ];
 
-    // <Dropdown menu={{ items: statusMenu }} placement='bottomLeft' arrow>
-    //                 {userStatus == ""
-    //                     ? <IconFavouriteEmpty className='BookPage_StatusIcon'/>
-    //                     : <IconFavouriteFilled className='BookPage_StatusIcon'/>
-    //                 }
-    // </Dropdown>
+    // <Dropdown menu={{ items: statusMenu }} trigger={['click']}>
+    //                 <Button>
+    //                     {userStatus == "" 
+    //                         ? <IconFavouriteEmpty className='BookPage_UpperBlock_StatusIcon'/>
+    //                         : <IconFavouriteFilled className='BookPage_UpperBlock_StatusIcon'/>
+    //                     }
+    //                 </Button>
+    //             </Dropdown>
 
     return (
         <div className="BookPage">
@@ -318,3 +331,4 @@ export default function BookPage({ book }: BookPageProps) {
         </div>
     );
 }
+
